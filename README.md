@@ -19,38 +19,61 @@ curl -sSL https://raw.githubusercontent.com/villagaiaimpacthub/sparc-claude/main
 ## Use
 
 ```bash
-# In any project directory
+# Initialize project
 cd my-project
 sparc-init
 
-# Start building with Claude Code
+# Start autonomous development  
+sparc "Build a REST API with user authentication"
+
+# Monitor progress
+sparc status
+
+# Start agents manually
+sparc start
+
+# Continue with Claude Code
 claude
-/sparc "Build a REST API with user authentication"
+# File changes automatically trigger agent workflows via hooks
 ```
 
 **The 36 agents handle everything:** requirements → architecture → code → tests → docs
 
 ## How It Works
 
-SPARC uses **Claude Code hooks** for seamless autonomous development:
+SPARC uses **UV single file scripts** + **Claude Code hooks** for autonomous development:
 
-1. **Start:** `/sparc "your goal"` activates the 36-agent system
-2. **Orchestration:** Agents communicate via database task queue  
-3. **Execution:** Agents create/edit files through Claude Code automatically
-4. **Memory:** File changes trigger hooks that update agent memory
-5. **Isolation:** Each project has a unique namespace for complete separation
+1. **Start:** `sparc "your goal"` activates the 36-agent system via UV orchestrator
+2. **Agent Execution:** Each agent runs as independent UV script with embedded dependencies
+3. **Orchestration:** Agents communicate via Supabase task queue  
+4. **Claude Code Integration:** Agents generate prompts, Claude Code executes file operations
+5. **Hook-Driven Memory:** File changes trigger UV hooks that update agent memory
+6. **Workflow Continuation:** Hooks trigger next agents in autonomous workflow
+7. **Isolation:** Each project has unique namespace for complete separation
 
 ### Autonomous Workflow
 
 ```
-User: /sparc "Build a todo app"
+User: sparc "Build a todo app"
   ↓
-Agents: Analyze requirements → Design architecture → Generate code
+UV Orchestrator: Creates tasks → Delegates to agents
   ↓
-Hooks: Capture file changes → Update agent memory → Continue workflow
+UV Agents: Analyze requirements → Generate detailed prompts
+  ↓
+Claude Code: Processes prompts → Creates/edits files
+  ↓
+UV Hooks: Capture changes → Update memory → Trigger next agents
   ↓
 Result: Complete application with tests, docs, and deployment config
 ```
+
+### Key Benefits of UV Architecture
+
+- **Self-contained agents:** Each agent is a complete sandbox with dependencies
+- **Fast execution:** UV provides instant script startup and dependency resolution  
+- **Easy iteration:** Modify agents without complex setup or virtual environments
+- **Portable deployment:** Agents run anywhere UV is installed
+- **Hook-driven automation:** File changes automatically continue workflows
 
 ## What It Does
 
