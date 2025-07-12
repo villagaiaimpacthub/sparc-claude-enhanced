@@ -37,7 +37,9 @@ fi
 
 # Install inquirer if not present
 echo "📦 Installing required packages..."
-python3 -m pip install --user inquirer --break-system-packages 2>/dev/null || python3 -m pip install --user inquirer || echo "⚠️  Could not install inquirer - will use fallback interface"
+(python3 -m pip install --user inquirer --break-system-packages 2>/dev/null) || \
+(python3 -m pip install --user inquirer 2>/dev/null) || \
+echo "⚠️  Could not install inquirer - using fallback text interface"
 
 echo "✅ System requirements met"
 echo
