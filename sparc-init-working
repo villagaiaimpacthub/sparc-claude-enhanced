@@ -1,0 +1,413 @@
+#!/bin/bash
+export SPARC_HOME="/usr/local/sparc"
+export ORIGINAL_DIR="$(pwd)"
+cd "$SPARC_HOME"
+python3 -c "
+import asyncio
+import sys
+import os
+import json
+import subprocess
+from pathlib import Path
+sys.path.append('.')
+# Removed old initializer - using direct project setup instead
+
+try:
+    import inquirer
+    HAS_INQUIRER = True
+except ImportError:
+    HAS_INQUIRER = False
+
+# Recent projects file
+RECENT_PROJECTS_FILE = Path.home() / '.sparc' / 'recent_projects.json'
+
+def load_recent_projects():
+    if RECENT_PROJECTS_FILE.exists():
+        try:
+            with open(RECENT_PROJECTS_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            return []
+    return []
+
+def save_recent_project(project_path):
+    RECENT_PROJECTS_FILE.parent.mkdir(exist_ok=True)
+    recent = load_recent_projects()
+    
+    # Add to front, remove duplicates
+    if project_path in recent:
+        recent.remove(project_path)
+    recent.insert(0, project_path)
+    
+    # Keep only last 5
+    recent = recent[:5]
+    
+    with open(RECENT_PROJECTS_FILE, 'w') as f:
+        json.dump(recent, f)
+
+def create_env_file(project_path, namespace):
+    '''Create .env file with placeholder configuration'''
+    env_content = '''# SPARC Project Environment Variables
+# Database Configuration
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-anon-key-here
+SUPABASE_SERVICE_KEY=your-service-key-here
+
+# Vector Database
+QDRANT_URL=http://localhost:6336
+QDRANT_API_KEY=
+
+# AI APIs (Optional)
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+MISTRAL_API_KEY=
+
+# Project Configuration
+PROJECT_NAMESPACE={}
+'''.format(namespace)
+    
+    env_path = Path(project_path) / '.env'
+    env_path.write_text(env_content)
+    print('✅ Created .env file with configuration template')
+
+def check_docker():
+    '''Check if Docker is installed and running'''
+    try:
+        result = subprocess.run(['docker', '--version'], 
+                              capture_output=True, 
+                              text=True, 
+                              timeout=5)
+        if result.returncode == 0:
+            # Check if Docker daemon is running
+            result = subprocess.run(['docker', 'ps'], 
+                                  capture_output=True, 
+                                  text=True, 
+                                  timeout=5)
+            return result.returncode == 0
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    return False
+
+def setup_qdrant():
+    '''Set up Qdrant database locally via Docker'''
+    try:
+        print('🐳 Setting up local Qdrant database...')
+        
+        # Check if container already exists
+        result = subprocess.run(['docker', 'ps', '-a', '--filter', 'name=sparc-qdrant'], 
+                              capture_output=True, text=True)
+        
+        if 'sparc-qdrant' in result.stdout:
+            print('📦 Qdrant container already exists, starting it...')
+            subprocess.run(['docker', 'start', 'sparc-qdrant'], check=True)
+        else:
+            print('📦 Creating new Qdrant container...')
+            subprocess.run([
+                'docker', 'run', '-d', 
+                '--name', 'sparc-qdrant',
+                '-p', '6336:6333',
+                'qdrant/qdrant'
+            ], check=True)
+        
+        print('✅ Qdrant running at http://localhost:6336')
+        return True
+    except subprocess.CalledProcessError as e:
+        print('❌ Failed to start Qdrant: {}'.format(e))
+        return False
+
+def check_database_connectivity(project_path):
+    '''Check if databases are connected and healthy'''
+    env_file = Path(project_path) / '.env'
+    if not env_file.exists():
+        return {'supabase': False, 'qdrant': False, 'error': 'No .env file'}
+    
+    # Load environment variables
+    env_vars = {}
+    try:
+        content = env_file.read_text()
+        for line in content.split('\\n'):
+            if '=' in line and not line.strip().startswith('#'):
+                key, value = line.split('=', 1)
+                env_vars[key.strip()] = value.strip()
+    except:
+        return {'supabase': False, 'qdrant': False, 'error': 'Cannot read .env file'}
+    
+    # Check Qdrant
+    qdrant_healthy = False
+    try:
+        qdrant_url = env_vars.get('QDRANT_URL', 'http://localhost:6336')
+        result = subprocess.run(['curl', '-s', qdrant_url + '/'], 
+                              capture_output=True, text=True, timeout=5)
+        qdrant_healthy = result.returncode == 0 and ('ok' in result.stdout.lower() or 'qdrant' in result.stdout.lower())
+    except:
+        pass
+    
+    # Check Supabase (basic URL validation for now)
+    supabase_healthy = False
+    supabase_url = env_vars.get('SUPABASE_URL', '')
+    supabase_key = env_vars.get('SUPABASE_KEY', '')
+    
+    if supabase_url and supabase_key:
+        if 'supabase.co' in supabase_url and len(supabase_key) > 20:
+            if not ('your-project' in supabase_url or 'your-anon-key' in supabase_key):
+                supabase_healthy = True
+    
+    return {
+        'supabase': supabase_healthy,
+        'qdrant': qdrant_healthy,
+        'supabase_url': supabase_url,
+        'qdrant_url': env_vars.get('QDRANT_URL', 'http://localhost:6336')
+    }
+
+def create_claude_md(project_path, namespace):
+    '''Create CLAUDE.md with project configuration'''
+    claude_content = '''# SPARC Project Configuration
+
+project_id: {}
+
+## Overview
+
+This is a SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) autonomous software development project with 36 specialized AI agents.
+
+## Project Details
+
+- **Namespace**: {}
+- **Project Path**: {}
+- **Goal**: New SPARC project - goal to be defined with Claude
+
+## Key Components
+
+- **36 AI Agents**: Complete autonomous development workflow
+- **External Memory**: Supabase + Qdrant for unlimited context
+- **BMO Framework**: Behavior-Model-Oracle validation with cognitive triangulation
+- **Phase-based Workflow**: Systematic progression from goal to deployment
+- **Claude Integration**: Hooks and MCP for seamless workflow
+
+## Quick Start
+
+1. **Define Goal**: Use /sparc slash command to start autonomous development
+2. **Agent Activation**: The 36-agent system will handle the complete workflow
+3. **Memory Isolation**: This project uses namespace {} for complete isolation
+
+## Architecture
+
+- src/: Source code
+- tests/: Test files
+- docs/: Documentation
+- .env: Environment configuration
+- CLAUDE.md: This configuration file
+
+## Memory & Context
+
+This project uses isolated memory with namespace {}. All agent memories, context, and project state are completely separated from other SPARC projects.
+
+For autonomous development, use the /sparc slash command in Claude Code.
+'''.format(namespace, namespace, project_path, namespace, namespace)
+    
+    claude_path = Path(project_path) / 'CLAUDE.md'
+    claude_path.write_text(claude_content)
+    print('✅ Created CLAUDE.md with project configuration')
+
+def create_project_structure(project_path):
+    '''Create basic project directory structure'''
+    project_dir = Path(project_path)
+    
+    # Create standard directories
+    directories = ['src', 'tests', 'docs', '.claude/commands']
+    
+    for dir_name in directories:
+        dir_path = project_dir / dir_name
+        dir_path.mkdir(parents=True, exist_ok=True)
+    
+    # Create Claude Code slash commands
+    commands_dir = project_dir / '.claude' / 'commands'
+    
+    # Copy SPARC slash commands from global installation
+    import shutil
+    global_commands = Path('/usr/local/sparc/claude-commands')
+    
+    if global_commands.exists():
+        for cmd_file in global_commands.glob('*.md'):
+            shutil.copy2(cmd_file, commands_dir / cmd_file.name)
+    
+    print('✅ Created project structure with Claude Code integration')
+
+def show_folder_selection():
+    current_dir = Path(os.environ.get('ORIGINAL_DIR', os.getcwd()))
+    
+    print('┌─────────────────────────────────────────────────────────────────┐')
+    print('│ 🚀 Welcome to SPARC Autonomous Development!                    │')
+    print('│                                                                 │')
+    print('│ Setting up project with 36 AI agents...                        │')
+    print('└─────────────────────────────────────────────────────────────────┘')
+    print()
+    
+    while True:
+        if HAS_INQUIRER:
+            choices = []
+            
+            # Add recent projects
+            recent = load_recent_projects()
+            if recent:
+                for proj in recent[:3]:
+                    if os.path.exists(proj):
+                        choices.append('📁 {} ({})'.format(Path(proj).name, proj))
+            
+            # Add standard options
+            choices.extend([
+                '📂 Current directory: {}'.format(current_dir),
+                '🖥️  Desktop: {}'.format(Path.home() / 'Desktop'),
+                '📄 Documents: {}'.format(Path.home() / 'Documents'),
+                '🔧 Custom path...',
+                '🚪 Exit SPARC'
+            ])
+            
+            questions = [
+                inquirer.List('folder',
+                             message='Where would you like to initialize your SPARC project?',
+                             choices=choices,
+                             carousel=True)
+            ]
+            
+            print('\\033[90mEnter to confirm · Esc to exit\\033[0m')
+            
+            answers = inquirer.prompt(questions)
+            if not answers:
+                return None
+                
+            choice = answers['folder']
+            
+            if choice.startswith('📁'):
+                path = choice.split('(')[1].rstrip(')')
+                return path
+            elif choice.startswith('📂 Current directory'):
+                return str(current_dir)
+            elif choice.startswith('🖥️  Desktop'):
+                return str(Path.home() / 'Desktop')
+            elif choice.startswith('📄 Documents'):
+                return str(Path.home() / 'Documents')
+            elif choice.startswith('🔧 Custom path'):
+                custom_path = input('Enter the full path: ')
+                if custom_path.strip():
+                    return custom_path.strip()
+                else:
+                    continue
+            elif choice.startswith('🚪 Exit'):
+                return None
+        else:
+            print('🎯 Where would you like to initialize your SPARC project?')
+            print()
+            print('1. Current directory: {}'.format(current_dir))
+            print('2. Desktop')
+            print('3. Documents')
+            print('4. Custom path')
+            print('5. Exit SPARC')
+            print()
+            
+            choice = input('Select option (1-5): ')
+            
+            if choice == '1':
+                return str(current_dir)
+            elif choice == '2':
+                return str(Path.home() / 'Desktop')
+            elif choice == '3':
+                return str(Path.home() / 'Documents')
+            elif choice == '4':
+                custom_path = input('Enter the full path: ')
+                if custom_path.strip():
+                    return custom_path.strip()
+                else:
+                    continue
+            else:
+                return None
+
+async def main():
+    project_dir = show_folder_selection()
+    
+    if not project_dir:
+        print('❌ Setup cancelled')
+        return
+    
+    print('🚀 Initializing SPARC project in {}'.format(project_dir))
+    print()
+    
+    if not os.path.exists(project_dir):
+        if HAS_INQUIRER:
+            questions = [
+                inquirer.Confirm('create_dir',
+                               message='Directory {} does not exist. Create it?'.format(project_dir),
+                               default=True)
+            ]
+            
+            answers = inquirer.prompt(questions)
+            if not answers or not answers['create_dir']:
+                print('❌ Cannot proceed without directory')
+                return
+                
+            os.makedirs(project_dir, exist_ok=True)
+            print('✅ Created directory: {}'.format(project_dir))
+        else:
+            create = input('Directory {} does not exist. Create it? (y/n): '.format(project_dir))
+            if create.lower() != 'y':
+                print('❌ Cannot proceed without directory')
+                return
+            os.makedirs(project_dir, exist_ok=True)
+            print('✅ Created directory: {}'.format(project_dir))
+    
+    print('📝 Setting up SPARC infrastructure...')
+    
+    # Generate namespace
+    import hashlib
+    abs_path = str(Path(project_dir).resolve())
+    project_name = Path(abs_path).name
+    path_hash = hashlib.md5(abs_path.encode()).hexdigest()[:8]
+    namespace = '{}_{}'. format(project_name, path_hash).replace('-', '_').replace(' ', '_').lower()
+    
+    # Create .env file
+    create_env_file(project_dir, namespace)
+    
+    # Set up project structure
+    create_project_structure(project_dir)
+    
+    # Create CLAUDE.md configuration
+    create_claude_md(project_dir, namespace)
+    
+    # Save to recent projects
+    save_recent_project(project_dir)
+    
+    print()
+    print('✅ SPARC Project Infrastructure Ready!')
+    print('📦 Namespace: {}'.format(namespace))
+    print('📁 Project: {}'.format(project_dir))
+    print('🔒 Memory isolation: Complete')
+    print()
+    
+    # Check database connectivity
+    print('🔍 Checking database connectivity...')
+    db_health = check_database_connectivity(project_dir)
+    
+    if db_health.get('qdrant'):
+        print('✅ Qdrant: Connected ({})'.format(db_health.get('qdrant_url')))
+    else:
+        print('🟡 Qdrant: Not responding ({})'.format(db_health.get('qdrant_url')))
+        if check_docker():
+            print('💡 Setting up Qdrant automatically...')
+            setup_qdrant()
+        else:
+            print('💡 Install Docker and run: docker run -d --name sparc-qdrant -p 6336:6333 qdrant/qdrant')
+    
+    if db_health.get('supabase'):
+        print('✅ Supabase: Configured')
+    else:
+        print('🟡 Supabase: Needs configuration')
+        print('💡 Visit: https://github.com/villagaiaimpacthub/claude-sparc')
+        print('💡 Copy setup.sql and run in your Supabase SQL Editor')
+        print('💡 Then edit .env file with your Supabase URL and keys')
+    
+    print()
+    print('🚀 Ready for autonomous development!')
+    print('💡 Use /sparc in Claude Code to start building')
+    print()
+
+asyncio.run(main())
+"
