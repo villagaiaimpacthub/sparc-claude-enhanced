@@ -1,0 +1,20 @@
+{
+  "hooks": {
+    "PostToolUse": {
+      "pattern": "Edit|Write|MultiEdit",
+      "command": "/usr/local/bin/sparc update-memory --file \"$FILE_PATH\" --namespace \"$(cat ./.sparc/namespace 2>/dev/null || echo 'default')\"",
+      "description": "Auto-update SPARC memory when files are modified"
+    },
+    "PreToolUse": {
+      "pattern": ".*",
+      "command": "/usr/local/bin/sparc check-active",
+      "description": "Check if SPARC mode is active and provide context"
+    }
+  },
+  "settings": {
+    "auto_memory_update": true,
+    "namespace_isolation": true,
+    "agent_monitoring": true,
+    "context_preservation": true
+  }
+}

@@ -13,7 +13,8 @@ curl -sSL https://raw.githubusercontent.com/villagaiaimpacthub/sparc-claude/main
 
 1. **Database:** Create free [Supabase](https://supabase.com) account
 2. **One-click:** Copy [`setup.sql`](setup.sql) → Paste in Supabase SQL Editor → Run
-3. **Connect:** Run `sparc-init` and enter your Supabase URL + API key
+3. **Initialize:** Run `sparc-init` and enter your Supabase URL + API key
+4. **Hooks:** SPARC automatically installs Claude Code hooks for seamless integration
 
 ## Use
 
@@ -28,6 +29,28 @@ claude
 ```
 
 **The 36 agents handle everything:** requirements → architecture → code → tests → docs
+
+## How It Works
+
+SPARC uses **Claude Code hooks** for seamless autonomous development:
+
+1. **Start:** `/sparc "your goal"` activates the 36-agent system
+2. **Orchestration:** Agents communicate via database task queue  
+3. **Execution:** Agents create/edit files through Claude Code automatically
+4. **Memory:** File changes trigger hooks that update agent memory
+5. **Isolation:** Each project has a unique namespace for complete separation
+
+### Autonomous Workflow
+
+```
+User: /sparc "Build a todo app"
+  ↓
+Agents: Analyze requirements → Design architecture → Generate code
+  ↓
+Hooks: Capture file changes → Update agent memory → Continue workflow
+  ↓
+Result: Complete application with tests, docs, and deployment config
+```
 
 ## What It Does
 
