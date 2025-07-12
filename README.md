@@ -6,7 +6,7 @@
 
 **macOS/Linux:** One-line install
 ```bash
-curl -sSL https://raw.githubusercontent.com/villagaiaimpacthub/sparc-installer/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/villagaiaimpacthub/sparc-claude/main/install.sh | bash
 ```
 
 ## Setup

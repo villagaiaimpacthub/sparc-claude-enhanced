@@ -2,7 +2,7 @@
 
 # SPARC Autonomous Development System Installer
 # 36 AI agents for complete software development
-# https://github.com/villagaiaimpacthub/sparc-installer
+# https://github.com/villagaiaimpacthub/sparc-claude
 
 set -e
 
@@ -1117,5 +1117,5 @@ echo "2. Run: sparc-init"
 echo "3. Start building: claude → /sparc \"your project idea\""
 echo
 echo "💡 The agents handle everything from requirements to deployment."
-echo "📚 Documentation: https://github.com/villagaiaimpacthub/sparc-installer"
+echo "📚 Documentation: https://github.com/villagaiaimpacthub/sparc-claude"
 echo
