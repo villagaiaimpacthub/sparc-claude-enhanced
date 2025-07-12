@@ -35,11 +35,16 @@ if ! python3 -m pip --version &> /dev/null; then
     python3 -m ensurepip --upgrade
 fi
 
-# Install inquirer if not present
-echo "📦 Installing required packages..."
-(python3 -m pip install --user inquirer --break-system-packages 2>/dev/null) || \
-(python3 -m pip install --user inquirer 2>/dev/null) || \
-echo "⚠️  Could not install inquirer - using fallback text interface"
+# Try to install inquirer for better UI (optional)
+echo "📦 Installing optional packages..."
+if python3 -c "import inquirer" 2>/dev/null; then
+    echo "✅ inquirer already available"
+else
+    echo "💡 Installing inquirer for better interface..."
+    (python3 -m pip install --user inquirer --break-system-packages 2>/dev/null) || \
+    (python3 -m pip install --user inquirer 2>/dev/null) || \
+    echo "⚠️  Using text-based interface (inquirer not available)"
+fi
 
 echo "✅ System requirements met"
 echo
