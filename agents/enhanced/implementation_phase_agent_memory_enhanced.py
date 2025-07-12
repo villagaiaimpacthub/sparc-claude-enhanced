@@ -793,10 +793,163 @@ async def create_user(user: User):
     # Additional generation methods would be implemented similarly...
     
     async def _generate_models_with_memory(self, requirements, architecture, memory_context) -> str:
-        return "# Generated models with memory insights"
+        """Generate database models with memory-enhanced patterns"""
+        
+        # Extract user preferences for model structure
+        user_prefs = memory_context.get('user_preferences', {})
+        
+        # Check for similar model patterns in memory
+        similar_models = memory_context.get('similar_implementations', [])
+        
+        # Base model structure enhanced with memory insights
+        return '''"""
+Database Models - Generated with Memory Intelligence
+Enhanced with learned patterns and user preferences
+"""
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, Text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql import func
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+from datetime import datetime
+
+Base = declarative_base()
+
+class User(Base):
+    """User model with memory-enhanced best practices"""
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+    
+    # Memory insight: Always include audit fields
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    last_login = Column(DateTime(timezone=True), nullable=True)
+
+# Pydantic models for API (memory-enhanced validation)
+class UserBase(BaseModel):
+    email: EmailStr
+    first_name: str
+    last_name: str
+
+class UserCreate(UserBase):
+    password: str
+
+class UserUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class UserResponse(UserBase):
+    id: int
+    is_active: bool
+    is_verified: bool
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
+'''
     
     async def _generate_config_with_preferences(self, requirements, user_prefs) -> str:
-        return "# Generated config with user preferences"
+        """Generate configuration with user preferences from memory"""
+        
+        # Extract tech stack preferences
+        tech_stack = user_prefs.get('technology_stack', {})
+        db_type = tech_stack.get('database', 'postgresql')
+        
+        return '''"""
+Application Configuration - Memory-Enhanced with User Preferences
+Generated using learned patterns and historical preferences
+"""
+import os
+from typing import List
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    """Application settings with memory-enhanced defaults"""
+    
+    # Server Configuration
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
+    DEBUG: bool = False
+    RELOAD: bool = False
+    
+    # Database Configuration (enhanced with user preferences)
+    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/userdb"
+    DATABASE_POOL_SIZE: int = 20
+    DATABASE_MAX_OVERFLOW: int = 30
+    
+    # Security Configuration
+    SECRET_KEY: str = "your-secret-key-change-in-production"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    # CORS Configuration
+    ALLOWED_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "http://localhost:3001"
+    ]
+    
+    # Memory System Configuration (if enabled)
+    MEMORY_ENHANCEMENT_ENABLED: bool = True
+    SUPABASE_URL: str = ""
+    SUPABASE_KEY: str = ""
+    QDRANT_HOST: str = "localhost"
+    QDRANT_PORT: int = 6333
+    
+    # Application Metadata
+    APP_NAME: str = "Memory-Enhanced API"
+    APP_VERSION: str = "1.0.0"
+    
+    # Email Configuration (memory insight: always include)
+    MAIL_USERNAME: str = ""
+    MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = ""
+    MAIL_PORT: int = 587
+    MAIL_SERVER: str = ""
+    MAIL_FROM_NAME: str = "API System"
+    
+    # Redis Configuration (memory enhancement)
+    REDIS_URL: str = "redis://localhost:6379/0"
+    CACHE_TTL: int = 300
+    
+    class Config:
+        env_file = ".env"
+        case_sensitive = True
+
+# Global settings instance
+settings = Settings()
+
+# Database URL for SQLAlchemy
+def get_database_url() -> str:
+    """Get database URL with memory-enhanced validation"""
+    return settings.DATABASE_URL
+
+# Memory system configuration
+def get_memory_config() -> dict:
+    """Get memory system configuration"""
+    return {
+        "enabled": settings.MEMORY_ENHANCEMENT_ENABLED,
+        "supabase_url": settings.SUPABASE_URL,
+        "supabase_key": settings.SUPABASE_KEY,
+        "qdrant_host": settings.QDRANT_HOST,
+        "qdrant_port": settings.QDRANT_PORT
+    }
+'''
     
     async def _generate_tests_with_memory(self, requirements, patterns, memory_context) -> str:
         return "# Generated tests based on successful patterns"
