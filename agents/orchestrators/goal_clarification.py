@@ -6,6 +6,7 @@
 #   "rich",
 #   "pydantic",
 #   "python-dotenv",
+#   "click",
 # ]
 # ///
 

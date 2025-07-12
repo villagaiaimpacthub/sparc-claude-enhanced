@@ -1590,13 +1590,277 @@ EOF
 # Make orchestrator executable
 sudo chmod +x /usr/local/sparc/orchestrator.py
 
-# Install Uber Orchestrator Agent (truncated for installer size)
+# Install Uber Orchestrator Agent (embedded for remote installation)
 echo "🎯 Installing Uber Orchestrator agent..."
-sudo cp "${PWD}/agents/uber_orchestrator.py" /usr/local/sparc/agents/ 2>/dev/null || echo "⚠️ Uber orchestrator will be installed on first run"
+sudo tee /usr/local/sparc/agents/uber_orchestrator.py > /dev/null << 'EOF'
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "supabase>=2.0.0",
+#   "click>=8.1.0",
+#   "rich>=13.0.0",
+#   "python-dotenv>=1.0.0",
+# ]
+# ///
 
-# Install State Scribe Agent (truncated for installer size)
+"""
+SPARC Uber Orchestrator Agent
+Master conductor of the entire SPARC autonomous development workflow
+"""
+
+import os
+import asyncio
+import subprocess
+from pathlib import Path
+from datetime import datetime
+from typing import Dict, Any, List, Optional
+
+try:
+    import click
+    from rich.console import Console
+    from supabase import create_client, Client
+    from dotenv import load_dotenv
+except ImportError as e:
+    print(f"Missing dependency: {e}")
+    exit(1)
+
+console = Console()
+
+PHASE_SEQUENCE = [
+    "initialization", "goal-clarification", "specification", "pseudocode",
+    "architecture", "refinement-testing", "refinement-implementation", 
+    "bmo-completion", "maintenance", "documentation"
+]
+
+class UberOrchestratorAgent:
+    def __init__(self, namespace: str):
+        self.namespace = namespace
+        self.agent_name = "uber-orchestrator"
+        self.supabase = self._init_supabase()
+        
+    def _init_supabase(self) -> Client:
+        load_dotenv()
+        url = os.getenv('SUPABASE_URL')
+        key = os.getenv('SUPABASE_KEY')
+        if not url or not key:
+            console.print("[red]❌ Missing Supabase credentials[/red]")
+            exit(1)
+        return create_client(url, key)
+    
+    async def get_pending_tasks(self) -> List[Dict[str, Any]]:
+        try:
+            result = self.supabase.table('agent_tasks').select('*').eq(
+                'namespace', self.namespace
+            ).eq('to_agent', self.agent_name).eq('status', 'pending').order(
+                'priority', desc=True
+            ).order('created_at').execute()
+            return result.data if result.data else []
+        except Exception as e:
+            console.print(f"[red]❌ Error fetching tasks: {e}[/red]")
+            return []
+    
+    async def execute_task(self, task: Dict[str, Any]):
+        task_payload = task['task_payload']
+        description = task_payload['description']
+        context = task_payload.get('context', {})
+        
+        console.print(f"[bold blue]🎯 Uber Orchestrator: {description}[/bold blue]")
+        
+        try:
+            # Mark in progress
+            self.supabase.table('agent_tasks').update({
+                'status': 'in_progress',
+                'started_at': datetime.now().isoformat()
+            }).eq('id', task['id']).execute()
+            
+            # Determine current phase and create prompt for Claude Code
+            goal = context.get('project_goal', 'Project goal not specified')
+            
+            prompt_content = f"""# SPARC Autonomous Development
+
+## Project Goal
+{goal}
+
+## Instructions
+This is the initial phase of SPARC autonomous development. Please analyze the goal and begin implementation:
+
+1. Create project structure and basic files
+2. Implement core functionality
+3. The SPARC agents will coordinate the overall workflow
+4. File changes will trigger agent workflows via hooks
+
+Please proceed with initial implementation."""
+            
+            # Create prompt file for user to process
+            prompt_dir = Path('.sparc/prompts')
+            prompt_dir.mkdir(parents=True, exist_ok=True)
+            prompt_file = prompt_dir / 'initial_development.md'
+            prompt_file.write_text(prompt_content)
+            
+            # Complete task
+            result = {
+                'success': True,
+                'prompt_file': str(prompt_file),
+                'goal': goal,
+                'phase': 'initialization'
+            }
+            
+            self.supabase.table('agent_tasks').update({
+                'status': 'completed',
+                'completed_at': datetime.now().isoformat(),
+                'result': result
+            }).eq('id', task['id']).execute()
+            
+            console.print(f"[green]✅ Created development prompt: {prompt_file}[/green]")
+            console.print(f"[yellow]💡 Open this file in Claude Code to continue development[/yellow]")
+            
+        except Exception as e:
+            console.print(f"[red]❌ Task execution failed: {e}[/red]")
+            self.supabase.table('agent_tasks').update({
+                'status': 'failed',
+                'error': str(e),
+                'completed_at': datetime.now().isoformat()
+            }).eq('id', task['id']).execute()
+
+@click.command()
+@click.option('--namespace', required=True, help='Project namespace')
+def main(namespace: str):
+    agent = UberOrchestratorAgent(namespace)
+    
+    async def run():
+        console.print(f"[bold green]🚀 Uber Orchestrator started for: {namespace}[/bold green]")
+        tasks = await agent.get_pending_tasks()
+        
+        if tasks:
+            for task in tasks:
+                await agent.execute_task(task)
+        else:
+            console.print("[yellow]No pending tasks found[/yellow]")
+    
+    asyncio.run(run())
+
+if __name__ == "__main__":
+    main()
+EOF
+
+# Install State Scribe Agent (embedded for remote installation)
 echo "📚 Installing State Scribe agent..."
-sudo cp "${PWD}/agents/state_scribe.py" /usr/local/sparc/agents/ 2>/dev/null || echo "⚠️ State scribe will be installed on first run"
+sudo tee /usr/local/sparc/agents/state_scribe.py > /dev/null << 'EOF'
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "supabase>=2.0.0",
+#   "click>=8.1.0", 
+#   "rich>=13.0.0",
+#   "python-dotenv>=1.0.0",
+# ]
+# ///
+
+"""
+SPARC State Scribe Agent
+Authoritative project memory manager
+"""
+
+import os
+import asyncio
+import hashlib
+from pathlib import Path
+from datetime import datetime
+from typing import Dict, Any, List
+
+try:
+    import click
+    from rich.console import Console
+    from supabase import create_client, Client
+    from dotenv import load_dotenv
+except ImportError as e:
+    print(f"Missing dependency: {e}")
+    exit(1)
+
+console = Console()
+
+class StateScribeAgent:
+    def __init__(self, namespace: str):
+        self.namespace = namespace
+        self.agent_name = "orchestrator-state-scribe"
+        self.supabase = self._init_supabase()
+        
+    def _init_supabase(self) -> Client:
+        load_dotenv()
+        url = os.getenv('SUPABASE_URL')
+        key = os.getenv('SUPABASE_KEY')
+        if not url or not key:
+            console.print("[red]❌ Missing Supabase credentials[/red]")
+            exit(1)
+        return create_client(url, key)
+    
+    async def record_file_in_memory(self, file_path: str, context: Dict[str, Any]):
+        try:
+            if not Path(file_path).exists():
+                return
+                
+            file_content = ""
+            file_size = Path(file_path).stat().st_size
+            
+            if file_size < 100000:  # Only read files smaller than 100KB
+                try:
+                    file_content = Path(file_path).read_text(encoding='utf-8', errors='ignore')
+                except:
+                    file_content = "[Binary or unreadable file]"
+            
+            content_hash = hashlib.md5(file_content.encode()).hexdigest()
+            
+            file_record = {
+                'namespace': self.namespace,
+                'file_path': file_path,
+                'content': file_content,
+                'file_size': file_size,
+                'content_hash': content_hash,
+                'version': 1,
+                'created_at': datetime.now().isoformat(),
+                'last_modified': datetime.now().isoformat(),
+                'file_type': Path(file_path).suffix.lower().lstrip('.') or 'unknown'
+            }
+            
+            # Check if file exists and update or insert
+            existing = self.supabase.table('project_memorys').select('id, version').eq(
+                'namespace', self.namespace
+            ).eq('file_path', file_path).execute()
+            
+            if existing.data:
+                current_version = existing.data[0]['version']
+                self.supabase.table('project_memorys').update({
+                    **file_record,
+                    'version': current_version + 1
+                }).eq('id', existing.data[0]['id']).execute()
+                console.print(f"[blue]📝 Updated: {file_path} (v{current_version + 1})[/blue]")
+            else:
+                self.supabase.table('project_memorys').insert(file_record).execute()
+                console.print(f"[green]📁 Recorded: {file_path}[/green]")
+            
+        except Exception as e:
+            console.print(f"[red]❌ Error recording file: {e}[/red]")
+
+@click.command()
+@click.option('--namespace', required=True, help='Project namespace')
+@click.option('--file', help='File to record in memory')
+def main(namespace: str, file: str):
+    agent = StateScribeAgent(namespace)
+    
+    async def run():
+        if file:
+            await agent.record_file_in_memory(file, {})
+            console.print(f"[green]✅ State Scribe recorded: {file}[/green]")
+        else:
+            console.print("[yellow]No file specified[/yellow]")
+    
+    asyncio.run(run())
+
+if __name__ == "__main__":
+    main()
+EOF
 
 # Create hooks directory and install Claude Code hooks
 echo "🔗 Installing Claude Code integration hooks..."
@@ -1643,11 +1907,200 @@ sudo tee /usr/local/sparc/hooks/claude_hooks_config.json > /dev/null << 'EOF'
 }
 EOF
 
-# Install UV hook scripts
+# Install UV hook scripts (embedded for remote installation)
 echo "📝 Installing UV hook scripts..."
-sudo cp "${PWD}/hooks/post_tool_use.py" /usr/local/sparc/hooks/ 2>/dev/null || echo "⚠️ Hook scripts will be installed on first run"
-sudo cp "${PWD}/hooks/pre_tool_use.py" /usr/local/sparc/hooks/ 2>/dev/null || echo "⚠️ Hook scripts will be installed on first run"
-sudo cp "${PWD}/hooks/stop.py" /usr/local/sparc/hooks/ 2>/dev/null || echo "⚠️ Hook scripts will be installed on first run"
+
+sudo tee /usr/local/sparc/hooks/post_tool_use.py > /dev/null << 'EOF'
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "supabase>=2.0.0",
+#   "python-dotenv>=1.0.0",
+#   "rich>=13.0.0",
+# ]
+# ///
+
+"""
+SPARC PostToolUse Hook - Captures file changes and triggers agent workflows
+"""
+
+import json
+import sys
+import os
+from pathlib import Path
+from datetime import datetime
+
+try:
+    from supabase import create_client, Client
+    from dotenv import load_dotenv
+    from rich.console import Console
+except ImportError as e:
+    print(f"Missing dependency: {e}")
+    sys.exit(1)
+
+console = Console()
+
+def main():
+    try:
+        hook_data = json.loads(sys.stdin.read())
+        
+        # Load project namespace
+        sparc_dir = Path.cwd() / '.sparc'
+        namespace_file = sparc_dir / 'namespace'
+        
+        if not namespace_file.exists():
+            return  # Not a SPARC project
+            
+        namespace = namespace_file.read_text().strip()
+        tool_name = hook_data.get('tool_name')
+        tool_input = hook_data.get('tool_input', {})
+        
+        if tool_name in ['Write', 'Edit', 'MultiEdit']:
+            file_path = tool_input.get('file_path')
+            if file_path:
+                # Record file change
+                load_dotenv()
+                url = os.getenv('SUPABASE_URL')
+                key = os.getenv('SUPABASE_KEY')
+                
+                if url and key:
+                    supabase = create_client(url, key)
+                    
+                    change_record = {
+                        'namespace': namespace,
+                        'file_path': file_path,
+                        'tool_used': tool_name,
+                        'timestamp': datetime.now().isoformat(),
+                        'session_id': hook_data.get('session_id')
+                    }
+                    
+                    supabase.table('sparc_file_changes').insert(change_record).execute()
+                    
+                    # Trigger state scribe to record file
+                    task_data = {
+                        'namespace': namespace,
+                        'from_agent': 'claude_code_hook',
+                        'to_agent': 'orchestrator-state-scribe',
+                        'task_type': 'file_change_trigger',
+                        'task_payload': {
+                            'task_id': f"hook_{datetime.now().isoformat()}",
+                            'description': f"Record file change: {file_path}",
+                            'context': {'changed_file': file_path, 'tool_used': tool_name},
+                            'phase': 'file_tracking',
+                            'priority': 7
+                        },
+                        'status': 'pending',
+                        'created_at': datetime.now().isoformat()
+                    }
+                    
+                    supabase.table('agent_tasks').insert(task_data).execute()
+                    console.print(f"[green]📝 SPARC: Recorded {file_path}[/green]")
+    
+    except Exception:
+        pass  # Silent fail for hooks
+
+if __name__ == "__main__":
+    main()
+EOF
+
+sudo tee /usr/local/sparc/hooks/pre_tool_use.py > /dev/null << 'EOF'
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "rich>=13.0.0",
+# ]
+# ///
+
+"""
+SPARC PreToolUse Hook - Provides context before tool execution
+"""
+
+import json
+import sys
+from pathlib import Path
+
+try:
+    from rich.console import Console
+except ImportError:
+    print("Missing dependency: rich")
+    sys.exit(1)
+
+console = Console()
+
+def main():
+    try:
+        hook_data = json.loads(sys.stdin.read())
+        
+        # Check if SPARC project
+        sparc_dir = Path.cwd() / '.sparc'
+        namespace_file = sparc_dir / 'namespace'
+        
+        if namespace_file.exists():
+            namespace = namespace_file.read_text().strip()
+            tool_name = hook_data.get('tool_name')
+            
+            if tool_name in ['Write', 'Edit', 'MultiEdit']:
+                tool_input = hook_data.get('tool_input', {})
+                file_path = tool_input.get('file_path', 'unknown')
+                console.print(f"[dim]🤖 SPARC: {tool_name} operation on {file_path}[/dim]")
+        
+        print(json.dumps({"decision": "approve"}))
+        
+    except Exception:
+        print(json.dumps({"decision": "approve"}))
+
+if __name__ == "__main__":
+    main()
+EOF
+
+sudo tee /usr/local/sparc/hooks/stop.py > /dev/null << 'EOF'
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "rich>=13.0.0",
+# ]
+# ///
+
+"""
+SPARC Stop Hook - Runs when Claude Code finishes responding
+"""
+
+import json
+import sys
+from pathlib import Path
+
+try:
+    from rich.console import Console
+except ImportError:
+    print("Missing dependency: rich")
+    sys.exit(1)
+
+console = Console()
+
+def main():
+    try:
+        hook_data = json.loads(sys.stdin.read())
+        
+        # Check if SPARC project
+        sparc_dir = Path.cwd() / '.sparc'
+        namespace_file = sparc_dir / 'namespace'
+        
+        if namespace_file.exists():
+            namespace = namespace_file.read_text().strip()
+            console.print("[green]✅ SPARC: Claude Code session completed[/green]")
+            console.print(f"[dim]📦 Project: {namespace}[/dim]")
+        else:
+            console.print("[green]✅ All set and ready for your next step![/green]")
+    
+    except Exception:
+        pass
+
+if __name__ == "__main__":
+    main()
+EOF
 
 # Create enhanced sparc command with UV support
 echo "📝 Creating enhanced SPARC command with UV support..."
