@@ -376,7 +376,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         docs_created = []
         
         # Check for comprehensive spec
-        comprehensive_path = "docs/specifications/comprehensive_spec.md"
+        comprehensive_path = self._get_namespaced_path("docs/specifications/comprehensive_spec.md")
         if Path(comprehensive_path).exists():
             docs_created.append({
                 "path": comprehensive_path,
@@ -386,7 +386,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             })
         
         # Check for examples and use cases
-        examples_path = "docs/specifications/examples_and_use_cases.md"
+        examples_path = self._get_namespaced_path("docs/specifications/examples_and_use_cases.md")
         if Path(examples_path).exists():
             docs_created.append({
                 "path": examples_path,
@@ -396,7 +396,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             })
         
         # Check for research reports
-        research_files = list(Path("docs/research").glob("*.md")) if Path("docs/research").exists() else []
+        research_dir = Path(self._get_namespaced_path("docs/research"))
+        research_files = list(research_dir.glob("*.md")) if research_dir.exists() else []
         for research_file in research_files:
             docs_created.append({
                 "path": str(research_file),

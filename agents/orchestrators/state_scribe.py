@@ -6,11 +6,13 @@
 #   "rich",
 #   "pydantic",
 #   "python-dotenv",
+#   "click",
 # ]
 # ///
 
 """State Scribe - The ONLY agent that writes to project_memorys table"""
 
+import os
 from typing import Dict, Any, List
 from pathlib import Path
 
@@ -129,8 +131,13 @@ class BaseAgent(ABC):
             for file_info in files_to_record:
                 file_path = file_info.get('file_path', '')
                 if file_path and Path(file_path).exists():
-                    subprocess.run(['git', 'add', file_path], cwd=project_dir)
-                    staged_files.append(file_path)
+                    # Convert absolute namespace path to relative path within project directory
+                    if file_path.startswith(self.project_id + '/'):
+                        relative_path = file_path[len(self.project_id + '/'):]
+                    else:
+                        relative_path = file_path
+                    subprocess.run(['git', 'add', relative_path], cwd=project_dir)
+                    staged_files.append(relative_path)
             
             if not staged_files:
                 return {"committed": False, "reason": "No files to commit"}
@@ -318,7 +325,7 @@ Never create, modify, or delete actual files - only maintain their records in th
                     continue
                 
                 # Check if record exists
-                existing = await self.memory.supabase.table("project_memorys").select("*").eq(
+                existing = self.supabase.table("project_memorys").select("*").eq(
                     "project_id", self.project_id
                 ).eq(
                     "file_path", file_path
@@ -326,14 +333,12 @@ Never create, modify, or delete actual files - only maintain their records in th
                 
                 if existing.data:
                     # Update existing record
-                    await self.memory.supabase.table("project_memorys").update({
+                    self.supabase.table("project_memorys").update({
                         "memory_type": file_info.get("memory_type", "unknown"),
                         "brief_description": file_info.get("brief_description", ""),
                         "elements_description": file_info.get("elements_description", ""),
                         "rationale": file_info.get("rationale", ""),
-                        "version": existing.data[0]["version"] + 1,
-                        "last_updated_timestamp": "now()",
-                        "token_count": self._estimate_file_tokens(file_path)
+                        "version": existing.data[0]["version"] + 1
                     }).eq(
                         "project_id", self.project_id
                     ).eq(
@@ -342,20 +347,19 @@ Never create, modify, or delete actual files - only maintain their records in th
                     updated += 1
                 else:
                     # Insert new record
-                    await self.memory.supabase.table("project_memorys").insert({
+                    self.supabase.table("project_memorys").insert({
+                        "namespace": self.project_id,
                         "project_id": self.project_id,
                         "file_path": file_path,
                         "memory_type": file_info.get("memory_type", "unknown"),
                         "brief_description": file_info.get("brief_description", ""),
                         "elements_description": file_info.get("elements_description", ""),
                         "rationale": file_info.get("rationale", ""),
-                        "version": 1,
-                        "token_count": self._estimate_file_tokens(file_path)
+                        "version": 1
                     }).execute()
                     inserted += 1
                 
-                # Also index the file for semantic search
-                await self.memory.index_file(file_path)
+                # Skip semantic indexing for standalone execution
                 
             except Exception as e:
                 errors.append(f"Error processing {file_info.get('file_path', 'unknown')}: {str(e)}")
@@ -400,7 +404,7 @@ Never create, modify, or delete actual files - only maintain their records in th
         """Clean up records for files that no longer exist"""
         try:
             # Get all records for this project
-            result = await self.memory.supabase.table("project_memorys").select("*").eq(
+            result = self.supabase.table("project_memorys").select("*").eq(
                 "project_id", self.project_id
             ).execute()
             
@@ -409,7 +413,7 @@ Never create, modify, or delete actual files - only maintain their records in th
                 file_path = record["file_path"]
                 if not Path(file_path).exists():
                     # Delete orphaned record
-                    await self.memory.supabase.table("project_memorys").delete().eq(
+                    self.supabase.table("project_memorys").delete().eq(
                         "id", record["id"]
                     ).execute()
                     orphaned += 1
@@ -422,7 +426,7 @@ Never create, modify, or delete actual files - only maintain their records in th
     async def get_project_summary(self) -> Dict[str, Any]:
         """Get a comprehensive summary of the project state"""
         try:
-            result = await self.memory.supabase.table("project_memorys").select("*").eq(
+            result = self.supabase.table("project_memorys").select("*").eq(
                 "project_id", self.project_id
             ).execute()
             
@@ -473,21 +477,36 @@ def main(namespace: str, task_id: str, goal: str):
             priority=5
         )
     else:
-        # In real implementation, load task from database
-        task = TaskPayload(
-            task_id=task_id,
-            description="Loaded from database",
-            context={},
-            requirements=[],
-            ai_verifiable_outcomes=[],
-            phase='unknown',
-            priority=5
-        )
+        # Load actual task from database
+        load_dotenv()
+        supabase = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_KEY'))
+        
+        result = supabase.table('agent_tasks').select('*').eq('id', task_id).execute()
+        if result.data:
+            task_data = result.data[0]
+            task_payload = task_data['task_payload']
+            task = TaskPayload(
+                task_id=task_payload['task_id'],
+                description=task_payload['description'],
+                context=task_payload['context'],
+                requirements=task_payload['requirements'],
+                ai_verifiable_outcomes=task_payload['ai_verifiable_outcomes'],
+                phase=task_payload['phase'],
+                priority=task_payload['priority']
+            )
+            console.print(f"[green]Loaded task from database: {task.description}[/green]")
+        else:
+            console.print(f"[red]Task {task_id} not found in database[/red]")
+            exit(1)
     
     # Create agent and execute
-    agent_class_name = [name for name in globals() if name.endswith('Agent') or name.endswith('Orchestrator')]
+    agent_class_names = [name for name in globals() if name.endswith('Agent') or name.endswith('Orchestrator')]
+    # Prefer concrete agent over BaseAgent
+    concrete_agent = next((name for name in agent_class_names if 'StateScribe' in name and name != 'BaseAgent'), None)
+    agent_class_name = concrete_agent or (agent_class_names[0] if agent_class_names else None)
+    
     if agent_class_name:
-        agent_class = globals()[agent_class_name[0]]
+        agent_class = globals()[agent_class_name]
         agent = agent_class()
         
         async def run():

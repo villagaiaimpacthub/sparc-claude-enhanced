@@ -523,12 +523,12 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         missing = []
         
         # Check for source code
-        if not Path("src").exists():
+        if not Path(self._get_namespaced_path("src")).exists():
             missing.append("Source code directory")
         
         # Check for configuration
         config_files = ["requirements.txt", "package.json", "config/"]
-        if not any(Path(f).exists() for f in config_files):
+        if not any(Path(self._get_namespaced_path(f)).exists() for f in config_files):
             missing.append("Configuration files")
         
         # Check for tests passing (simplified)
@@ -539,8 +539,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             "complete": len(missing) == 0 and tests_passing,
             "missing": missing,
             "tests_passing": tests_passing,
-            "source_code_exists": Path("src").exists(),
-            "config_exists": any(Path(f).exists() for f in config_files)
+            "source_code_exists": Path(self._get_namespaced_path("src")).exists(),
+            "config_exists": any(Path(self._get_namespaced_path(f)).exists() for f in config_files)
         }
     
     async def _identify_created_documents(self) -> List[Dict[str, Any]]:
@@ -548,8 +548,9 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         docs_created = []
         
         # Source code files
-        if Path("src").exists():
-            for src_file in Path("src").rglob("*"):
+        src_dir = Path(self._get_namespaced_path("src"))
+        if src_dir.exists():
+            for src_file in src_dir.rglob("*"):
                 if src_file.is_file():
                     docs_created.append({
                         "path": str(src_file),
@@ -567,9 +568,10 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         ]
         
         for file_path, doc_type, description in config_files:
-            if Path(file_path).exists():
+            namespaced_path = self._get_namespaced_path(file_path)
+            if Path(namespaced_path).exists():
                 docs_created.append({
-                    "path": file_path,
+                    "path": namespaced_path,
                     "type": doc_type,
                     "description": description,
                     "memory_type": "configuration"

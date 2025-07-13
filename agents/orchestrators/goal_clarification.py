@@ -336,11 +336,11 @@ Begin your comprehensive analysis and document creation now. Create both files w
         
         project_goal = task.context.get('project_goal', task.description)
         
-        # Create directories
-        docs_dir = Path('docs')
+        # Create namespaced directories
+        docs_dir = Path(self._get_namespaced_path("docs"))
         specs_dir = docs_dir / 'specifications'
-        docs_dir.mkdir(exist_ok=True)
-        specs_dir.mkdir(exist_ok=True)
+        docs_dir.mkdir(parents=True, exist_ok=True)
+        specs_dir.mkdir(parents=True, exist_ok=True)
         
         # Create Mutual Understanding Document
         mutual_doc = Path(self._get_namespaced_path("docs")) / 'Mutual_Understanding_Document.md'

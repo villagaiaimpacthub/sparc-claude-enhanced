@@ -1,0 +1,12 @@
+
+# Test Context7 MCP calls that SPARC expects:
+
+# 1. Analyze codebase for API documentation
+/mcp__context7__analyze codebase_path=test_full_workflow/src/ output_format=api_documentation
+
+# 2. Analyze features for user documentation  
+/mcp__context7__analyze codebase_path=test_full_workflow/src/ output_format=feature_analysis
+
+# 3. Generate developer guides
+/mcp__context7__analyze codebase_path=test_full_workflow/src/ output_format=architecture_analysis
+

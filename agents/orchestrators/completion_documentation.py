@@ -539,14 +539,18 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         # Check for implementation (src/ directory or any code files)
         impl_paths = [
             Path(self._get_namespaced_path("src/")),
-            Path("app/"),
-            Path("lib/"),
-            Path("implementation/")
+            Path(self._get_namespaced_path("app/")),
+            Path(self._get_namespaced_path("lib/")),
+            Path(self._get_namespaced_path("implementation/"))
         ]
         impl_exists = any(path.exists() and path.is_dir() for path in impl_paths)
         if not impl_exists:
-            # Also check for any source code files
-            code_files = list(Path(".").glob("**/*.py")) + list(Path(".").glob("**/*.js")) + list(Path(".").glob("**/*.ts"))
+            # Also check for any source code files in namespace
+            namespace_dir = Path(self.project_id)
+            if namespace_dir.exists():
+                code_files = list(namespace_dir.glob("**/*.py")) + list(namespace_dir.glob("**/*.js")) + list(namespace_dir.glob("**/*.ts"))
+            else:
+                code_files = []
             if not code_files:
                 missing.append("Implementation (src/ directory)")
         
