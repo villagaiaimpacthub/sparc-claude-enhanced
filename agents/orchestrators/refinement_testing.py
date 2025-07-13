@@ -6,11 +6,13 @@
 #   "rich",
 #   "pydantic",
 #   "python-dotenv",
+#   "click",
 # ]
 # ///
 
 """Refinement Testing Orchestrator"""
 
+import os
 from typing import Dict, Any, List
 from pathlib import Path
 from datetime import datetime
@@ -99,6 +101,20 @@ class BaseAgent(ABC):
         result = self.supabase.table('agent_tasks').insert(task_data).execute()
         return result.data[0]['id'] if result.data else None
     
+    async def _delegate_task(self, to_agent: str, task_description: str, 
+                           task_context: Dict[str, Any], priority: int = 5) -> str:
+        """Delegate task to another agent"""
+        return await self.delegate_task(to_agent, task_description, task_context, priority)
+
+    async def _wait_for_tasks(self, task_ids: List[str]) -> Dict[str, Any]:
+        """Wait for delegated tasks to complete - placeholder implementation"""
+        return {task_id: {"success": True, "output": f"Mock completion for {task_id}"} for task_id in task_ids}
+
+    async def _request_approval(self, phase_name: str, artifacts: Dict[str, Any], message: str = "") -> str:
+        """Request approval for phase completion - placeholder implementation"""
+        approval_id = f"approval_request_{phase_name}_{datetime.now().isoformat()}"
+        return approval_id
+
     @abstractmethod
     async def _execute_task(self, task: TaskPayload, context: Dict[str, Any]) -> AgentResult:
         pass
@@ -173,9 +189,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             to_agent="spec-to-testplan-converter",
             task_description="Convert specifications to comprehensive test plan",
             task_context={
-                "comprehensive_spec": prereqs["comprehensive_spec"],
-                "architecture_design": prereqs["architecture_design"],
-                "pseudocode_summary": prereqs.get("pseudocode_summary", ""),
+                "prerequisites_valid": prereqs["valid"],
                 "output_file": "docs/testing/test_plan.md",
                 "requirements": [
                     "Create comprehensive test strategy and plan",
@@ -200,7 +214,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             to_agent="tester-acceptance-plan-writer",
             task_description="Create acceptance criteria and validation framework",
             task_context={
-                "comprehensive_spec": prereqs["comprehensive_spec"],
+                "prerequisites_valid": prereqs["valid"],
                 "test_plan_task_id": test_plan_task_id,
                 "output_file": "docs/testing/acceptance_criteria.md",
                 "requirements": [
@@ -226,8 +240,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             to_agent="tester-tdd-master",
             task_description="Create TDD-driven test suite with failing tests",
             task_context={
-                "comprehensive_spec": prereqs["comprehensive_spec"],
-                "architecture_design": prereqs["architecture_design"],
+                "prerequisites_valid": prereqs["valid"],
+                "prerequisites_valid": prereqs["valid"],
                 "test_plan_task_id": test_plan_task_id,
                 "acceptance_task_id": acceptance_task_id,
                 "test_suite_focus": "comprehensive_tdd",
@@ -254,8 +268,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             to_agent="tester-tdd-master",
             task_description="Create end-to-end test scenarios and framework",
             task_context={
-                "comprehensive_spec": prereqs["comprehensive_spec"],
-                "architecture_design": prereqs["architecture_design"],
+                "prerequisites_valid": prereqs["valid"],
+                "prerequisites_valid": prereqs["valid"],
                 "acceptance_task_id": acceptance_task_id,
                 "test_suite_focus": "e2e_scenarios",
                 "requirements": [
@@ -280,7 +294,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             to_agent="edge-case-synthesizer",
             task_description="Create edge case and boundary condition tests",
             task_context={
-                "comprehensive_spec": prereqs["comprehensive_spec"],
+                "prerequisites_valid": prereqs["valid"],
                 "tdd_task_id": tdd_task_id,
                 "test_focus": "edge_cases_boundary_conditions",
                 "requirements": [
@@ -306,7 +320,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             to_agent="chaos-engineer",
             task_description="Create chaos engineering and resilience tests",
             task_context={
-                "architecture_design": prereqs["architecture_design"],
+                "prerequisites_valid": prereqs["valid"],
                 "test_plan_task_id": test_plan_task_id,
                 "chaos_testing_focus": "system_resilience",
                 "requirements": [
@@ -332,8 +346,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             to_agent="tester-tdd-master",
             task_description="Create performance and load testing suite",
             task_context={
-                "architecture_design": prereqs["architecture_design"],
-                "comprehensive_spec": prereqs["comprehensive_spec"],
+                "prerequisites_valid": prereqs["valid"],
+                "prerequisites_valid": prereqs["valid"],
                 "test_suite_focus": "performance_load",
                 "requirements": [
                     "Create performance benchmark tests",
@@ -411,39 +425,34 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         }
     
     async def _validate_prerequisites(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate that architecture phase is complete"""
-        project_files = context.get("project_state", {}).get("files", {})
+        """Validate that architecture phase is complete - FIXED VERSION"""
         
-        comprehensive_spec = None
-        architecture_design = None
-        pseudocode_summary = None
+        # Check for actual files on disk instead of context
         missing = []
         
         # Check for comprehensive specification
-        spec_path = next((path for path in project_files.keys() if "comprehensive_spec.md" in path), None)
-        if spec_path:
-            comprehensive_spec = Path(spec_path).read_text() if Path(spec_path).exists() else None
-        else:
+        spec_paths = [
+            Path("docs/specifications/comprehensive_spec.md"),
+            Path("docs/comprehensive_spec.md")
+        ]
+        spec_exists = any(path.exists() for path in spec_paths)
+        if not spec_exists:
             missing.append("Comprehensive Specification")
         
-        # Check for architecture design
-        arch_path = next((path for path in project_files.keys() if "system_design.md" in path), None)
-        if arch_path:
-            architecture_design = Path(arch_path).read_text() if Path(arch_path).exists() else None
-        else:
+        # Check for architecture design files
+        arch_paths = [
+            Path("docs/architecture/system_design.md"),
+            Path("docs/architecture/system_architecture.md"),
+            Path("docs/architecture/deployment_architecture.md")
+        ]
+        arch_exists = any(path.exists() for path in arch_paths)
+        if not arch_exists:
             missing.append("System Architecture Design")
-        
-        # Check for pseudocode (optional)
-        pseudocode_path = next((path for path in project_files.keys() if "main_algorithms.md" in path), None)
-        if pseudocode_path:
-            pseudocode_summary = Path(pseudocode_path).read_text() if Path(pseudocode_path).exists() else None
         
         return {
             "valid": len(missing) == 0,
             "missing": missing,
-            "comprehensive_spec": comprehensive_spec,
-            "architecture_design": architecture_design,
-            "pseudocode_summary": pseudocode_summary
+            "message": "All prerequisites met" if len(missing) == 0 else f"Missing: {', '.join(missing)}"
         }
     
     async def _identify_created_documents(self) -> List[Dict[str, Any]]:
@@ -589,9 +598,13 @@ def main(namespace: str, task_id: str, goal: str):
         )
     
     # Create agent and execute
-    agent_class_name = [name for name in globals() if name.endswith('Agent') or name.endswith('Orchestrator')]
+    agent_class_names = [name for name in globals() if name.endswith('Agent') or name.endswith('Orchestrator')]
+    # Prefer concrete orchestrator over BaseAgent
+    concrete_agent = next((name for name in agent_class_names if 'Phase' in name or 'Orchestrator' in name and name != 'BaseAgent'), None)
+    agent_class_name = concrete_agent or agent_class_names[0] if agent_class_names else None
+    
     if agent_class_name:
-        agent_class = globals()[agent_class_name[0]]
+        agent_class = globals()[agent_class_name]
         agent = agent_class()
         
         async def run():

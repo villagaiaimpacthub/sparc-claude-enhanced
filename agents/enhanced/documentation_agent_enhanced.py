@@ -238,7 +238,7 @@ class EnhancedDocumentationAgent:
         question = await self.question_engine.generate_interactive_question(
             agent_name="documentation-agent",
             phase="documentation",
-            base_question=self._generate_documentation_requirements_and_user_guidance_needs_question(prerequisites),
+            base_question=self._generate_documentation_question(prerequisites),
             context=clarification_context,
             conversation_history=conversation_history
         )
@@ -247,7 +247,7 @@ class EnhancedDocumentationAgent:
         question_file = await self.question_engine.create_claude_code_question_file(question)
         
         # For testing, simulate responses (in production, user would respond)
-        simulated_responses = await self._simulate_documentation_requirements_and_user_guidance_needs_responses(
+        simulated_responses = await self._simulate_documentation_responses(
             question, prerequisites['main_implementation_py']
         )
         

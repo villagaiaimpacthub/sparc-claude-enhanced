@@ -6,6 +6,7 @@
 #   "rich",
 #   "pydantic",
 #   "python-dotenv",
+#   "click",
 # ]
 # ///
 
@@ -102,7 +103,35 @@ class BaseAgent(ABC):
     async def _execute_task(self, task: TaskPayload, context: Dict[str, Any]) -> AgentResult:
         pass
 
-from lib.constants import PHASE_SEQUENCE, PHASE_ORCHESTRATORS, APPROVAL_REQUIRED_PHASES
+import os
+
+# Embedded constants for standalone UV execution
+PHASE_SEQUENCE = [
+    "goal-clarification",
+    "specification", 
+    "architecture",
+    "pseudocode",
+    "implementation",
+    "refinement-testing",
+    "refinement-implementation",
+    "completion",
+    "documentation"
+]
+
+# Define orchestrator mappings and approval phases
+PHASE_ORCHESTRATORS = {
+    "goal-clarification": "orchestrator-goal-clarification",
+    "specification": "orchestrator-sparc-specification-phase", 
+    "architecture": "orchestrator-sparc-architecture-phase",
+    "pseudocode": "orchestrator-sparc-pseudocode-phase",
+    "implementation": "orchestrator-sparc-refinement-implementation",
+    "refinement-testing": "orchestrator-sparc-refinement-testing",
+    "refinement-implementation": "orchestrator-sparc-refinement-implementation",
+    "completion": "orchestrator-bmo-completion-phase",
+    "documentation": "orchestrator-completion-documentation"
+}
+
+APPROVAL_REQUIRED_PHASES = ["goal-clarification", "specification", "architecture", "completion"]
 
 class UberOrchestratorAgent(BaseAgent):
     """Master conductor of the entire SPARC workflow"""
@@ -152,7 +181,7 @@ At each phase, you must:
         
         # Check if approval is needed for current phase
         if current_phase and current_phase in APPROVAL_REQUIRED_PHASES:
-            pending_approvals = await self.memory.check_pending_approvals()
+            pending_approvals = await self._check_pending_approvals()
             if pending_approvals:
                 return AgentResult(
                     success=True,
@@ -169,10 +198,10 @@ At each phase, you must:
         # Delegate to next phase orchestrator
         next_orchestrator = PHASE_ORCHESTRATORS.get(next_phase)
         if next_orchestrator:
-            task_id = await self._delegate_task(
+            task_id = await self.delegate_task(
                 to_agent=next_orchestrator,
                 task_description=f"Execute {next_phase} phase",
-                task_context={
+                context={
                     "phase": next_phase,
                     "project_goal": task.context.get("project_goal", task.description),
                     "requirements": self._get_phase_requirements(next_phase),
@@ -211,7 +240,7 @@ At each phase, you must:
         """Determine the current phase from project state"""
         try:
             # Query latest phase from contexts
-            result = await self.memory.supabase.table("sparc_contexts").select("phase").eq(
+            result = self.supabase.table("sparc_contexts").select("phase").eq(
                 "project_id", self.project_id
             ).order(
                 "created_at", desc=True
@@ -223,6 +252,18 @@ At each phase, you must:
         except Exception as e:
             print(f"Error determining current phase: {str(e)}")
             return None
+    
+    async def _check_pending_approvals(self) -> List[str]:
+        """Check for pending approvals in the database"""
+        try:
+            result = self.supabase.table("approval_requests").select("*").eq(
+                "project_id", self.project_id
+            ).eq("status", "pending").execute()
+            
+            return [approval["id"] for approval in result.data] if result.data else []
+        except Exception as e:
+            print(f"Error checking pending approvals: {str(e)}")
+            return []
     
     async def _determine_next_phase(self, current_phase: Optional[str], 
                                    context: Dict[str, Any]) -> Optional[str]:
@@ -390,22 +431,17 @@ def main(namespace: str, task_id: str, goal: str):
         )
     
     # Create agent and execute
-    agent_class_name = [name for name in globals() if name.endswith('Agent') or name.endswith('Orchestrator')]
-    if agent_class_name:
-        agent_class = globals()[agent_class_name[0]]
-        agent = agent_class()
-        
-        async def run():
-            try:
-                result = await agent._execute_task(task, task.context)
-                console.print(f"[green]✅ {agent.agent_name} completed successfully[/green]")
-                console.print(f"Result: {result}")
-            except Exception as e:
-                console.print(f"[red]❌ {agent.agent_name} failed: {e}[/red]")
-        
-        asyncio.run(run())
-    else:
-        console.print("[red]❌ No agent class found[/red]")
+    agent = UberOrchestratorAgent()
+    
+    async def run():
+        try:
+            result = await agent._execute_task(task, task.context)
+            console.print(f"[green]✅ {agent.agent_name} completed successfully[/green]")
+            console.print(f"Result: {result}")
+        except Exception as e:
+            console.print(f"[red]❌ {agent.agent_name} failed: {e}[/red]")
+    
+    asyncio.run(run())
 
 if __name__ == "__main__":
     main()

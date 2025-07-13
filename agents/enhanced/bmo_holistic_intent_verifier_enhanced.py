@@ -9,6 +9,7 @@
 #   "qdrant-client>=1.7.0",
 #   "sentence-transformers>=2.2.0",
 #   "openai>=1.0.0",
+#   "click>=8.0.0",
 # ]
 # ///
 
@@ -30,8 +31,10 @@ try:
     from dotenv import load_dotenv
     
     # Import memory orchestrator for intelligence boost
-    lib_path = Path(__file__).parent.parent / "lib"
+    lib_path = Path(__file__).parent.parent.parent / "lib"
+    agents_path = Path(__file__).parent.parent
     sys.path.insert(0, str(lib_path))
+    sys.path.insert(0, str(agents_path))
     
     from memory_orchestrator import MemoryOrchestrator
     from base_agent import BaseAgent, AgentResult, TaskPayload

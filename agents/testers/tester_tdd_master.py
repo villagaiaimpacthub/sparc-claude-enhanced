@@ -15,6 +15,7 @@
 
 import json
 import asyncio
+import os
 from typing import Dict, Any, List
 from pathlib import Path
 
@@ -102,6 +103,25 @@ class BaseAgent(ABC):
         result = self.supabase.table('agent_tasks').insert(task_data).execute()
         return result.data[0]['id'] if result.data else None
     
+    async def _build_agent_prompt(self, task: TaskPayload, context: Dict[str, Any]) -> str:
+        """Build agent prompt from task and context"""
+        return f"""
+Task: {task.description}
+Context: {context}
+Phase: {task.phase}
+Requirements: {task.requirements}
+AI Verifiable Outcomes: {task.ai_verifiable_outcomes}
+"""
+
+    async def _run_claude(self, prompt: str) -> str:
+        """Placeholder for Claude API call"""
+        return f"Claude response for: {prompt[:100]}..."
+
+    async def _delegate_task(self, to_agent: str, task_description: str, 
+                           task_context: Dict[str, Any], priority: int = 5) -> str:
+        """Delegate task to another agent"""
+        return await self.delegate_task(to_agent, task_description, task_context, priority)
+
     @abstractmethod
     async def _execute_task(self, task: TaskPayload, context: Dict[str, Any]) -> AgentResult:
         pass
@@ -256,8 +276,12 @@ if __name__ == "__main__":
     task = json.loads(task_json)
     
     task_payload = TaskPayload(
+        task_id=task.get("task_id", f"task_{datetime.now().isoformat()}"),
         description=task.get("description", ""),
         context=task.get("context", {}),
+        requirements=task.get("requirements", []),
+        ai_verifiable_outcomes=task.get("ai_verifiable_outcomes", []),
+        phase=task.get("phase", "execution"),
         priority=task.get("priority", 5)
     )
     
@@ -265,57 +289,3 @@ if __name__ == "__main__":
     result = asyncio.run(agent._execute_task(task_payload, task.get("context", {})))
     print(json.dumps(result.dict(), indent=2))
 
-# CLI interface for standalone UV execution
-import asyncio
-import click
-
-@click.command()
-@click.option('--namespace', required=True, help='Project namespace')
-@click.option('--task-id', help='Specific task ID to process')
-@click.option('--goal', help='Project goal for context')
-def main(namespace: str, task_id: str, goal: str):
-    """Run this SPARC agent standalone"""
-    
-    # Create mock task for testing
-    if not task_id:
-        task = TaskPayload(
-            task_id=f"test_{datetime.now().isoformat()}",
-            description=f"Test execution for {namespace}",
-            context={'project_goal': goal or 'Test goal'},
-            requirements=[],
-            ai_verifiable_outcomes=[],
-            phase='test',
-            priority=5
-        )
-    else:
-        # In real implementation, load task from database
-        task = TaskPayload(
-            task_id=task_id,
-            description="Loaded from database",
-            context={},
-            requirements=[],
-            ai_verifiable_outcomes=[],
-            phase='unknown',
-            priority=5
-        )
-    
-    # Create agent and execute
-    agent_class_name = [name for name in globals() if name.endswith('Agent') or name.endswith('Orchestrator')]
-    if agent_class_name:
-        agent_class = globals()[agent_class_name[0]]
-        agent = agent_class()
-        
-        async def run():
-            try:
-                result = await agent._execute_task(task, task.context)
-                console.print(f"[green]✅ {agent.agent_name} completed successfully[/green]")
-                console.print(f"Result: {result}")
-            except Exception as e:
-                console.print(f"[red]❌ {agent.agent_name} failed: {e}[/red]")
-        
-        asyncio.run(run())
-    else:
-        console.print("[red]❌ No agent class found[/red]")
-
-if __name__ == "__main__":
-    main()

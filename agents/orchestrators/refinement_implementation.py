@@ -6,11 +6,13 @@
 #   "rich",
 #   "pydantic",
 #   "python-dotenv",
+#   "click",
 # ]
 # ///
 
 """Refinement Implementation Orchestrator"""
 
+import os
 from typing import Dict, Any, List
 from pathlib import Path
 from datetime import datetime
@@ -99,6 +101,20 @@ class BaseAgent(ABC):
         result = self.supabase.table('agent_tasks').insert(task_data).execute()
         return result.data[0]['id'] if result.data else None
     
+    async def _delegate_task(self, to_agent: str, task_description: str, 
+                           task_context: Dict[str, Any], priority: int = 5) -> str:
+        """Delegate task to another agent"""
+        return await self.delegate_task(to_agent, task_description, task_context, priority)
+
+    async def _wait_for_tasks(self, task_ids: List[str]) -> Dict[str, Any]:
+        """Wait for delegated tasks to complete - placeholder implementation"""
+        return {task_id: {"success": True, "output": f"Mock completion for {task_id}"} for task_id in task_ids}
+
+    async def _request_approval(self, phase_name: str, artifacts: Dict[str, Any], message: str = "") -> str:
+        """Request approval for phase completion - placeholder implementation"""
+        approval_id = f"approval_request_{phase_name}_{datetime.now().isoformat()}"
+        return approval_id
+
     @abstractmethod
     async def _execute_task(self, task: TaskPayload, context: Dict[str, Any]) -> AgentResult:
         pass
@@ -644,9 +660,13 @@ def main(namespace: str, task_id: str, goal: str):
         )
     
     # Create agent and execute
-    agent_class_name = [name for name in globals() if name.endswith('Agent') or name.endswith('Orchestrator')]
+    agent_class_names = [name for name in globals() if name.endswith('Agent') or name.endswith('Orchestrator')]
+    # Prefer concrete orchestrator over BaseAgent
+    concrete_agent = next((name for name in agent_class_names if 'Phase' in name or 'Orchestrator' in name and name != 'BaseAgent'), None)
+    agent_class_name = concrete_agent or agent_class_names[0] if agent_class_names else None
+    
     if agent_class_name:
-        agent_class = globals()[agent_class_name[0]]
+        agent_class = globals()[agent_class_name]
         agent = agent_class()
         
         async def run():

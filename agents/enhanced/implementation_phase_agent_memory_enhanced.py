@@ -3,8 +3,11 @@
 # requires-python = ">=3.11"
 # dependencies = [
 #   "supabase>=2.0.0",
-#   "rich>=13.0.0",
+#   "rich>=13.0.0", 
 #   "pydantic>=2.0.0",
+#   "python-dotenv>=1.0.0",
+#   "qdrant-client>=1.6.0",
+#   "sentence-transformers>=2.2.0",
 # ]
 # ///
 
@@ -34,10 +37,9 @@ try:
     from rich.progress import Progress, SpinnerColumn, TextColumn
     from supabase import create_client, Client
     import sys
-    sys.path.append(str(Path(__file__).parent.parent / "lib"))
-    from memory_manager import MemoryManager, MemoryType, MemoryInsight
-    from qdrant_integration import QdrantIntegration
-    from bmo_intent_tracker_enhanced import EnhancedBMOIntentTracker
+    sys.path.append(str(Path(__file__).parent.parent.parent / "lib"))
+    from memory_orchestrator import MemoryOrchestrator
+    from bmo_intent_tracker import BMOIntentTracker
 except ImportError as e:
     print(f"Missing dependency: {e}")
     exit(1)
@@ -92,14 +94,12 @@ class MemoryEnhancedImplementationAgent:
     def __init__(self,
                  supabase: Client,
                  namespace: str,
-                 memory_manager: MemoryManager,
-                 qdrant_client: QdrantIntegration,
-                 intent_tracker: EnhancedBMOIntentTracker):
+                 memory_orchestrator: MemoryOrchestrator,
+                 intent_tracker: BMOIntentTracker):
         
         self.supabase = supabase
         self.namespace = namespace
-        self.memory_manager = memory_manager
-        self.qdrant_client = qdrant_client
+        self.memory_orchestrator = memory_orchestrator
         self.intent_tracker = intent_tracker
         
         # Performance tracking
@@ -1008,9 +1008,8 @@ async def create_memory_enhanced_implementation_agent(
     supabase_url: str,
     supabase_key: str,
     namespace: str,
-    memory_manager: MemoryManager,
-    qdrant_client: QdrantIntegration,
-    intent_tracker: EnhancedBMOIntentTracker
+    memory_orchestrator: MemoryOrchestrator,
+    intent_tracker: BMOIntentTracker
 ) -> MemoryEnhancedImplementationAgent:
     """Create memory-enhanced implementation agent"""
     
@@ -1019,9 +1018,57 @@ async def create_memory_enhanced_implementation_agent(
     agent = MemoryEnhancedImplementationAgent(
         supabase=supabase,
         namespace=namespace,
-        memory_manager=memory_manager,
-        qdrant_client=qdrant_client,
+        memory_orchestrator=memory_orchestrator,
         intent_tracker=intent_tracker
     )
     
     return agent
+
+if __name__ == "__main__":
+    import argparse
+    from dotenv import load_dotenv
+    
+    load_dotenv()
+    
+    parser = argparse.ArgumentParser(description="Memory-Enhanced Implementation Phase Agent")
+    parser.add_argument('--namespace', required=True, help='Project namespace')
+    args = parser.parse_args()
+    
+    # Create agent with proper initialization
+    console = Console()
+    memory_orchestrator = MemoryOrchestrator()
+    
+    # Initialize Supabase client
+    supabase_url = os.getenv('SUPABASE_URL')
+    supabase_key = os.getenv('SUPABASE_KEY')
+    
+    if not supabase_url or not supabase_key:
+        console.print("[red]Missing Supabase credentials in environment[/red]")
+        exit(1)
+    
+    supabase = create_client(supabase_url, supabase_key)
+    intent_tracker = BMOIntentTracker(supabase, args.namespace)
+    
+    # Create and run agent
+    agent = MemoryEnhancedImplementationAgent(
+        supabase=supabase,
+        namespace=args.namespace,
+        memory_orchestrator=memory_orchestrator,
+        intent_tracker=intent_tracker
+    )
+    
+    # Execute implementation phase
+    requirements = {"goal": "Generate production-ready calculator web app with React"}
+    architecture = {"type": "web_application", "frontend": "React", "backend": "FastAPI"}
+    context = {"namespace": args.namespace, "project_type": "calculator"}
+    
+    result = asyncio.run(agent.implement_with_memory_intelligence(
+        requirements, architecture, context
+    ))
+    
+    console.print("[green]✅ Implementation completed successfully![/green]")
+    console.print(f"Quality Score: {result.quality_metrics.overall_quality}")
+    console.print(f"Files Generated: {len(result.files_created)}")
+    console.print(f"Files: {', '.join(result.files_created)}")
+    console.print(f"Memory Insights Used: {result.memory_insights_used}")
+    console.print(f"Execution Time: {result.execution_time_seconds:.2f}s")

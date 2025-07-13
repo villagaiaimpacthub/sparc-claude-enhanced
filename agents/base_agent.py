@@ -26,8 +26,21 @@ from pydantic import BaseModel
 from rich.console import Console
 from dotenv import load_dotenv
 
-# Import our memory manager
-from sparc_cli.memory.manager import MemoryManager, TaskPayload
+# Import our memory manager  
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent / "lib"))
+from memory_orchestrator import MemoryOrchestrator
+
+# Simple TaskPayload class for agent execution
+class TaskPayload(BaseModel):
+    task_id: str
+    description: str
+    context: dict
+    requirements: list
+    ai_verifiable_outcomes: list
+    phase: str
+    priority: int
 
 # Load environment variables
 load_dotenv()
@@ -55,7 +68,7 @@ class BaseAgent(ABC):
         self.project_id = self._load_project_id()
         
         # Initialize memory manager
-        self.memory = MemoryManager(self.project_id)
+        self.memory = MemoryOrchestrator()
         
     def _load_project_id(self) -> str:
         """Load project ID from CLAUDE.md"""
