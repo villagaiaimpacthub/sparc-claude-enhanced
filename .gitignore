@@ -59,11 +59,24 @@ logs/
 # Temporary files
 .tmp/
 temp/
+*.pid
+workflow_results_*.json
+.sparc_file_registry_*.json
+
+# Screenshots and media
+*.png
+*.jpg
+*.jpeg
+*.gif
 
 # SPARC runtime files
 .sparc/sessions/
 .sparc/temp/
 .sparc/logs/
+
+# Test artifacts
+test_sparc_*/
+test_full_workflow/
 
 # Generated code artifacts (keep for demo)
 # src/
