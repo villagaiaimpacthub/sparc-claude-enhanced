@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo "🔍 Checking SPARC CLI prerequisites..."
+
+if ! command -v python3 &> /dev/null; then
+    echo "❌ Python 3 required"
+    osascript -e 'display alert "Python 3 Required" message "Please install Python 3.8+ from python.org and try again."' 2>/dev/null || true
+    exit 1
+fi
+
+echo "✅ Prerequisites check complete"
+

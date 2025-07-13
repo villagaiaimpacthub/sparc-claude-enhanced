@@ -1,0 +1,17 @@
+{
+  "project_id": "{{ project_id }}",
+  "name": "{{ project_name }}",
+  "created_at": {{ created_at }},
+  "sparc_cli_version": "{{ sparc_cli_version }}",
+  "settings": {
+    "auto_phase_progression": true,
+    "approval_required_phases": ["goal-clarification", "specification", "architecture"],
+    "max_concurrent_agents": 5,
+    "agent_timeout_minutes": 10,
+    "monitoring": {
+      "enabled": true,
+      "dashboard_refresh_rate": 2,
+      "max_log_entries": 10000
+    }
+  }
+}

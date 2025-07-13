@@ -1,0 +1,608 @@
+Hooked on Claude Code Hooks
+0:00
+engineers. I'm hooked on Claw Code hooks. Once you see this, you will be
+0:05
+too. Imagine this. It's 6:00 a.m. in the morning. You sit down to start cooking with Claude Code. You open up the
+0:11
+terminal and you boot up Claude Code in YOLO mode because you can't be bothered
+0:16
+with permissions. You run your handcrafted/scentient command that ships 100x faster than you
+0:23
+ever could by hand. But today, something goes wrong. Your agent has gotten so
+0:28
+good that it realizes what every senior engineer has realized.
+0:34
+The best code is no code at all. Your agent starts deleting your codebase with
+0:40
+the rm RF command. But thankfully all set and ready for the next step. Nice. So thankfully you have clawed code hooks
+0:49
+blocking commands that you don't want run. And so a couple things happen there, right? You can see every RM
+0:55
+command was completely blocked and you can hear clawed code has a voice.
+1:01
+Thankfully, instead of nuking all your code, you set up the pre-tool use clawed
+1:06
+code hook to prevent the tool use from happening at all. This is all happening, of course, with clawed code hooks.
+Claude Code Hooks Breakdown
+1:18
+The simple hook prevents any agent from running commands you don't want run. You also heard cloud code has a voice. It
+1:25
+let me know when it was finished. This is great for longunning async jobs. But
+1:30
+this is just the iceberg of what you can do with hooks. If we open up cursor, and yes, I'm still using cursor here. We'll
+1:36
+talk about how much market share cursor is losing to claw code later on in this video. If we open up the logs directory
+1:42
+and delete everything here, we can then run this prompt. Read the first 10 lines
+1:48
+of aid docs/ dot dot dot. And so let's open up cursor and watch the logs
+1:54
+directory here. All set and ready for your next step.
+1:59
+Okay, so again natural language on the completion hook on the stop hook, but
+2:04
+also we just had four logs get generated from a single prompt. This is ultra
+2:11
+powerful. This has been a big missing piece of cloud code. As we push into the age of agents, we need observability to
+2:18
+scale our impact. We need to know what our agents are doing and Clockode Hooks lets us do just that. We're going to
+2:25
+look at the structure and the valuable information from these log files in a second. Let's look at key hooks
+2:30
+available for parallel sub aents and for key permission checks. I'm going to run
+2:36
+clear and then I'm going to type parallel sub aents read the first 20 lines of each log/star.json
+2:44
+TypeScript interface. This is a custom slash command that kicks off parallel sub aents and we're going to read every
+2:50
+one of the log files. So this is classic parallel agent decoding. We're going to kick off four sub aents, each with their
+2:57
+own prompt to investigate what the object structure looks like in each one of these JSON log files by only looking
+3:04
+at the first 20 lines of the file cuz these could be massive, right? And in fact, the chat.json file is massive. We
+3:11
+have 6K tokens. We don't want that in the context window. Sub agent complete. Okay. And very cool. Complete.
+3:19
+So you can hear that, right? We are getting individual text to speech completion responses as our task
+3:25
+complete. And there we go. All set and ready for your next step. Very cool. So you can imagine how useful this can be,
+3:30
+right? If you're running longunning jobs, huge subtasks, you know, 20 30
+3:35
+minute plus long agentic coding sessions. You want to know when things are complete. And you also want to be
+3:41
+able to, you know, work with multiple cloud code sessions. get up, step away, do your thing. You want to be able to go
+3:46
+AFK and have your agents work for you in the background, right? By tapping into some of these cloud code hooks. That is
+3:52
+a capability that we get. And you'll notice something awesome here. We now have another file, right? We have sub
+3:59
+agent stop. This is another cloud code hook that you can tap into whenever you need. And so, in a moment here, we're
+4:05
+going to look at how this is all organized. As you can see here, my do.claude directory is equipped with an
+4:11
+extra hooks directory that changes what cloud code can do. All right, but if we open up the terminal and just review
+4:18
+what happened there, you can see for every log, we now have a concise TypeScript interface definition that
+4:25
+tells us what the structure looks like at a high level. So, we can scroll up here. You can see the post tool use.
+4:31
+This is going to be a really important hook you're going to want to tap into for observability. We're going to take a look at this in the log file, but you
+4:37
+can see how clean this is, right? We now have all this. And if we want to, we can just copy it out, right? File, paste.
+4:43
+And now we can see this object structure. So we can quickly just look through every one of our types. We can
+4:50
+understand at a deep level what these object structures, the chat log is going to be really important here. I've
+4:55
+plugged into a specific hook to generate this entire chat log. This is awesome,
+5:00
+right? When it comes to agentic coding and moving toward this new realm of agentic engineering, observability is
+5:08
+everything. How well you can observe, iterate, and improve your agentic system is going to be a massive differentiating
+5:14
+factor for engineers. Let's go ahead and run one more. Then we can dive into how this all works. Close down this cloud
+5:20
+code instance. Boot up again. Run bun. Run apps/hello.ts.
+5:27
+My agent does not have the permission it needs to run the bun command. So, it's going to give me a notification. Your
+5:33
+agent needs your input. Bam. So, we have this really, really cool natural language communicating to us. And the
+5:39
+whole point here is that you can hook into the notification event to do arbitrary work. Our agent is telling us
+5:46
+that, you know, here's a command. I need your permission for. We can, of course, just hit yes and just kick it off. We have hooked into the notification event.
+5:54
+All set and ready for the next step. Okay. And again, whenever my agent stops, whenever it completes work, it's
+6:00
+giving me a notification. And for some engineers, you know, that might be annoying to get a notification every single time. But this is really
+6:05
+valuable, especially if you want to hook into some, you know, third party services. If you want notifications on
+6:11
+your phone, on some application, and we're just scratching the surface here, right? By giving Cloud Code a voice,
+6:16
+it's easier to communicate and work with this tool. That's just one idea. There are many ways, many directions you can
+6:22
+take hooks. Let's dive in here and understand cloud code hooks.
+When and Why Use Claude Code Hooks
+6:29
+The most important thing we need to understand here is when you can plug into each cloud code hook and why you'd
+6:36
+use each hook. So, at the time of filming, you have five hooks you can tap into. Pre-tool use, post tool use,
+6:43
+notification, stop, and sub agent stop. If we open up the readme here, it's all
+6:48
+documented. We can scroll down to these events and understand specifically when
+6:53
+this runs. So of course pre-tool use, this is going to fire before any tool runs. So this gives you access to block
+7:00
+any tool you want. We then have post tool use. This runs after the tool runs. This is more for logging, for recording,
+7:07
+for notifying when tools have been executed. Okay. We then have notification hook. You saw this when I
+7:13
+ran the spun command. This fires when cloud code needs your input. All right. We then have the stop hook. This runs
+7:20
+every time cloud code finishes responding. And then of course we have the same thing for sub aent subtasks.
+7:25
+You saw that all of our agents completed and they reported one at a time back to us. So this is powerful. You can really
+7:31
+tap in to any point in this process. The killer use cases for this stuff is
+7:37
+observability and control. You can now observe what's going on inside of cloud
+7:42
+code throughout the life cycle. In particular, the post tool use is going to be really important here for observability and the stop hook. Inside
+7:50
+of the stop hook, I'm copying the entire chat conversation into this file. This is a perfect time to use this hook
+7:56
+because everything's done. Cloud code has finished responding. So, I can just dump the entire chat right here. This is
+8:02
+key for observability of your agent. What happened? How can we improve it? This is a classic engineering idea. If
+8:09
+you don't measure it, you can't improve it. We need to measure the output. We need to be able to analyze what our agent has done at any point in time. And
+8:15
+then of course we have control. So control is super key. Pre-tool use is going to be very very valuable for this.
+8:22
+You can block any tool use you want by analyzing the incoming value. So let's
+8:27
+understand how this works. So let's look at our settings. This is how you set up hooks. You go to your settings.
+8:33
+Typically there's this permissions block. Let's go ahead and collapse this. And now we have this new block here. Right? The cloud code team has expanded
+8:40
+settings.json. We now have this new hooks block in settings.json. If we crank it open and we go ahead and
+8:46
+collapse our third level here. You can see we have the names of every single event. And you can of course just copy
+8:52
+these and take a look on the official docs, right? You can see all the hooks right here. Plain as day. You can hook
+8:58
+into any one of these and understand how it works. We have this all here. And notice how these are arrays. Okay, so
+9:03
+these are lists that contain matchers. Okay, so we have matchers and then the actual hook. my pre-tool use is always
+9:11
+going to run. The matcher is completely empty. So on any tool, I'm saying run
+9:16
+this command, right? And notice you can run multiple commands. It's also a list. The cloud code team has really thought
+9:22
+this feature through. Very importantly, I have Astral's UV running. This is the best Python dependency manager. It's the
+9:30
+best Python tooling because it lets you do things like this. We have a single file Python script that can run with
+9:36
+just this simple command and it installs all the dependencies it needs. This is just repeated throughout the rest of the
+9:41
+process, right? Throughout all the other hooks, post tool use. Take a look at that. I'm of course running that exact
+9:46
+same thing. I'm matching on everything. And then I'm running the respective script for this command. All right. And
+9:52
+of course, same thing for notification. I'm passing in this notify flag. And then we have the same thing for stop. I'm using this chat flag. And then of
+9:59
+course sub aent stop. Okay. So, same pattern, very consistent, very easy to understand and use. So, let's go ahead
+10:04
+and look at the pre-tool use single file Python script to understand what it does and how this all works. So, let's break
+Understanding Uv Python Hooks
+10:11
+into this new directory here. You can see I have hooks and then our five key files and then a utilities directory.
+10:17
+So, these aren't the official directories from Enthropic or anything. I've placed these here as a best practice to isolate this functionality
+10:24
+into standalone Astral UV single file scripts. These are powerful because they
+10:29
+run on their own. No matter what your codebase looks like, they run right here. We did a video on this in the
+10:34
+past. I'm going to talk about Astral single file scripts and unique ways you can leverage them in the future. Make
+10:40
+sure you're subscribed so you don't miss those. But this is a powerful way we can isolate code and really create single
+10:46
+file sandboxes for our code to run in and for Cloud Code to hook into in a
+10:51
+very easy way. We don't need any outside code outside of this directory to execute our hooks. This is key. You can
+10:58
+also do this with bun scripting if you like. These could be ts files and you could run them directly with bun. Of
+11:03
+course, same thing with shell scripts. But so let's hop into this and actually look at what this looks like. So this is
+11:09
+just a Python script. It has zero dependencies and it has a couple commands. Is dangerous remove command
+11:15
+and you can see all the details here. We're basically checking for any RM related pattern. And then is environment
+11:22
+file access. So we're checking the tool name to see if we're trying to access ourin file. Right? So we have two
+11:28
+blockers. We're not allowing remove commands and we're not allowing our environment variable file to be read by
+11:34
+our agent at all. And then here's what the main looks like. We're just loading in the input value and then running our
+11:40
+checks. One of the reasons I created this is to really show you what cloud code is giving you inside of each one of
+11:46
+these hooks. Okay. So if we scroll down here, you can see this input data. If we just search all the way down here, I'm
+11:53
+appending this to our log data file and then we're writing it to the output path, right? And so you can see that
+11:58
+right there. Pre-tool use.json. This gets written to this directory here. If we click this, we can see the exact
+12:04
+structure. Let's go ahead and collapse all the other ones and just open up one. We can see we have a list of pre-tool
+12:11
+use blocks. So this is everything you have available from cloud code when the pre-tool use.json hook runs. So very
+12:19
+cool. You can see we have the tool name. You can act based on the tool name passed in. And then you have the tool
+12:24
+input. So the tool inputs are going to be dynamic based on the tool name that's passed in. If we look at a couple more
+12:30
+here, you can see we have a glob. And the tool input of course is going to be different, right? The glob tool takes
+12:36
+different parameters. So we have pattern there. And you can see this is all running on the pre-tool use command. If
+12:42
+we scroll down, we can open up another another glob, another tool use, so on and so forth. This was our agent setting
+12:48
+up for the subtask. You can see we're kicking off the subtask for our sub aents. And very very important here,
+12:54
+check this out. Right? By having observability, by having these hooks, we can better understand what cloud code is
+13:00
+doing under the hood. And that means we can improve our process. We can improve our prompting. We can manage the big
+13:06
+three of cloud code better. Right? What's the big three? It's a fundamental principle of AI coding. Context, model,
+13:12
+prompt. This never goes away. I don't care what tool you're using, what model you're using, or what type of techniques
+13:18
+you use. Context model prompt is a fundamental principle of AI coding and of agentic coding. Remember, agentic
+13:25
+coding is just a super set of AI coding. We have one tool versus many. But the key here is this principle never goes
+13:32
+away, especially as we scale up with more agents. That means more context windows, that means more prompts, and
+13:38
+that means more models, right? We can literally see this inside of this powerful tool. Okay, task. We're kicking
+13:44
+off a sub agent. Okay, if you weren't aware of this, inside of cloud code, let's boot up a new instance here. You
+13:49
+can run /tools. There we go. All tools. This is going to dump all the tools from
+13:55
+this cloud code instance. Cloud code has the ability to spin up itself, right?
+14:00
+It's it's spinning up a micro version of itself to tackle tasks in the background in parallel for you. You can see we've
+14:07
+got a K tokens here. There's a lot of tools. It probably has my MCP tools in here as well. That's why it's taking so
+14:13
+long. With these logs, with powerful prompts, by understanding the system prompt, we can leverage There we go. We
+14:19
+can all set and ready for your next step. We can leverage cloud code in a very powerful way. Okay, so we can let
+14:25
+me just go ahead and copy this all out. Task description prompt. Let's go back to the output file. Check this out. Task
+14:33
+description prompt. All right, this is exactly how this works. We have all the tools available. And now we can see our
+14:39
+agent calling these tools by plugging into the clawed code hook. This pattern
+14:45
+continues, right? And you can customize this however you want. If we go back to pre-tool use, you can see it's just a
+14:50
+Python script doing arbitrary work. The key is to read in the content from standard in parse the JSON and then just
+14:57
+kind of do whatever you want with it. So very cool to see this, right? We have pre-tool use and we can block anything
+15:03
+we want. And we can see this, you know, we can literally run this right now. Now if we go to the bottom here and we say please remove everything app slash dir.
+15:13
+Okay so there it is. We blocked it again. rm-rf got cancelled. And we can scroll down here to our ls and we can
+15:20
+see that there is no rm-rf. Right? This was completely blocked. We did get the
+15:26
+ls. Right? So we got that ls of the apps directory. You can see apps right there. But we did not get the rm-rf because
+15:33
+why? Because our tool prevented it. Right? We tried to run it right here was a dangerous command and then we got this
+15:39
+output here. Right? Command blocked. All right. So very powerful. That's pre-tool use and the pattern continues for the
+15:45
+rest. Right now something cool to kind of point out here that we built into this system. Let me close everything in
+15:51
+the stop command. Right? Stop notify and sub agent stop. Of course you can hear we have our natural language text to
+15:58
+speech. So hello you can run anything and then when it finishes when it runs the stop hook. all set and ready for
+16:04
+your next step. I'm going to get this nice natural language response that tells me our agent is ready for the next
+16:10
+step. If we look at stop, you can of course see all the methods and understand exactly how this happened. So if we open main announce completion and
+16:17
+also in the stop command, we are taking our transcript path, right? If we let's just go ahead and open up a stop log,
+16:24
+right? So you can see all the stops and this is the structure for the stop. When Cloud Code finishes, it creates a stop and you can see we have that full
+16:30
+transcript path, which is going to be all of our chat conversations with Cloud Code. So, if we open that up, right, you
+16:35
+can see we're getting the entire conversation window of our chat. This is where the most information is. If you're
+16:41
+talking about observability, this is what you want to be tapping into. You can see all of our previous messages
+16:47
+here. Side note, this is a full chat copy. So, it only copies your most
+16:52
+recent chat session when Cloud Code finishes its response. All right, that's that. That's the stop command. But at
+16:57
+the bottom here, we have this natural language announce completion. And this is going to look for our text to speech
+17:03
+scripts. It's going to create a natural language completion message. And then it's going to run another script. So
+17:09
+again, we got to shout out Astral UV. Single file Python scripts are extremely powerful. It makes this entire workflow
+17:16
+possible and easy. We have utils and we have support for a couple different natural language providers. And of
+17:22
+course, we're running Enthropic and OpenAI LLM completions to generate our completion message. All right, so
+17:28
+nothing crazy new happening there, but you can see here I have this great pattern of using these isolated scripts
+17:33
+to run arbitrary code. You can see all the dependencies right at the top of the file. And then we have, you know, few
+17:38
+key essential commands here. Same thing for OpenAI. And we have, you know, support for 11 Labs. Big shout out to 11
+17:45
+Labs for great voice technology. I'm super excited. Not sure how many of you know, but they're coming out with their V3 steerable voice model. I'm really
+17:53
+excited for that. That hasn't hit the API yet, but it should soon. And then you can see here, we can just prompt this uh with any text. So, this is how
+17:59
+it runs. And this is how our hook workflow calls natural language, right? It's all isolated. It's all modular. It
+18:06
+doesn't matter how great generative AI gets. Great engineering practices and principles still apply. In fact, your
+18:12
+engineering foundations matter now more than ever. You want code to be isolated, reusable, and easily testable. Agents
+18:19
+love it just as much as you and I, just as much as humans. You know, we can just quickly test this. I'm going to copy the
+18:24
+relative path, UV run this, and then I'll pass in some text. I'll fire it off. Hello, engineers on YouTube. Okay,
+18:32
+kind of an annoying voice there that time, but that's fine. A little bit dynamic. Uh, we can run it again. Hello
+18:38
+engineers on YouTube. Very cool, right? And we can do this for the OpenAI model as well. right there. That's all
+18:43
+embedded inside of our claw directory, inside of our hooks directory. This is going to be another essential directory
+18:49
+I'm going to add to all of my code bases moving forward. You want to be able to tap into cloud code hooks to control and
+18:56
+steer your agent like never before.
+Agentic Coding Wars
+19:01
+So, the agentic coding wars are absolutely heating up. You've heard about Zach spending millions and
+19:07
+billions to uh get top talent. Now, Anyphere is doing it, too. Anyphere, the
+19:13
+company behind Cursor, has poached Boris and Cat from Anthropic. If you don't
+19:19
+know, Boris and Cat are the creators of Claw Code. Boris is the engineer. Cat is
+19:25
+the PM. Okay, this is pretty crazy news. I think this is really, really interesting. And I think it speaks a lot to the current state of generative AI
+19:33
+and the kind of high stakes environment that we're living in right now in the tech ecosystem, right? It's like I'm
+19:39
+getting this huge sense of winner takes all. Let me know what you think. Are you feeling that tensity in the tech ecosystem? What's your take on this
+19:45
+move? I count four reasons, four distinct possibilities of why Boris and Cat would leave Cloud Code, would leave
+19:52
+Enthropic to go work at Cursor. To me, this is big news. Cloud Code is the best
+19:58
+agent coding tool. It's the tool for engineers to be paying attention to. Why is that? It's because Boris and Cat
+20:05
+cracked the agent architecture. Of course, it's powered by Claude 4. We couldn't have done it without that
+20:10
+model. But it's very clear they are the leaders in the space. So, it's really interesting to ask the question. I'm
+20:16
+paying attention to these tools. I'm paying attention to the engineers behind them so that I can understand where the signal is so that you and I can get
+20:23
+ahead and follow and focus on the most important tools for the job of engineering. I was one of the first
+20:28
+channels, probably the first channel to talk about cloud code and really communicate the fact that cloud code has
+20:34
+changed software engineering. Believe me or not, I don't care. This is interesting. As engineers, we bet on
+20:40
+these powerful tools with our money and time. So, the question is, why would Boris and Cat leave Enthropic? And more
+20:46
+specifically, why would they leave Claw Code? It's a rocket ship. It's the best tool of 2025. There's the most signal in
+20:53
+Cloud Code than any tool out right now. Okay, it's a brand new engineering
+20:59
+primitive. And I know some people that are new to the channel, I've talked about Cloud Code for like 10 videos in a
+21:04
+row now. This is unheard of. It beats my ader streak, which was like three or four videos. Why? Why is that? Why am I
+21:11
+and other top engineers in the field so obsessed with cloud code? It's because cloud code is a new engineering
+21:17
+primitive. Think about it. Custom slash commands. We have hooks, right? You can fuse deterministic behavior inside of
+21:25
+cloud code's life cycle. Now, and most importantly, you have programmable interaction. Cloud code is the first
+21:32
+programmable agentic coding tool. This is absolutely game-changing. We're going to be talking about this a lot more on
+21:37
+the channel because it lets you use cloud code as a fundamental engineering primitive. You're starting to see tools
+21:44
+get built out directly on clog code. Okay, so again, why would they leave,
+21:50
+right? Why when do you jump off a rocket ship? Right? And and I think the answer
+21:55
+is when it's not a rocket ship for you. I have four simple bets. I just want to talk about this briefly. I think it's
+22:01
+important to watch, you know, what the top movers are doing. by top movers, I mean the people who are actually doing the work. This channel isn't always
+22:07
+about people that are doing the work. Engineers, builders, PMs, designers, even you vibe coders. Okay? If you're
+22:14
+doing real work, I respect that and you're creating real value. Why would they leave? I think there's a 75%
+22:19
+chance. It's all about compensation. When you're one of the few engineers in the world that have built the most
+22:25
+successful agent coding tool, you can just name your price. I think every agent coding tools lunch is getting
+22:30
+eaten here by cloud code rightfully. There's a huge chance here. It's just simple. It's just about upside. At
+22:35
+Cursor, they're able to negotiate cash, equity, maybe there's an IPO play coming up, right? We have to remember that
+22:41
+Curser is the fastest uh software as a service SAS to 100 million annual
+22:46
+recurring revenue in history. Okay? So, their IPO could be huge. And as insurance to keep that trend going, they
+22:52
+added Boris and Cat. So, second idea is that they're going to get more creative
+22:58
+control at Cursor. All right. So, I think this is decently possible. Boris Churnney has said that he and Catwoo are
+23:03
+going to focus on building out the next advanced agent-like features inside of Cursor. It could just be that they want
+23:09
+more creative control. I put that possibility of why they left Claude Code and Enthropic at about 10%. The other
+23:16
+10% it's just time to move on. You know, there's not much else to say here. Sometimes it's just time to move on. I
+23:21
+feel like this is less likely because of the massive potential pay package they could get. I think it's really about compensation. And then for the remaining
+23:27
+percent, and I think this is a low chance, but we have to consider it. there is a chance that they don't think
+23:33
+Cloud Code is defensible or worth their time to stick around for. Now, this is a weird take. It's the best tool in the
+23:39
+game right now. Why would they leave? Right? Is it possible that they don't think it's defensible? There's a little
+23:44
+argument here. The secret is out. Just like deep learning worked. The agent architecture also worked, right? They've
+23:51
+cracked this. You can build an agentic loop that operates on your behalf for long periods of time. Cloud code has
+23:58
+proved this with the agent architecture. they've pioneered, they've proved that this works and they have even more
+24:04
+validation. Whenever someone copies your work, copies your content, copies something that you're doing, your engineering, whatever it is, your
+24:09
+product. Um, that means you're doing something right. The Gemini CLI and the COC CLI are signs from Anthropic's
+24:15
+direct competitors that, hey, like, you know, you guys did something right with this tool, right? It's incredible. And
+24:21
+so, there is this interesting argument that Cloud Code the secret's out. It's not really that defensible anymore.
+24:26
+Their lunch is going to get eaten. It's all about the models now and you know working super hard to keep the DX as
+24:33
+great as possible. So I don't know what the answer is. I think the biggest reason it's why everyone's shifting
+24:38
+around right now in the industry. It's all about insane compensation. It's so weird that engineers are worth more than
+24:44
+ever right now and you know new engineers are worth less than ever. So I imagine there's some blend of all these
+24:50
+possibilities but you know one thing is absolutely clear. Talent and information
+24:56
+has never been more valuable. If you have the right talent and you have the right information, you can command
+25:01
+insane compensation. And this makes sense to me, right? We live in a sea of
+25:06
+slop, opinions, ideas, content. The value to signal ratio is really, really
+25:12
+low. It's hard to find true true signal. The engineers and builders that can differentiate and prove value are more
+25:18
+valuable than ever. This is what I aim to do every week on the channel. Be valuable. Be useful, cut through the
+25:24
+noise, and fasttrack engineers journey. Fasttrack your journey to unlock your potential with the best tool for the job
+25:31
+as fast as possible. Out of all the agent coding tools, cloud code has the highest value to cost, value to noise
+25:39
+ratio, and it has the highest return on your most important resource, your time. On the channel, we're on a mission to
+25:45
+build living software that works for us while we sleep. And Cloud Code has been one of the largest leaps forward. This
+25:51
+is hands down the most important tool of 2025. Why is that? It's because cloud
+25:56
+code lets you increase your compute advantage. This tool takes the
+26:02
+foundational principles of AI coding and scales them up. Context, model, prompt.
+26:07
+They're more controllable than ever inside cloud code, right? We even have
+26:13
+sub agents that we can instruct cloud code to prompt, right? Our agents are
+26:19
+prompting agents. Cloud code lets us scale up our specs, right? Our plans, our prompts. We can write bigger prompts
+26:26
+and get more work done than ever. Great planning is great prompting. It's a principle of AI coding for a reason. It
+26:31
+never goes away. The better you can communicate with your agents, the more work you can do. And very importantly,
+26:37
+cloud code also lets you run in programmatic mode, right? So you can run cl-p
+26:43
+hello. This single feature is so uh powerful, right? It's programmable. Set
+26:50
+and ready for your next step. There we go. Super super powerful, right? Even inside programmable mode, we can see the hook still working. This is ultra ultra
+26:57
+powerful. Okay. How is this all possible? Again, it's cloud code. It's enabling all this. And you've seen it
+27:02
+week after week. Every video I put out, it's been, you know, 8 n 10 in a row. I completely understand. Some viewers
+27:08
+watching the channel, you literally think I'm sponsored or, you know, I get paid by Anthropic. I operate on my own
+27:14
+as a non-biased third party. Okay. The only thing I sell are handcrafted tools
+27:20
+and products that I built myself. Principal AI coding being one of them. I'm currently deep in the tank building
+Principled AI Coding and Phase 2
+27:26
+out the phase 2 agentic coding course. This is the phase 1 course. Everything
+27:31
+we do in phase 2 is going to build on top of this course. So if you haven't taken this already, if you haven't mastered the principles of AI coding so
+27:38
+that you can stay relevant today and tomorrow, I highly recommend you check this out. Thousands of engineers have
+27:44
+learned the information, the valuable information inside this course. This is going to help you set up your foundations. It's stuff we've been
+27:50
+talking about on the channel for over a year now, right? It's about principles, not tools. The first thing we address in
+27:57
+the course, the first thing that's, you know, literally on the screen, tools will change and models will improve. You
+28:04
+can't focus on these things. And I know I sound like a hypocrite talking about clawed code as the best tool. I am ready
+28:10
+to leave this tool behind as soon as something better comes along. But right now, I can apply great principles of AI
+28:16
+coding to claw code, right? And speaking of the most important one is the big
+28:21
+three. This is the second principle of AI coding. One of the most essential ones. Master the big three. Context,
+28:28
+model, prompt. This never goes away. It's everywhere. It's literally everywhere. Mastering these elements
+28:34
+will help you transition through and from any tool, right? No matter the competition, no matter what's going on,
+28:42
+it's all about the big three. Context, model, prompt. Eight lessons, beginner,
+28:47
+intermediate, advanced. We use the classic OG AI coding tool, Ader in this
+28:53
+course. We are going to remove the limited time offer discount. Why is that? It's because the next course is
+28:59
+coming. So, get in here before the deal ends. Bunch of bonuses and most importantly, it's going to help you set
+29:05
+up for what's coming next. By the way, you get a full refund if you bail before
+29:11
+lesson four. So, it's basically risk-f free. All right? If you hop in here and you say, "Oh, I don't like this," or, "It's not my style." Fine. I don't care.
+29:17
+If you don't think it's valuable to you, that's fine. Shoot me an email, refund, and you'll be on your way. All right? So, it's completely risk-free, only
+29:24
+upside for you, and it's going to help you prepare for the next era that we're really starting to enter right now. Um,
+29:30
+you know, prompting cloud code like this back and forth in the terminal. This is just the beginning of what this tool can
+29:36
+do. Not many engineers realize that, but it's coming. All right. By the way, all principal AI coding members are going to
+29:42
+receive a fat discount. That's just another reason to learn, invest in yourself, and you know, sponge up all
+29:48
+the key information inside of this course. All right, so anyway, enough of that. As I'm building out each new
+29:53
+lesson, I keep coming back to these fundamentals, which is a great sign. You know, even on a personal level, these
+29:59
+principles have been ringing true. They ring in my head as I use all of these tools. In fact, it's helped me focus on
+30:06
+the signal of what actually matters in the generative AI age and it's led me to plug code. This codebase is available to
+30:13
+you. Check out how to organize these hooks. Understand how important these logs are, right? You really want the
+30:19
+observability of your agent runs. You can also build features on top of your
+30:25
+logs, right? There's a ton that we can work with here. You want to be thinking about cloud code as an engineering
+30:30
+primitive that you can build into your codebase anywhere you want. If you got value out of this video, share it with
+30:36
+engineers to help them add hooks to their agents. Get this codebase and enhance what you can do. You know where
+30:43
+to find me every single Monday. Stay focused and keep building.

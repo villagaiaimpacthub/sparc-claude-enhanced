@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pkg-info overwrite-permissions="true" relocatable="false" identifier="com.sparc.cli" postinstall-action="none" version="1.0.1" format-version="2" generator-version="InstallCmds-860 (24D81)" install-location="/" auth="root">
+    <payload numberOfFiles="499" installKBytes="2219"/>
+    <bundle-version/>
+    <upgrade-bundle/>
+    <update-bundle/>
+    <atomic-update-bundle/>
+    <strict-identifier/>
+    <relocate/>
+    <scripts>
+        <preinstall file="./preinstall" timeout="600"/>
+        <postinstall file="./postinstall" timeout="600"/>
+    </scripts>
+</pkg-info>

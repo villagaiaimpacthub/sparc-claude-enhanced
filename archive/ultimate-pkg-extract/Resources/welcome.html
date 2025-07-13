@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            margin: 20px;
+            line-height: 1.6;
+            background: transparent;
+            color: inherit;
+        }
+        h1 { 
+            color: #007AFF; 
+            font-size: 24px;
+            background: transparent;
+        }
+        .update-notice {
+            background: rgba(255, 149, 0, 0.1);
+            border: 1px solid rgba(255, 149, 0, 0.3);
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            color: inherit;
+        }
+        .fixes-list {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            color: inherit;
+        }
+        .feature-item {
+            margin: 8px 0;
+            padding: 5px 0;
+            background: transparent;
+            color: inherit;
+        }
+        .checkmark {
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        p, li, div {
+            background: transparent;
+            color: inherit;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 SPARC CLI - Ultimate Update</h1>
+    
+    <div class="update-notice">
+        <h3>🎯 This update will fix ALL existing SPARC projects</h3>
+        <p>This installer automatically finds and updates all your existing SPARC projects with the correct Qdrant endpoint, so <strong>/sparc commands will finally show accurate database status</strong>.</p>
+    </div>
+    
+    <div class="fixes-list">
+        <h3>🔧 What gets fixed:</h3>
+        <div class="feature-item">
+            <span class="checkmark">✅</span>
+            <strong>All existing projects updated</strong> - Finds and fixes every SPARC project
+        </div>
+        <div class="feature-item">
+            <span class="checkmark">✅</span>
+            <strong>Correct Qdrant endpoint</strong> - Changes /health to / in all projects
+        </div>
+        <div class="feature-item">
+            <span class="checkmark">✅</span>
+            <strong>Accurate health checks</strong> - Shows real database connectivity status
+        </div>
+        <div class="feature-item">
+            <span class="checkmark">✅</span>
+            <strong>No manual work needed</strong> - Everything updated automatically
+        </div>
+    </div>
+    
+    <p><strong>After this update, /sparc will show "✅ Qdrant: Connected" instead of "🟡 Not responding"</strong></p>
+</body>
+</html>

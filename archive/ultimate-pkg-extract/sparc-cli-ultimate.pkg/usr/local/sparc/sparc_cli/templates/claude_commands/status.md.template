@@ -1,0 +1,28 @@
+---
+description: "View detailed SPARC project status and system information"
+allowed-tools: ["bash", "read"]
+---
+
+# SPARC Project Status
+
+📊 **System Status Overview**
+
+!sparc status --namespace {{ namespace }}
+
+**Project Information:**
+- **Name:** {{ project_name }}
+- **Namespace:** {{ namespace }}
+- **SPARC CLI Version:** {{ sparc_cli_version }}
+
+**Available Commands:**
+- Continue describing your project naturally
+- `/phase` - Check current development phase
+- `/agents` - Show active agents
+- `/sparc` - Enter SPARC development mode
+- `/stopsparc` - Exit SPARC mode
+
+**System Components:**
+- 🤖 36 AI agents ready
+- 🐳 Docker containers managed
+- ☁️ Supabase integration active
+- 📊 Real-time monitoring enabled

@@ -1,0 +1,55 @@
+{
+  "name": "sparc-claude-integration",
+  "version": "1.0.0",
+  "description": "SPARC Autonomous Development System - Claude Code Integration",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "sparc-setup": "./bin/sparc-setup.js",
+    "sparc-cli": "./bin/sparc-cli.js"
+  },
+  "scripts": {
+    "install-commands": "node scripts/install-commands.js",
+    "setup": "node scripts/setup-wizard.js",
+    "test": "node test/test-integration.js"
+  },
+  "keywords": [
+    "claude-code",
+    "autonomous-development", 
+    "ai-agents",
+    "sparc",
+    "claude-integration"
+  ],
+  "files": [
+    "claude-commands/",
+    "hooks/",
+    "agents/",
+    "bin/",
+    "scripts/",
+    "lib/",
+    "sparc_cli/"
+  ],
+  "dependencies": {
+    "commander": "^11.0.0",
+    "inquirer": "^9.2.0", 
+    "chalk": "^5.3.0",
+    "ora": "^7.0.0",
+    "fs-extra": "^11.1.0",
+    "supabase": "^1.0.0",
+    "qdrant-client": "^1.7.0",
+    "dotenv": "^16.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sparc-ai/claude-integration.git"
+  },
+  "license": "MIT",
+  "claudeCode": {
+    "commands": "./claude-commands/",
+    "hooks": "./hooks/",
+    "agents": "./agents/"
+  }
+}

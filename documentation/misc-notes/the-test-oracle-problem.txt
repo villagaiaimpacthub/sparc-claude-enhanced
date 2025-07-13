@@ -1,0 +1,609 @@
+The BIGGEST Problem in Autonomous AI Development
+0:01
+okay in this video we're going to talk
+0:03
+about the biggest problem plaguing fully
+0:06
+autonomous software development all
+0:10
+right and that is the test oracle
+The Test Oracle Problem: Defined
+0:13
+problem this is the issue that sets
+0:18
+agentic engineers apart from vibe coders
+0:22
+okay the big big difference
+0:26
+and what allows somebody what what makes
+0:29
+it so that one person can really excel
+0:32
+at ai coding and and maybe somebody else
+0:35
+struggles with it and the issue is is
+0:38
+your ability to define to an ai model
+0:43
+your definition of what working is and a
+0:48
+system cannot verify that it is correct
+0:51
+if your definition of correctness is
+0:53
+flawed okay and this test oracle problem
+0:58
+is a long-standing challenge in the
+1:00
+computer science field and ai can
+1:03
+generate code but it cannot with full
+1:06
+autonomy determine if the resulting
+1:09
+software is working according to the
+1:11
+user's true intent and so in most
+1:16
+practical scenarios
+Agentic Engineers vs. Vibe Coders: The Key Difference
+1:18
+especially for complex systems a
+1:21
+complete and automatable oracle does not
+1:24
+exist and the final source of truth
+1:26
+defaults to the human tester who relies
+1:28
+on informal specifications domain
+1:31
+knowledge and implicit expectations to
+1:33
+judge correctness now some of the things
+1:36
+people do utilize and and this is and
+1:39
+when you're using fairmind this is
+1:41
+what's really going to set you apart
+1:42
+from being successful with it or not and
+1:44
+in the version that i've released
+1:46
+publicly anyways it does not have my
+1:48
+behavior model oracle framework that
+1:51
+i've just invented
+1:53
+and that i've been playing around with
+1:55
+um but essentially what people do is
+Testing Methodologies: BDD vs. SDD (Specification-Driven Development)
+1:58
+they
+2:00
+one method is bdd behavior-driven
+2:02
+development where you have user stories
+2:05
+and you have tests to ensure that all
+2:07
+the different user stories are able to
+2:09
+pass you know all the different ways
+2:10
+users would utilize your program um that
+2:13
+the system is able to you know do what
+2:16
+the users needed to do and then there's
+2:19
+uh a new form of you know endtoend test
+2:23
+building called sddd specificationdriven
+2:26
+development and this is where you
+2:28
+specify to the ai model what working is
+2:32
+and this is the strategy that many of
+2:34
+the agentic engineers and coders are
+2:37
+utilizing and the ones that are very
+2:39
+successful with programming with ai are
+2:41
+very good at std and so
+Case Study: Testing My Swarm AI Pipeline
+2:45
+let me explain a scenario here so how
+2:50
+i've used specificationdriven
+2:52
+development
+2:54
+and is is like this so i developed a
+2:59
+aentic pipeline that uses swarms of ai
+3:03
+uh assistants to be able to ingest
+3:05
+entire codebases into neo4j this is very
+3:08
+important because this is the m the
+3:10
+model level of the behavior model oracle
+3:14
+framework that i've created um so first
+3:19
+in order to test this programmed so the
+3:23
+ai needs to be told what working is so
+3:26
+when you when the ai is told to say swap
+3:29
+this from mock test to production test
+3:31
+environment what happens is is that it
+3:35
+sets tests that aren't necessarily
+3:37
+conducive to the actual system working
+3:40
+so in order to test my pipeline i
+3:43
+created a polyglot app this is an app
+3:45
+that is comprised of multiple different
+3:48
+languages different api endpoints
+3:50
+different databases
+3:51
+and so the whole point of this system is
+3:54
+to be able to identify the relationships
+3:56
+not just intrafile but interfile across
+3:59
+directories and across coding languages
+4:01
+and be able to represent those
+4:03
+relationships across um multiple
+4:06
+language uh code bases and so i have an
+4:09
+app here you know that consists of 15
+4:12
+files i know exactly you know what all
+4:15
+those nodes and relationships should be
+4:19
+right and so what the ai was doing is it
+4:21
+was testing say like these ai models
+4:24
+here
+4:26
+right and they were like making sure
+4:27
+that the
+4:29
+ai models were doing what they needed to
+4:31
+do but once i got to the point where i
+4:35
+was spawning up
+4:38
+you know 50 100 150 200 ai agents in
+4:42
+parallel to do this cognitive
+4:44
+triangulation where the system
+4:46
+identified a point of interest and then
+4:48
+sent out multiple agents in parallel to
+4:51
+view this point of interest from say
+4:53
+multiple different viewpoints right from
+4:55
+like the viewpoint of a function the
+4:57
+viewpoint of a variable a viewpoint of
+4:58
+this file a viewpoint of that that that
+5:00
+that right and so some points of
+5:02
+interest might have had 30 viewpoints in
+5:05
+which you know i needed to send out 30
+5:07
+agents in parallel to analyze that point
+5:09
+of interest from all the different
+5:10
+viewpoints right and so the like the
+5:15
+testing like the just environments and
+5:17
+stuff were not really built for that
+5:19
+okay and so they're constantly over here
+5:21
+trying to open and close connections and
+5:22
+when you have hundreds of agents going
+5:24
+in parallel it was a nightmare like the
+5:25
+testing system was just not working
+5:28
+right and so i needed to go to a
+The "Glass Box" Strategy: How to Define "Working" for an AI
+5:30
+specificationdriven development where i
+5:32
+specify to the ai what passing is and so
+5:36
+when it and when it comes to ai agents
+5:39
+like what they're doing is like a black
+5:41
+box right and so what we need to do is
+5:43
+turn that into more of a glass box and
+5:46
+we can do this with a testing strategy
+5:48
+where we are if we know if we've set up
+5:51
+our tests in a way that we know what
+5:53
+should be the outcome then we can test
+5:55
+see each of these arrows here in between
+5:57
+each of these
+5:59
+these these are the the agents saving
+6:02
+what their their findings to a table or
+6:05
+database so all i needed to do was run
+6:08
+the entire pipeline and then compare
+6:10
+what was in these tables right to
+6:16
+um the actual polyglot app itself and
+6:19
+what the outcomes should be right and so
+6:23
+but i had to know enough about what i
+6:26
+was building to be able to specify that
+6:29
+that is what the testing environment
+6:31
+needed to be that is what i needed to do
+6:33
+in order to specify and clarify to the
+6:36
+ai this is what working is defined as
+6:39
+and this was an outcome that ai could
+6:42
+verify that the system was working so
+6:46
+that is what you need to get good at is
+6:49
+specifying what working is to the ai but
+My Solution: An Intro to the "Behavior Model Oracle"
+6:52
+that is also what the purpose of my
+6:54
+behavior model oracle is designed to do
+6:57
+is to autonomously do that and so that's
+6:59
+what i've been i've created and i've
+7:01
+been testing and having um some some
+7:03
+great success with actually over the
+7:05
+last day been playing around with that
+7:07
+and
+7:10
+this is this is this is really what sets
+7:12
+apart the and okay so
+7:16
+some of these software developers that
+7:17
+are out there and they're like using ai
+7:20
+agents and creating incredible things
+7:22
+right these people don't necessarily
+7:26
+know everything that they're doing right
+7:28
+they don't know like they're building
+7:30
+quantum apps they don't know jack about
+7:31
+quantum like not not like very
+7:34
+in-depthly anyways like maybe like a
+7:36
+basic understanding of it right or like
+7:39
+they don't know every single coding
+7:41
+language right they don't know all the
+7:43
+ins and outs of neural networks and how
+7:45
+you know the exact math and the
+7:47
+tensorers is done right you don't need
+7:49
+an and even though they're like doing
+7:51
+advanced things that utilize all of this
+You Don't Need to Know Everything (Just How to Test It)
+7:55
+stuff they're able to do it because you
+7:57
+only need enough information to define
+7:59
+what working is right and you can create
+8:02
+things like benchmarks um and and and
+8:06
+set up different testing environments
+8:08
+that define what working is you don't
+8:11
+like in this situation here you don't
+8:12
+necessarily need to know what's going on
+8:14
+inside this ai model you just need to
+8:16
+know that the output is what you want
+8:18
+right like that's it right you need to
+8:21
+know you need to have an un systematic
+8:24
+understanding of what you are creating
+8:27
+what it does right or at least a
+8:29
+fundamental understanding so that you
+8:31
+know you know the points to test to
+8:33
+verify that it is working all right and
+8:37
+so
+8:41
+that is um
+8:45
+that is what is holding back true
+8:47
+autonomous
+8:50
+um
+8:52
+application development is is the
+8:54
+ability to define working by the human's
+8:57
+intent and
+9:02
+it's difficult it's very difficult and
+9:06
+and in even my model was not able to
+9:10
+come to this conclusion in here where i
+9:13
+needed to test glass box style state of
+9:16
+the world glass box type of testing and
+9:18
+um
+9:21
+the great part about pheramine is uh it
+9:24
+it automates the entire software
+9:26
+development all the way up until this
+9:29
+point right where and then it does have
+9:32
+an end toend you know conversion into
+9:34
+production test environment in a
+9:36
+bddriven type of setup um but
+9:42
+it's ai right
+9:44
+you're probably going to need to have
+9:45
+some input there like that's the point
+9:47
+where you need to stop and you need to
+9:49
+like be like okay what did i create okay
+9:52
+how do i define that this thing is
+9:53
+working or not right that is going to
+9:55
+take some human intuition it doesn't
+9:57
+necessarily mean you need to be able to
+9:59
+read the code um it but but knowing how
+10:04
+to code understanding logic and
+10:06
+understanding systems and how the
+10:08
+systems work together that you've
+10:10
+created that is important and you can
+10:13
+derive that information from like the
+10:15
+documentation you can derive that
+10:16
+information from say the code that gets
+10:20
+written by the the you know you know the
+10:23
+little notes that ai puts on the you
+10:26
+know the different codes you know you
+10:28
+like this is the main entry point yada
+10:30
+yada yada right the ai is like telling
+10:32
+you all of these different things right
+10:35
+it's so you can kind of you can figure
+10:39
+this stuff out without knowing how to
+10:42
+write this code right like i know this
+10:45
+is a cipher query i can figure out what
+10:47
+this cipher query says right i can
+10:49
+understand like what it's doing um even
+10:51
+though i could not write this cipher
+10:53
+query right but but i can read it right
+10:57
+that's what's important or at least i
+10:59
+can comprehend
+11:00
+in a way that allows me to be able to
+11:02
+set up tests to make to specify to the
+11:05
+ai the tests that need to be made to
+11:08
+pass this okay so
+11:12
+that's especially if you're using fear
+11:14
+of mine or just pretty much any agentic
+11:17
+ai that is your biggest
+11:21
+hurdle to overcome that is what you
+11:24
+should be
+11:27
+trying to educate yourself on how to
+11:29
+overcome that hurdle and with pheromine
+11:32
+that is the only hurdle um
+11:37
+that you need to overcome
+11:39
+all right that is it otherwise
+Your #1 Hurdle and How Pheromind Helps You Practice
+11:41
+everything else it does for you but you
+11:44
+do need to overcome that hurdle the test
+11:48
+oracle problem it is it is it is the one
+11:53
+issue preventing full autonomous
+11:56
+coding
+11:58
+but now you know what skill you need you
+12:02
+need to be able to define what working
+12:04
+is
+12:06
+and um
+12:09
+yeah if in in the language of ai in the
+12:15
+language of an ai verifiable outcome
+12:18
+being able to so yes while the the
+12:21
+language of coding is english right it
+12:25
+is an ai verifiable english that you
+12:28
+need to speak and think in and logically
+12:30
+talk in and um
+12:34
+that just takes playing with the systems
+12:36
+um just practice and learning like
+12:39
+fairmind basically does all the work for
+12:40
+you and then you just get to that point
+12:42
+and you just practice you build and you
+12:44
+just practice like fairmind just
+12:46
+basically automates everything and just
+12:48
+makes you so you can practice on just
+12:49
+this one skill it is amazing it is an
+12:52
+entire ai agentic dev team and uh but
+12:56
+yes that is the the one thing that i
+12:58
+have been trying to correct and i think
+13:00
+i've made some huge leaps and strides
+13:02
+with my behavior model oracle
+13:06
+so
+13:08
+those are the times that types of things
+13:10
+that i've been playing with over the
+13:12
+last day so
+13:15
+see where i can get that it's a lot of
+13:17
+fun god i love this ai stuff it's great
+13:20
+isn't it

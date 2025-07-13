@@ -1,0 +1,30 @@
+---
+description: "Enter SPARC development mode with 36-agent autonomous system"
+allowed-tools: ["bash", "write", "read", "edit"]
+---
+
+# SPARC Development Mode
+
+🚀 **Enter Autonomous Development Mode**
+
+!sparc run --namespace {{ namespace }} "[Enter your development goal here]"
+
+The SPARC system is now processing your request through the 36-agent autonomous development pipeline.
+
+**Current Project:** {{ project_name }}  
+**Namespace:** {{ namespace }}
+
+**Available Commands:**
+- Continue describing your development goals naturally
+- `/phase` - Check current development phase
+- `/status` - View project status
+- `/agents` - Show agent activity
+- `/stopsparc` - Exit SPARC mode
+
+**Development Phases:**
+1. **Goal Clarification** - Understanding requirements
+2. **Specification** - Detailed specifications
+3. **Architecture** - System design
+4. **Pseudocode** - High-level implementation
+5. **Refinement** - Code generation and testing
+6. **Completion** - Final validation and documentation

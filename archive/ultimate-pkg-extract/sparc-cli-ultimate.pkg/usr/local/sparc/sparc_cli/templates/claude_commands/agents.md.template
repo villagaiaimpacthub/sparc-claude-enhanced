@@ -1,0 +1,32 @@
+---
+description: "Show all 36 SPARC agents and their current activity status"
+allowed-tools: ["bash", "read"]
+---
+
+# SPARC Agent Status
+
+🤖 **36-Agent System Overview**
+
+!sparc agents --namespace {{ namespace }}
+
+**Project:** {{ project_name }}
+
+**Agent Categories:**
+
+🎯 **Orchestrators (11 agents)** - Master coordination and phase management  
+🔍 **Researchers (3 agents)** - Strategic planning and edge case analysis  
+✍️ **Writers (6 agents)** - Specification and documentation creation  
+💻 **Coders (3 agents)** - Implementation and debugging  
+🔍 **Reviewers (4 agents)** - Code quality and security analysis  
+🧪 **Testers (2 agents)** - Test generation and chaos engineering  
+🎯 **BMO Agents (6 agents)** - Final validation and system verification  
+🔧 **Utility Agents (1 agent)** - Supporting functionality  
+
+**Available Commands:**
+- Continue with your development requests
+- `/phase` - Check current development phase
+- `/status` - View project status
+- `/sparc` - Enter SPARC development mode
+- `/stopsparc` - Exit SPARC mode
+
+The 36 agents work collaboratively through the SPARC methodology to deliver complete software solutions.

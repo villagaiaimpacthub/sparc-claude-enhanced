@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<installer-gui-script minSpecVersion="2">
+    <title>SPARC CLI - Update All Projects</title>
+    <welcome file="welcome.html"/>
+    <conclusion file="conclusion.html"/>
+    <options customize="never" require-scripts="true" rootVolumeOnly="true"/>
+    <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="com.sparc.cli"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="com.sparc.cli" visible="false">
+        <pkg-ref id="com.sparc.cli"/>
+    </choice>
+    <pkg-ref id="com.sparc.cli" version="1.0.1" installKBytes="2219" updateKBytes="0">#sparc-cli-ultimate.pkg</pkg-ref>
+    <pkg-ref id="com.sparc.cli">
+        <bundle-version/>
+    </pkg-ref>
+</installer-gui-script>

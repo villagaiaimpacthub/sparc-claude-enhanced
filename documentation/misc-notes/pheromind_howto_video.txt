@@ -1,0 +1,719 @@
+The Problem with Modern AI Coding Agents
+0:00
+i've been asked well how do I use
+0:01
+Pheramine well this is that video i'm
+0:04
+going to teach you how Fairmind works
+0:07
+you see Phamine is a system unlike any
+0:09
+other systems that exist and it does
+0:12
+something completely different than all
+0:15
+the other coding agents out there it
+0:18
+manages the entire software development
+0:21
+process and orchestrates out the entire
+0:24
+thing so instead of needing to be a
+0:27
+software developer and when you want to
+0:29
+go build something everything you build
+0:31
+you have to like know in your head you
+0:34
+don't need to know that anymore that's
+0:35
+what Fairmind does and and this is why
+0:38
+Fairmind is the greatest thing to vibe
+0:40
+coders out there and if you don't know
+What is Pheromind? The Ultimate AI Orchestrator
+0:43
+how to code and you're sitting there
+0:45
+like well what are the perfect prompts i
+0:47
+need to be feeding these AIs to do the
+0:50
+things that I want it to do to build
+0:51
+what I want to build well that's what
+0:53
+Fairmind does it manages the whole
+0:55
+project as you can see here we're on the
+0:57
+the tester mode and the tester has been
+1:00
+giving a given a task right because and
+1:02
+fairmind is this these are the types of
+1:04
+instructions that fairmind gives it
+1:05
+basically gives perfect prompts to do
+1:07
+everything perfectly for the whole
+1:09
+software development process
+1:11
+all right so starting off we have the
+1:15
+slate orchestrator this is the
+1:18
+statecribe
+1:20
+manages the memory system so anything
+1:22
+that you want in the systems memory
+1:24
+something that literally every other
+1:26
+agent and orchestrator will know and not
+1:28
+forget unless you tell it to remove it
+1:31
+this is what you put there this tells
+1:34
+this is where it writes down what you
+1:36
+know any of the important plans are what
+1:38
+all the planning documents are it writes
+1:40
+all of the functions the classes what
+1:43
+they do and why they do it it records
+1:47
+the state of everything and this is how
+1:49
+everything has a shared memory and this
+1:51
+is how the system is able to orchestrate
+1:53
+out whatever you want to build and then
+1:56
+from the states scribe it goes to the
+1:57
+Uber orchestrator this is the
+1:59
+orchestrator that sits on top and this
+How Pheromind's AI Agents & Memory Work
+2:01
+is the orchestrator that figures out the
+2:02
+best way to orchestrate out the plan
+2:05
+once it knows how to orchestrate out the
+2:06
+plan it will then divvy a task to any of
+2:09
+the other orchestrators all right and
+2:12
+now if you're first starting off a
+2:14
+project from nothing the first thing
+2:17
+it's going to go to is the goal
+2:18
+clarification and constraints
+2:20
+orchestrator where it is going to work
+2:23
+with you and try to get you to list off
+2:27
+all of your goals your anti- goals like
+2:29
+it wants to really fine-tune what it is
+2:32
+that you want so that it doesn't stray
+2:36
+too far from what you intend to make it
+2:39
+tries to make that absolutely as clear
+2:40
+as possible
+2:42
+and it's very important that when you're
+2:44
+dealing with Fairmind if you want to get
+2:45
+the best results that you're giving it
+2:47
+some sort of AI verifiable outcome don't
+2:50
+say just make me the best website
+2:52
+there's nothing that AI can verify that
+2:53
+it's reached the best it will not give
+2:56
+you a good outcome right you need to
+2:58
+give it clear AI verifiable outcome and
+3:02
+that is the best way to use this system
+The State Scribe & Uber Orchestrator Explained
+3:05
+and then so starting off after you
+3:09
+clarify your goals you'll go to the
+3:11
+spark orchestrator where deep research
+3:14
+will begin once all the research and
+3:16
+everything it needs to know about your
+3:18
+program has been done it will then come
+3:20
+up with a plan on how to build that and
+3:23
+then it will build out user stories once
+3:26
+those user stories are built out it'll
+3:27
+go to a highle research highle test
+3:29
+researcher and then it will look at
+3:31
+those user stories and do research on
+3:34
+how to set up highle end toend tests
+3:36
+specifically for your program and then
+3:39
+it will come up with a plan for highle
+3:41
+endto-end testing then it goes over to
+3:44
+the spec writer and the spec writer
+3:46
+writes out all the specs on how it's
+3:48
+going to take the project from nothing
+3:50
+um up into passing those highle end
+3:53
+tests and now
+3:56
+that whole plan then gets tossed over to
+4:00
+the devil's advocate and the devil's
+4:02
+advocate says it starts nitpicking
+4:04
+everything that could be wrong with this
+4:06
+plan
+4:08
+and then it says okay these are all the
+4:11
+things that need improvement okay it
+4:12
+goes it fixes those things all right now
+4:14
+we're on to the next phase right now it
+The Goal Clarification & Planning Phase
+4:16
+goes back to the state scribe records
+4:18
+everything that happened updated all the
+4:20
+documents that have been created any
+4:21
+research documents specs test plans
+4:24
+whatever it all gets updated into the
+4:26
+memory bank then it gets passed back to
+4:28
+the Uber orchestrator who orchestrates
+4:30
+out the next phase of the plan which
+4:32
+will be the pseudo code and from the
+4:33
+pseudo code it'll go to the architecture
+4:36
+and then from the architecture it'll go
+4:37
+to the refinement where it starts where
+4:39
+actually it's going to orchestrate out
+4:40
+the creation of all the tests uh because
+4:43
+it's a test-driven development and And
+4:45
+it's going to after it creates the test
+4:48
+it's going to create the tests one
+4:49
+feature at a time and then it's going to
+4:52
+code pass those tests implement that
+4:54
+feature and then go on to writing the
+4:56
+test for the next feature until it's all
+4:58
+complete all right and then then it goes
+5:00
+into the completion phase where it
+5:02
+integrates everything um all all of the
+5:05
+mock tests get integrated into the
+5:07
+system and then there's a an
+5:09
+orchestrator that orchestrates out the
+5:11
+the end toend test converting everything
+5:13
+or creating uh production ready tests
+5:16
+for your system all right and so all of
+5:19
+these orchestrators have access to a
+5:21
+large number of workers okay and the
+5:24
+thing is is that you're the manager of
+5:26
+the entire system okay so that means
+5:29
+that you
+5:33
+you can do whatever you want all right
+5:35
+so you need to think about this like if
+5:38
+you were commanding a dev team in real
+5:41
+life how would you manage them and it's
+5:43
+pretty much a pretty similar process
+5:46
+right it's like I have some code i want
+5:48
+you to make changes to the code well the
+The "Devil's Advocate" Agent: Ensuring a Flawless Plan
+5:52
+dev team needs to go read the code
+5:54
+figure out what the heck they're even
+5:55
+dealing with right and same thing with
+5:57
+the AI so you know maybe you want to
+5:59
+make some changes okay and you can just
+6:01
+say these things the whole orchestration
+6:03
+will shift with you it's not like a
+6:05
+system that you just go front to back
+6:07
+and that's it that's all it can do no
+6:09
+the whole thing moves with you no matter
+6:11
+what you want to do it adapts it changes
+6:13
+it's incredible right so you can you can
+6:16
+tell it okay I want to add in these new
+6:18
+features Uber Orchestrator and then uh
+6:20
+we need to go to the code comprehension
+6:21
+agent let's get you know this thing can
+6:23
+go and you can be like I want to know
+6:25
+everything about all the files in this
+6:27
+directory and this thing can go and read
+6:29
+70 files boom instantly okay now do a
+6:32
+coco comprehension report of those files
+6:33
+i want to know what everything does how
+6:35
+everything works and and keep in mind
+6:38
+that this is what I want to add on to
+6:39
+the program and so also kind of think of
+6:42
+you know where it might fit in here too
+6:44
+right and you have an agent put you out
+6:45
+a whole report right and then you take
+6:47
+that report right and then you can go to
+6:49
+the the deep researcher the research
+6:52
+planner right and it does a bunch of
+6:54
+deep recursive research learns
+6:57
+everything it needs to do to be able to
+6:59
+add on to your program right boom now we
+7:03
+go back to the Uber orchestrator with
+7:04
+these things now we come up with plans
+7:06
+in order to implement these things you
+7:08
+know maybe we need to uh you know add in
+7:09
+some change some things to the
+How Pheromind Writes Code, Tests, and Implements Features
+7:11
+architecture or do whatever and maybe
+7:13
+edit some documents whatever it needs to
+7:15
+do right and it'll figure that part out
+7:18
+itself but you you pretty much need to
+7:19
+be the person that jump starts it like
+7:22
+you know give it a little bit of common
+7:23
+sense like hey we need the code we need
+7:25
+the code comprehension first then the
+7:27
+deep researcher all right now let's
+7:28
+implement it doesn't have to be like
+7:30
+super you know detailed but you have to
+7:33
+know the flow of how the workers should
+7:35
+work right and how they kind of come
+7:38
+together and so you learn that just by
+7:41
+playing with the system but for the most
+7:43
+part the system just manages itself and
+7:46
+and and the beauty of the system isn't
+7:49
+necessarily that the coder is the best
+7:52
+coder in existence the beauty of the
+7:54
+system is that when you get to something
+7:56
+like this and it's like okay now we've
+7:59
+laid out the specs the pseudo code the
+8:01
+architecture the entire documentation i
+8:03
+have the whole plan on how we going to
+8:04
+build out exactly what you want it's all
+8:06
+written down it's all documented out and
+8:08
+now we can start giving prompts to
+8:10
+different modes and see these prompts
+8:13
+right these insanely uh specific prompts
+8:16
+that say this is what you want to do
+8:18
+this is your objective and it'll even
+8:20
+say see these are the tests you need to
+8:22
+go into this sprint 5 end to end test
+8:24
+file and read up on this and so once you
+8:28
+do this and you read this polyglot test
+8:30
+directory now you have full contextual
+8:32
+understanding of everything that is
+8:33
+happening and you can implement that
+8:35
+these plans exactly as I want so
+8:38
+basically these are like the perfect
+8:39
+details so when you're like "Chris
+8:42
+there's this new cool AI system out what
+8:44
+do I tell the AI to get it to code to do
+8:46
+cool stuff?" Well you need to be a
+8:48
+software engineer you need to have that
+8:49
+context of how systems are built right
+8:52
+but Fairmind not with Fairmind fairmind
+8:55
+does that for you right it has it holds
+8:57
+all that context and it basically is
+8:59
+feeding the perfect prompts and yes the
+9:01
+the testers and the coders in my system
+9:04
+you can just let them run they'll do
+You Are the Manager: How to Guide the Entire System
+9:06
+just fine right but you can also take
+9:08
+these prompts and then feed them to like
+9:11
+Ruben's claw flow with like clawed swarm
+9:15
+agents and then have like you know this
+9:18
+you could just feed this prompt to a
+9:19
+bunch of swarm agents that you know run
+9:21
+for free right and and they'll probably
+9:24
+do a better job than this tester agent
+9:26
+i'm just saying i'm not saying that this
+9:28
+is the best system for actually writing
+9:30
+the actual code it's very good at it
+9:32
+don't get me wrong but where it excels
+9:34
+at and what sets it apart from every
+9:37
+other system in existence is the fact
+9:39
+that it manages the entire system
+9:42
+development and it sits on top of a
+9:45
+layer
+9:47
+of everything else so you know all it is
+9:51
+is
+9:53
+prompts right ro definitions custom
+9:55
+instructions right these are like
+9:57
+prompts but they're prompts like 30
+9:58
+agents set up in a way to manage your
+10:00
+entire system but that's all AI agents
+10:03
+are is it's an AI model it's a prompt
+10:06
+and then oftent times that AI model has
+10:08
+been given tools and in this case the
+10:11
+tools that it's given are all the tools
+10:12
+that Rue code gives it plus any MCP
+10:15
+tools that you hook up like the
+10:17
+Perplexity MCP or the Superbase MCP like
+10:20
+I've given it but that's all an agent is
+10:22
+right and Rue just makes it really easy
+10:25
+to uh build these agents like this with
+10:28
+these tools um with their with their R
+10:31
+modes okay and so yes all fairmind is is
+10:36
+just a bunch of modes but it is modes
+10:39
+set up in a way that manages the entire
+10:42
+development process all right and
+10:46
+it is also what sets it apart from
+10:48
+everything else to exist and then also
+10:52
+when it comes to
+10:55
+pheromine it is model agnostic as the
+10:59
+models get better you just choose a
+11:02
+different model and you use it and then
+11:04
+those new models start managing the
+11:07
+software development process so as the
+11:10
+models get better Pheramine gets better
+11:13
+all right and
+11:15
+that's how you use pheromine it is
+11:18
+unlike any system you've ever used ever
+11:21
+it takes it makes developing software
+11:23
+insanely easy it is for this is a system
+11:27
+for people who don't know how to code
+11:29
+this manages that process for you this
+The REAL Power of Pheromind: It's Model-Agnostic
+11:31
+tells you what you need to be feeding
+11:33
+these LLMs okay
+11:37
+that's how you use Fairmind right
+11:41
+that's the real power and it can
+11:43
+orchestrate out anything
+11:46
+anything like whatever your heart
+11:49
+desires it will figure out how to build
+11:52
+it i don't care what it is if you want
+11:55
+to do some stuff with like using quantum
+11:58
+algorithms to detect magnetic fields in
+12:01
+the earth or whatever the heck you want
+12:03
+to do it doesn't matter it'll do it'll
+12:05
+it'll do everything right it'll do all
+12:08
+the research it'll figure out how to
+12:09
+make it happen
+12:13
+it's a beast
+12:16
+and that's how you use Fairmind and
+12:18
+don't get stuck into like oh I need to
+12:20
+just let it go start to finish no you're
+12:22
+going to need to like
+12:25
+know all the different modes know when
+12:27
+to use them all right if you throw all
+12:29
+your if you like take what the coder
+12:31
+tells you like the task for the coder
+12:32
+and you put it in another system and
+12:34
+have it coded out cool now once you get
+Final Thoughts: The Future of Software Development
+12:37
+those results now you need to know to
+12:38
+tell it you know you need to put those
+12:40
+results through the security reviewer
+12:42
+and the optimizer so we could look for
+12:44
+any security flaws and look for better
+12:46
+ways we could optimize the code that
+12:47
+they wrote right it's like you use the
+12:51
+system you need to understand the whole
+12:52
+system so you can use it in a number of
+12:54
+different ways it's very malleable
+12:56
+whatever you decide or whatever you do
+12:58
+the whole system will shift everything
+13:00
+shares the same memory your preferences
+13:02
+are even saved in a separate database
+13:04
+table and it manages all of that the
+13:08
+entire software development process that
+13:11
+is fairminded and that and there is
+13:14
+nothing else like it in existence
+13:18
+at all not even close
+13:25
+[Music]
+13:33
+heat
+13:39
+[Music]
+13:45
+heat
+13:48
+[Music]
+13:55
+heat up
+14:04
+[Music]
+14:12
+here
+14:18
+[Music]
+14:21
+heat
+14:24
+[Music]
+14:35
+heat
+

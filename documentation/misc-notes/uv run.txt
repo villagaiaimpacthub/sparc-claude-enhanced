@@ -1,0 +1,524 @@
+Astral UV Single File Scripts
+5:02
+so if we open up our duct DB open aai Agent here you can see right at the top
+5:07
+of this file something fascinating right we have dependencies you know you saw
+5:13
+with this single command here right we had UV run this creates a Sandbox
+5:19
+environment this allows us to run the script as a standalone file with these dependencies included so we have open AI
+5:26
+rich and pantic so this is the first key aspect of the single file agent structure we need to be able to load and
+5:33
+use dependencies from any python Library most importantly we need a model
+5:38
+provider right so now we have this we have access to this and our single file agent now what does the agentic
+5:44
+structure look like for this agent you can see we're using pantic to create our argument structure so for instance for
+5:51
+our list table args we have the model pass in reasoning this is a powerful pattern to help you understand what your
+5:58
+language model was thinking at every single step if we open up every one of these tool argument structures I'm
+6:04
+always requesting reasoning you can see it there you can see it there so on and so forth right so that's a super
+6:10
+important pattern you can use when building your agents always pass in reasoning and then always log the
+6:16
+reasoning so you can see we have tools we have the agent prompt but the most important thing is the agentic loop down
+6:22
+here so let's go ahead and break this down and then let's go ahead and look at how we can distribute this pattern with
+6:27
+AI coding to scale it up to an entirely new AI agent so at the start here we're
+6:33
+pulling in all of our arguments we have our- D for database - P for prompt - c for compute we have our open AI key
+6:40
+check here we're then making our database path Global so that every single function can access it we're
+6:46
+building our prompt and then we're running the main agentic Loop so this is where all the magic happens this is
+6:51
+where we give our AI agent full control to run tools run functions gather
+6:56
+feedback build up its context and solve the problem problem we once solved let's open this up so we're doing our compute
+7:02
+Loop check here and then as you can imagine we're running our intelligence so we're using 03 mini you can see here
+7:09
+we're requiring a tool call with every Loop we want our llm to execute a tool
+7:15
+we're then looking for Tool calls once we find a tool which we should always have we are running our process of
+7:22
+determining which tool to select you can build any type of structure any type of map you want to handle this I'm just
+7:27
+doing this with the simplest pattern possible here we just have a bunch of if statements that parse the arguments and
+7:33
+then call the function we then take the result and we pass it back in to the language model right we pass it back
+7:39
+into to our context window very importantly here we also have an exception so if something goes wrong
+7:45
+inside of the tool we're also passing this back to the model right we want our agent to just solve the problem right we
+7:51
+want to design a great prompt we want to design great tools and then just hand off the problem to our agent we go off
+7:57
+we go on about day we go you know solve other specific problems and then in parallel it's solving this problem that
+8:03
+we gave it really well thanks to our clean agent design so this is one agent
+8:08
+pattern that I'm working with but I want to point out something that's really powerful here you saw the list tables
+8:14
+described sample but we also have this run test SQL query and Run final SQL
+8:20
+query from the tech ecosphere you may have picked up on this idea of verifiable domains and closed loop
+8:28
+systems this is something that we talk about about in principled AI coding specifically for the AI coding domain
+8:33
+but it really applies to all agentic technology we can do something interesting here with this run test SQL
+8:39
+query let's go ahead and open up the arguments and you can see here it looks the exact same as our Run final SQL
+8:47
+query and we can go ahead and fire off our agent again and just take a look to see if it's actually going to kick off
+8:52
+this call sometimes it completely skips the run test SQL query because it just doesn't need it it doesn't need the test
+8:59
+but we can you can do something like this create a new table high score users
+9:04
+from the user table and select all users with score greater than 80 that are
+9:11
+active and 2025 let's pass it off to our duck DB AI agent and just see how it
+9:16
+does with this I'm also going to kick up the compute Loops just in case it needs a little bit more energy let's kick that off and let's see how it does here so
+9:24
+you can see it's first validating the structure right it needs to find the tables so it's running list tables it's
+9:29
+seeing the schema structure of that table it's now running this test SQL
+9:34
+command so it's verifying that what we're going to ask for will work instead of you know looking for human in the
+9:40
+loop feedback or instead of running the final query what it's doing here is running this test SQL query this is a
+9:47
+really important pattern for building out great agents you don't have to wait to close the loop to let your agent
+9:53
+fully validate the process right so I have this run test SQL it's running this internally
+9:59
+adding more information to its context window you know gathering information about how to solve the problem of you
+10:05
+know creating this query creating this new table and then finally after it's validated it it's then running this
+10:11
+final query here right so after validation it's now saying you know we can take this query it's safe it works
+10:17
+it looks good let's go ahead and run this final query and create this new table so now of course if we hit up and
+10:24
+we hit up again let's get a smaller command to work with and we just say you know list all tables and one sample Row
+10:32
+for each table and we fire that off we should now get this brand new high score
+10:37
+so there's the high score users and the users table so this is fantastic right there's the sample our AI agent is
+10:44
+understanding these table structures it's understanding what we want and what we want to do and then it's giving us
+10:49
+you know these concrete outputs and you can see here how important it is to have the reasoning inside your agents right
+10:55
+it is explaining the results we're getting back here in a really concise way and this is really cool you can see
+11:02
+in the reasoning it's saying the sample Row from user and high scores is exactly the same so it's just going to return
+11:09
+the top result okay so this is really powerful I hope you can see that you know single file agents are powerful but
+11:15
+having a great AI agent structure with the right tools and the right order is
+11:20
+equally as powerful right it doesn't matter if you can build an agent it matters if you can build an effective
+11:26
+agent shout out to anthropic for writing you know this great post post on building effective agents this document
+11:31
+contains a lot of really key information I brought it up several times on the channel I think it encapsulates a lot of the key ideas and serves as a great
+11:38
+starting point for building out agents right they kind of end their story here with agents with this simple Loop right
+11:45
+which is effectively all in Asian is you have an llm call environment to an llm call and then they stop kind of whenever
+11:50
+they need to but all the magic happens in this Loop right happens in this
+11:56
+agentic Loop and this is where you know many struct structures can take place this is where many fortunes will be made
+12:02
+and lost uh you know due to just going after the wrong thing going after the wrong idea and you know again this is
+12:08
+why I want to bring this up the single fall agents enable us to build lean compute machines you don't want to
+12:14
+overinvestment
+12:29
+of top goto use cases for agents I think that's important but uh this is why I
+12:34
+bring up this pattern of building lightweight lean single file agents so
+12:39
+that you don't overinvestment so this is an important
+12:46
+pattern I think pre verification is just as important as post verification or closed loop verification um like I
+12:53
+mentioned this is something we talk about in principal a coding more on that later in the video having a test command
+12:59
+run and then a final command run whatever your domain specific problem is if your domain is verifiable I highly
+13:06
+recommend you check out this pattern of giving your agent tools to solve the
+13:12
+problem but also tools to prever verify that the answer that they're going to give you is the correct answer all right
+13:18
+and so that's what we're doing here with our duck DB single file agent so so what's the next step with this right we
+13:24
+have these powerful single pile agents with a great agentic structure that can solve problems for us we're going to
+13:30
+need many different types of AI agents not just this one right we're going to need for instance an SQL light agent how
+13:37
+can we take this agent and the agent structure and basically duplicate it you know make a couple tweaks to it so we
+13:42
+can scale and reuse our single file agent pattern right with this powerful tooling thanks to astral UV we now churn
+13:50
+out these powerful condensed air agents so you know how can we do that we all already know the answer to this
+13:57
+especially if you've been with the channel or if your eyes are open in the tech ecosystem at all right now we can
+14:03
+do this with AI [Applause]
+AI Coding Agents With Aider
+14:08
+coding so now that we have this agent working in a single file with a great
+14:14
+agent pattern and all dependencies encapsulated we can iterate at light speed with powerful AI coding techniques
+14:21
+many of which we've discussed in principled AI coding we're overdue for
+14:26
+AI coding on the channel so let's go ahead and write up a concise AI coding spec prompt to create a new SQL light
+14:33
+single file agent and then I'll pitch principled AI coding for those who aren't aware of what it is and how it
+14:40
+can accelerate your engineering I also have some updates coming for existing members we're going to have some nice
+14:46
+lightweight tooling to help us utilize all the principles we learned inside the course so more than that in a second
+14:52
+let's first build out our SQL light AI agent so this is going to be relatively
+14:57
+simple since duck DB and SQ SQL light are very very similar what we'll do here is open the terminal we'll type CP SFA
+15:04
+we'll basically just copy this create an SQL light version light great I'm also going to touch AI code. sh and this is
+15:12
+where we're going to build out our context model and prompt so that we can quickly reuse our single file agent
+15:18
+pattern in a reusable scalable way I use AER as my primary AI coding Workhorse
+15:24
+you can deploy this pattern with any AI coding tool you want of course you cursor wind Surfer Klein whatever your
+15:31
+deal is go ahead and hop into that I like to use AER and cursor side by side and let me show you a new pattern and
+15:36
+let me also just kind of you know share some of the advantages you get when you use a a coding tool like ader so I'm
+15:43
+just going to paste this in here since I've done this a million times let's start with just this blob here okay so
+15:48
+we're passing in our prompt as the first argument we're kicking off AER I want to run the 03 Mini model in architect mode
+15:55
+with the high reasoning effort this is some of the best computer you can get right now I want claw 3.5 Sonet to make
+16:02
+the edits that 03 mini suggests and then we have a couple of configurations here just to speed things up and then in my
+16:08
+context you can see I'm passing in I want every single python file available as the context okay and then finally the
+16:14
+message is just going to be the prompt so whatever we pass in here we can you know run this now we can say sh Ai and
+16:22
+then just pass in whatever prompt and then we can start getting AI coding changes in on this right let me show you
+16:27
+a little hint of what I have coming for principled a coding members there's a big theme right now about scaling
+16:33
+compute usage and just throwing more compute at the problem and then your problem will be solved you know
+16:39
+basically just by turning up the knob we can see that this is true even for AI coding this is going to look really
+16:45
+stupid but you're going to understand how powerful this is as we work through this I'm later going to copy this
+16:51
+command I'm going to paste it here so let me turn off cursor tab so we can write this by ourselves here I'm going
+16:57
+to say double check all changes requested to make sure they've been
+17:02
+implemented and that's it and so what we end up with here is a prompt chain of length four right we have an architect
+17:10
+drafting the changes and then an editor writing the changes and then again we have an architect double-checking all
+17:16
+the changes that just happened in a brand new instance and then we have an Editor to write those changes right to
+17:22
+write anything that was you know potentially missed fantastic so now we're going to actually write the prompt this is going to be really simple I'm
+17:28
+going to get the path to this I'm just going to say update and then I'll say refactor to Target SQL light
+17:35
+databases keep all functions the same but Target SQL light databases with SQL
+17:42
+light 3 so I'm being specific about what library I want use here update tools and prompt to reference SQL
+17:49
+light okay because if we open up this file you can see here if we just search duct DB we have you know many references
+17:56
+you can see on the side here we have many references to duct B so that's it that's the prompt I'm going to copy this
+18:03
+and I have this kind of reusable AI coding configuration right you can think of this as a kind of just generic a
+18:09
+coding um script that we can call that runs a compute enhanced AI coding chain
+18:16
+of assistants right we have two AER assistants in architect mode we're just going to copy this we do dollar sign PB
+18:21
+paste that's it so this is going to update it's going to kick off two AI coding assistants running back to back
+18:26
+this is our first shot and this is our our reflection step right all right so
+18:31
+there we go we're getting our changes we're updating our tool calls to reference SQ light instead of duct DB
+18:38
+and then at some point here we're going to see our prompt get updated so you can see there all those tools that looks
+18:43
+great we on Final SQL query now we're referencing SQL light instead of duct DB you can see we had an update in the
+18:49
+prompt and now we're running the reflection right so remember the reflection is literally just this double
+18:55
+check all changes requested and then we're pasting The Prompt in again so let's see what happens now we've already
+19:00
+taken one shot at architect and editor with AER and now we're running again so
+19:05
+you can see here look at how many things were missed right we have the architect saying hey you missed this here hey you
+19:11
+missed this here and then the editor is coming in and actually Chang those things right so we can now search SQL
+19:17
+light and so we should see a bunch of references to SQL light now with that new syntax you know as a test we can
+19:23
+also come in here and search duck DB right so this is really good we don't see any references to duck DB anymore
+19:28
+more fantastic um and now we should be able to run our SQL light agent just as
+19:34
+we did our duct DB open AI agent so in order to do that we need to pull in an SQL light version of this I'll paste
+19:41
+this in and you can see my SQL light extension uh showing this table here
+19:46
+right so this is our user's table let's go and close this so we now have this ready for our new SQL light agent let's
+19:51
+go ahead and save this and now let's just run our SQL light agent SFA single pile agent and we're going to run our
+19:58
+SQL light version - D analytics SQL light database - P list five rows from
+20:05
+user table and for our compute we'll just say five right should be pretty simple so far so good right our code
+20:10
+compile so that looks great we have our first tool call that looks awesome there it is so SQL light uh running just like
+20:17
+our duck DB did we're getting a you know slightly different output format because of course we're using SQL light we were
+20:22
+able to reuse our existing single file agent architecture we made an update to it with a clean prompt chain of length
+20:29
+four where every prompt was us kicking off AER we have an architect and then an editor and then we just basically
+20:35
+doubled it right our reflection actually saved us you know a little bit of energy this idea of scaling up your compute
+20:42
+really does translate to almost anywhere you're using language models anywhere you're running a prompt right even if
+20:49
+it's embedded inside of a tool like AER right you have to remember all these tools right cursor AER chat GPT Claude
+20:56
+right every one of these tools at the end is is running the new fundamental unit of knowledge work it's all about
+21:02
+the prompt and agents is how we scale The Prompt up this is how we scale up
+21:08
+our impact at the beginning I said we would talk about you know why is everyone so obsessed with agents this is
+21:13
+why it's because agents lets us scale up our compute usage and then the age of
+21:19
+generative AI when you scale your compute you scale your impact this is a
+21:24
+big theme on The Andy Deb Dan Channel right now in q1 2025 the most important thing we can do is
+21:30
+figure out how to scale our compute agents are the name of the game you just saw what we did here with a duck DB you
+21:38
+know domain specific Focus agent with only five tools right it gathers context
+21:44
+it understands the structure it then internally validates for hard problems
+21:49
+and then it gives us the final result right when we take astral's UV and the ability to package dependencies in these
+21:57
+isolated s single file agents right these single file scripts this really lets us move fast scale our compute and
+22:04
+get work done and solve problems fast without overinvestigation
+22:28
+gather contexts to solve that specific problem you're trying to solve all right this is the key um this codebase is
+22:35
+going to be linked in the description for you drop the like drop the sub and you know drop a comment let me know how
+22:42
+deep into agents you are right now are you on the surface are you you know trying to understand agent structures
+22:48
+are you using any agents right now and you know let me know what you think about this idea to build out these
+22:54
+single file agents that you can quickly reuse and redeploy with help of you know
+22:59
+whatever your favorite AI coding tooling is at a high level the longer your prompt chain the more compute you're
+23:05
+using right and when we think about it what's happening in this agent Loop that we're running here in both our sqlite
+23:12
+and our open AI version you know what's happening here we can kick this off again let's go ahead and ask another question here let's list five users GT
+23:19
+greater than status archived or pending all right let's kick that off and
+23:29
+fantastic so we can see that we we have status archived or pending age is always over 30 right and this is running in
+23:36
+this agentic loop it's solving this problem automatically it has the tools it needs to do the job and you know
+23:41
+something I want to mention here you can think about an agent as a elongated prompt chain right it's a series of
+23:48
+prompt calls over and over and over again targeting a specific domain problem and it's all about figuring out
+23:54
+how to best solve that problem with the compute that you give it and so if an error URS Cur here we would probably
+23:59
+need to give you know more compute more uh you know Loops we're running 03 mini
+24:04
+is a powerful reasoning model so you know as it's thinking through what tools to call and solving these problems it's doing an extraordinary job an
+24:11
+interesting way to think about the AI agent is that the more compute you're giving it basically what we're doing is we're extending the prompt chain right
+24:17
+we're elongating the number of compute runs that it has so if we wanted to solve a really hard problem for instance
+24:25
+you know open ai's deep research tool this thing runs for for 5 to 30 minutes
+24:30
+right so you can imagine you know its compute Loop is you know blasted up to like 100 across various tools various
+24:37
+functions you know various capabilities that's a really powerful idea we're going to be looking into more on the
+24:43
+channel like I mentioned I'm going to have these single file agents in a codebase for you to check out tweak and
+24:48
+make your own I'll add a couple additional versions here that I was playing with so that you can you know check them out and build out your own I
+24:54
+have a version where I have the meta prompt we've talked about on the channel in inside of a single file agent you can
+24:59
+just quickly query your uh meta prompting agent to generate a new prompt for you things are moving fast agents
+Principled AI Coding
+25:05
+are here one of the most important agents and one of the most important things you can do right now is learn how
+25:12
+to write code with AI and not just learn but really scale your capabilities with
+25:18
+writing code with AI many of you on the channel you've already dove in to principled a coding let me just pitch
+25:24
+this for those who haven't taken it yet this is really important and I want to make sure I'm sharing this tool so that
+25:29
+everyone is understanding the State Engineering is in and how they can progress keep up and thrive in the new
+25:36
+world of generative AI so principal AI coding is my take on how to transition
+25:42
+from the old ways of engineering to the new way we now have over a thousand Engineers that have taken principal a
+25:49
+coding that have a New Perspective and actionable patterns and principles they can use for their Engineering in today's
+25:57
+landscap ape of generative Ai and more importantly for the next wave of generative AI based engineering so you
+26:05
+know I don't know if you've noticed um if your eyes are open you've probably noticed this but software engineering has changed and it's time to change with
+26:12
+it a coding is the largest productivity multiplyer for engineers to ever exist this is something that you can't miss
+26:18
+out on okay if you miss out on this you'll be left behind I think 2025 is the last year where you can write code
+26:25
+without Ai and really be used useful right really be employable really be uh
+26:32
+able to contribute in a meaningful way go on Twitter for 5 seconds go on Reddit and you know just type in a coding type
+26:38
+in cursor type in AER um type in Klein like type in any one of these tools and
+26:43
+you'll understand that there are Engineers um all the way from Noob beginners to senior expert principal
+26:51
+bigname Engineers right that you you know likely look up to they understand this curve right they understand these
+26:57
+two curves you're are either using the tool that helps you scale your impact or you're not okay and you know just to say
+27:05
+it really bluntly if you're not writing code with AI if you're still manually coding you are not using the best tool
+27:11
+for the job anymore if you're writing code with AI you are absolutely on an upward curve okay principal a coding was
+27:18
+built to help you make this transition in the shortest amount of time possible okay the only thing better than
+27:25
+experience is experience earned faster we focus on principles not tools
+27:30
+principles not models okay there's going to be an onslaught of Agents of tools of
+27:36
+models you know this already right you're you're aware of this we need principles to endure change over time so
+27:43
+you know this course helps you get there it helps you endure change with principles and one of the key principles
+27:48
+we talk about in lesson three is context model prompt these are the big three the
+27:54
+most important elements for getting work done in AI coding but really with all of generative AI there are eight lessons in
+28:01
+this course they take you from beginner to intermediate to advance we talk about big topics that are you know really
+28:07
+becoming mainstream in the generative ai ai coding world we talk about the spec prompt right scaling up your work by
+28:15
+writing larger prompts larger specs and we talk about you know a big topic that's come up recently is this idea of
+28:21
+closing the loop right by creating these closed loop self verifiable systems your
+28:28
+AI coding tools and your agentic systems can actually get the work done by
+28:33
+themselves if you give them enough direction if you tell them where to go and how to resolve and give them feedback you close the loop okay this is
+28:40
+a really important powerful pattern this is going to be big over 2025 and 2026 people are already starting to talk
+28:46
+about this more this is getting uncovered so you want to move on this stuff before it really really hits the masses okay so eight lessons here um you
+28:53
+know lots of great reviews feel free to check out you know tons of the other videos and AI coding content I have on
+28:58
+the channel um this is here for you and just to mention it I have a no questions asked refund before Lesson Four this is
+29:05
+basically risk-free at this point right so hop in if you don't like my style if you don't like the video if you don't
+29:10
+understand what's happening if it's too complex or if it's not complex enough and you're too much of an omni chat engineer and you already know what I'm
+29:17
+going to say in the next you know six videos or whatever that's fine you get a full refund for you start lesson 4 no
+29:23
+questions asked we've had zero issues with this there's a lot of value here and you know I just want to pit it on
+29:28
+the channel for all existing principled AI coding members I'm going to be rolling out some new tooling that helps
+29:34
+us use the patterns we learned in principal AI coding in a cool lightweight way I'm building this on top
+29:40
+of the powerful all-in-one tool UV so it's going to be super simple to set up use and deploy and we're of course going
+29:48
+to continue using our you know top-of-the-line uh most customizable configurable powerful AI coding
+29:55
+assistant AER so stay tuned for that and you know even if you don't use ader you
+30:00
+know even if you're not a fan of CLI based you know full control AI coding assistants that's fine um again we use
+30:08
+AER as a tool here to showcase the principles this course is not about AER
+30:13
+okay so just to quickly mention that and uh yeah that's principal AI coding uh hop in here before you know the next
+30:21
+wave of coding comes which I'm going to be preparing everyone for again inside
+30:26
+this course those lessons are in the works they're in the queue but that's going to be for later in this year just
+30:32
+to say it out loud here right now ai coding is the wave the next wave that's upon us is agentic coding when you fully
+30:40
+close the loop what you end up with is systems that can operate on their own so
+30:45
+stay tuned stay locked in I hope you can understand why agents are so important in the age of AI you first start with
+Why Agents Are So Important
+30:52
+the prompt you then move to prompt chains you have series of llm based calls that can do work on your behalf
+30:59
+and then you move to AI agents right this structure where you give them the tools they need to solve the problem and
+31:05
+then you let them learn gather information execute get feedback agents is how we continue to scale our compute
+31:11
+this is where we're going to be focused on the channel it's all about scaling compute usage maximizing what you can do
+31:18
+it's all about AI coding so that you can write faster than ever so that you can build out these agents fast you know
+31:24
+just to come full circle here that's why the single file agent pattern is so important because we
+31:30
+meet at the intersection of three important Innovations we have astrals UV
+31:36
+allowing us to bundle dependencies into a single file we have self- validating agent patterns where we can write great
+31:44
+tools and great prompts to allow the agent to self verify before it Returns
+31:49
+the response to us and then of course we have powerful AI coding techniques many
+31:55
+of these we cover in principal AI coding this lets us reuse scale clone and
+32:01
+duplicate our single file AI agents into many different domains you can imagine
+32:06
+we have an agent that builds agents okay so we have a lot of Big Ideas to cover
+32:12
+on the channel if you're interested in this if you made it this far in the video you know what to do drop the like drop the sub leave a comment stay
+32:19
+connected and whatever happens stay focused and keep building

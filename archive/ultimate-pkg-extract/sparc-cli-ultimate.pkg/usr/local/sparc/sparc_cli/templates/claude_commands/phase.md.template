@@ -1,0 +1,30 @@
+---
+description: "Check current SPARC development phase and progress"
+allowed-tools: ["bash", "read"]
+---
+
+# SPARC Phase Status
+
+📋 **Current Phase Information**
+
+!sparc phase --namespace {{ namespace }}
+
+**Project:** {{ project_name }}
+
+**SPARC Development Phases:**
+
+1. **Goal Clarification** - Understanding and refining requirements
+2. **Specification** - Creating detailed technical specifications
+3. **Architecture** - Designing system structure and components
+4. **Pseudocode** - High-level implementation planning
+5. **Refinement** - Code generation and testing
+6. **Completion** - Final validation, documentation, and deployment
+
+**Available Commands:**
+- Continue with your development requests
+- `/status` - View detailed project status
+- `/agents` - Show active agents
+- `/sparc` - Enter SPARC development mode
+- `/stopsparc` - Exit SPARC mode
+
+Each phase involves multiple specialized agents working together to ensure comprehensive and high-quality development.
