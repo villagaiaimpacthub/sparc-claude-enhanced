@@ -5,29 +5,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      # Traditional database
       - DATABASE_URL=postgresql://postgres:password@db:5432/userdb
-      
-      # Memory system configuration
-      - QDRANT_HOST=qdrant
-      - QDRANT_PORT=6333
-      - EMBEDDING_MODEL=all-MiniLM-L6-v2
-      
-      # Add your Supabase credentials via .env file
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_KEY=${SUPABASE_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      
-      # SPARC memory system settings
-      - MEMORY_ENHANCEMENT_ENABLED=true
-      - CROSS_PROJECT_LEARNING_ENABLED=true
-      - DEFAULT_NAMESPACE=sparc_docker
-      - QUALITY_THRESHOLD=0.6
     depends_on:
       - db
-      - qdrant
-    volumes:
-      - ./.env:/app/.env:ro  # Mount environment file
   
   db:
     image: postgres:13
@@ -39,45 +19,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  qdrant:
-    image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"
-      - "6334:6334"  # gRPC port
-    volumes:
-      - qdrant_data:/qdrant/storage
-    environment:
-      - QDRANT__SERVICE__HTTP_PORT=6333
-      - QDRANT__SERVICE__GRPC_PORT=6334
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-
-  # Optional: Redis for caching (memory system can use it for performance)
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
 
 volumes:
   postgres_data:
-  qdrant_data:
-  redis_data:

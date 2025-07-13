@@ -74,6 +74,145 @@ class BaseAgent(ABC):
             console.print("[red]❌ Missing Supabase credentials[/red]")
             exit(1)
         return create_client(url, key)
+    
+    def _get_namespaced_path(self, path: str) -> str:
+        """Create namespace-aware path to prevent project conflicts"""
+        if path.startswith('/'):
+            # Absolute path - don't modify
+            return path
+        return f"{self.project_id}/{path}"
+    
+    def _check_namespaced_file(self, path: str) -> bool:
+        """Check if a namespaced file exists"""
+        return Path(self._get_namespaced_path(path)).exists()
+    
+    def _initialize_git_repository(self) -> Dict[str, Any]:
+        """Initialize git repository in project directory if not exists"""
+        project_dir = Path(self.project_id)
+        git_dir = project_dir / '.git'
+        
+        if git_dir.exists():
+            return {"initialized": False, "reason": "Git repository already exists"}
+        
+        try:
+            # Ensure project directory exists
+            project_dir.mkdir(exist_ok=True)
+            
+            # Initialize git repository
+            import subprocess
+            result = subprocess.run(['git', 'init'], cwd=project_dir, capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                # Configure git for SPARC autonomous development
+                subprocess.run(['git', 'config', 'user.name', 'SPARC Autonomous System'], cwd=project_dir)
+                subprocess.run(['git', 'config', 'user.email', 'sparc@autonomous.dev'], cwd=project_dir)
+                
+                return {"initialized": True, "directory": str(project_dir)}
+            else:
+                return {"initialized": False, "error": result.stderr}
+        except Exception as e:
+            return {"initialized": False, "error": str(e)}
+    
+    def _create_phase_commit(self, files_to_record: List[Dict[str, Any]], phase: str, agent_name: str) -> Dict[str, Any]:
+        """Create git commit for phase completion with agent signature"""
+        project_dir = Path(self.project_id)
+        
+        # Ensure git repository exists
+        git_init_result = self._initialize_git_repository()
+        
+        try:
+            import subprocess
+            from datetime import datetime
+            
+            # Stage all files
+            staged_files = []
+            for file_info in files_to_record:
+                file_path = file_info.get('file_path', '')
+                if file_path and Path(file_path).exists():
+                    subprocess.run(['git', 'add', file_path], cwd=project_dir)
+                    staged_files.append(file_path)
+            
+            if not staged_files:
+                return {"committed": False, "reason": "No files to commit"}
+            
+            # Generate commit message with agent signature
+            commit_message = self._generate_commit_message(phase, files_to_record, agent_name)
+            
+            # Create commit
+            result = subprocess.run(['git', 'commit', '-m', commit_message], cwd=project_dir, capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                # Get commit hash
+                hash_result = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=project_dir, capture_output=True, text=True)
+                commit_hash = hash_result.stdout.strip() if hash_result.returncode == 0 else "unknown"
+                
+                return {
+                    "committed": True,
+                    "commit_hash": commit_hash,
+                    "files_committed": staged_files,
+                    "message": commit_message,
+                    "agent_signature": agent_name,
+                    "timestamp": datetime.now().isoformat()
+                }
+            else:
+                return {"committed": False, "error": result.stderr, "files_staged": staged_files}
+                
+        except Exception as e:
+            return {"committed": False, "error": str(e)}
+    
+    def _generate_commit_message(self, phase: str, files: List[Dict[str, Any]], agent_name: str) -> str:
+        """Generate descriptive commit message with agent signature"""
+        from datetime import datetime
+        
+        # Phase-specific commit templates
+        templates = {
+            'goal-clarification': "feat: Initialize project with requirements and constraints",
+            'specification': "docs: Add technical specifications and requirements", 
+            'pseudocode': "docs: Add implementation algorithms and data structures",
+            'architecture': "docs: Add system architecture and design documents",
+            'refinement-testing': "test: Add comprehensive test suite and validation",
+            'refinement-implementation': "feat: Implement core functionality and features",
+            'bmo-completion': "test: Add BMO validation and intent verification",
+            'completion-documentation': "docs: Add final documentation and project completion",
+            'completion-maintenance': "ops: Add deployment and operational documentation"
+        }
+        
+        # Get base message
+        base_message = templates.get(phase, f"feat: Complete {phase} phase")
+        
+        # Create file summary
+        file_count = len(files)
+        file_types = list(set([f.get('memory_type', 'unknown') for f in files]))
+        
+        # Build detailed commit message
+        message_parts = [
+            base_message,
+            "",
+            f"Phase: {phase}",
+            f"Files: {file_count} files across {len(file_types)} categories",
+            f"Types: {', '.join(file_types)}"
+        ]
+        
+        # Add file details if reasonable number
+        if file_count <= 10:
+            message_parts.append("")
+            message_parts.append("Files created:")
+            for file_info in files:
+                file_path = file_info.get('file_path', 'unknown')
+                description = file_info.get('brief_description', 'No description')
+                message_parts.append(f"- {file_path}: {description}")
+        
+        # Add agent signature
+        message_parts.extend([
+            "",
+            f"🤖 Phase completed by: {agent_name}",
+            f"🕐 Timestamp: {datetime.now().isoformat()}",
+            "🚀 Generated by SPARC Autonomous Development System",
+            "",
+            "Co-Authored-By: SPARC-System <sparc@autonomous.dev>"
+        ])
+        
+        return "\n".join(message_parts)
     def _get_namespaced_path(self, path: str) -> str:
         """Create namespace-aware path to prevent project conflicts"""
         if path.startswith('/'):
@@ -154,6 +293,9 @@ Never create, modify, or delete actual files - only maintain their records in th
         """Record file artifacts in the project_memorys table"""
         
         files_to_record = task.context.get("files_to_record", [])
+        phase = task.context.get("phase", "unknown")
+        agent_name = task.context.get("requesting_agent", "unknown-agent")
+        
         if not files_to_record:
             return AgentResult(
                 success=True,
@@ -218,10 +360,17 @@ Never create, modify, or delete actual files - only maintain their records in th
             except Exception as e:
                 errors.append(f"Error processing {file_info.get('file_path', 'unknown')}: {str(e)}")
         
+        # Create git commit for this phase if files were processed successfully
+        git_result = {}
+        if len(errors) == 0 and files_to_record:
+            git_result = self._create_phase_commit(files_to_record, phase, agent_name)
+        
         # Generate summary
         summary = f"Processed {len(files_to_record)} files: {inserted} inserted, {updated} updated"
         if errors:
             summary += f", {len(errors)} errors"
+        if git_result.get("committed"):
+            summary += f", git commit {git_result.get('commit_hash', 'unknown')[:8]}"
         
         return AgentResult(
             success=len(errors) == 0,
@@ -230,6 +379,7 @@ Never create, modify, or delete actual files - only maintain their records in th
                 "records_inserted": inserted,
                 "records_updated": updated,
                 "total_processed": len(files_to_record),
+                "git_commit": git_result,
                 "errors": errors
             },
             files_created=[],

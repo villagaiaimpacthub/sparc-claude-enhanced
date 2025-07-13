@@ -227,6 +227,13 @@ You coordinate but do NOT write files directly. Instead:
 
 {self.custom_instructions}
 
+IMPORTANT: As part of goal clarification, you MUST ask the user for:
+1. GitHub repository name for this project (suggest: {project_goal.lower().replace(' ', '-')})
+2. Whether to create a new repo or use existing one
+3. Repository visibility (public/private)
+
+Store this information in the mutual understanding document.
+
 TASK: Conduct comprehensive goal clarification for this project.
 
 PROJECT GOAL: {project_goal}
@@ -316,6 +323,7 @@ Begin your comprehensive analysis and document creation now. Create both files w
             context={
                 "files_to_record": files_to_record,
                 "phase": "goal-clarification",
+                "requesting_agent": self.agent_name,
                 "requirements": ["Record all files in project_memorys table"],
                 "ai_verifiable_outcomes": ["All files recorded with version 1"]
             },

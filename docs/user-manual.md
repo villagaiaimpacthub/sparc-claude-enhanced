@@ -1,0 +1,3 @@
+# Flight Simulator User Manual
+
+Welcome to the browser-based flight simulator...

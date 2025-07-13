@@ -469,7 +469,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "phase": "pseudocode",
                 "requirements": ["Record all files in project_memorys table"],
                 "ai_verifiable_outcomes": ["All files recorded with appropriate version"]
-            },
+            ,
+                "requesting_agent": self.agent_name},
             priority=8
         )
 

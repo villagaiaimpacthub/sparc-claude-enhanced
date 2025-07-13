@@ -41,7 +41,7 @@ class SPARCOrchestrator:
     def __init__(self, namespace: str):
         self.namespace = namespace
         self.supabase = self._init_supabase()
-        self.sparc_dir = Path('/usr/local/sparc')
+        self.sparc_dir = Path.cwd()  # Use current working directory
         
     def _init_supabase(self) -> Client:
         """Initialize Supabase client"""

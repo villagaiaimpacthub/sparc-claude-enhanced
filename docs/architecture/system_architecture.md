@@ -1,140 +1,218 @@
-# System Architecture Document
+# System Architecture - Grocery Planning App
 
-## Project Overview
-# Comprehensive Technical Specification
+## 1. High-Level Architecture
 
-## Project Overview
-# Mutual Understanding Document
-
-## Project Goal
-Build a production-ready system that: I need to build a web application that helps users track their daily tasks and goals. Users should be able to create, edit, and mark tasks as complete. Also need user accounts and data persistence. Want it to be responsive and work on mobile devices. Prefer React for frontend. Technical requirements: supporting 1000+ concurrent users, supporting 1000...
-
-## Architecture Overview
-
-### High-Level Architecture
 ```
-┌─────────────────────────────────────────────────┐
-│                 Load Balancer                   │
-├─────────────────────────────────────────────────┤
-│              API Gateway/Proxy                  │
-├─────────────────────────────────────────────────┤
-│  Frontend      │    Backend Services    │ Cache │
-│  Application   │    (REST/GraphQL)      │ Layer │
-├─────────────────────────────────────────────────┤
-│              Database Layer                     │
-├─────────────────────────────────────────────────┤
-│            Infrastructure Layer                 │
-└─────────────────────────────────────────────────┘
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Frontend      │    │    Backend       │    │   External      │
+│   (React PWA)   │◄──►│   (Node.js)      │◄──►│   APIs          │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+│                      │                      │
+│ • Camera API         │ • RESTful API        │ • Spoonacular
+│ • Service Worker     │ • Authentication     │ • Open Food Facts
+│ • Local Storage      │ • PostgreSQL         │ • USDA FoodData
+│ • PWA Features       │ • JWT Tokens         │ • Barcode Lookup
 ```
 
-### Technology Stack
-- redis
+## 2. Frontend Architecture
 
-### Architecture Patterns
+### 2.1 Component Structure
+```
+src/
+├── components/
+│   ├── common/
+│   │   ├── Header.tsx
+│   │   ├── Navigation.tsx
+│   │   └── Modal.tsx
+│   ├── meal-planning/
+│   │   ├── MealCalendar.tsx
+│   │   ├── RecipeSearch.tsx
+│   │   └── NutritionDisplay.tsx
+│   ├── grocery-list/
+│   │   ├── ShoppingList.tsx
+│   │   ├── BarcodeScanner.tsx
+│   │   └── ItemManager.tsx
+│   └── budget/
+│       ├── BudgetTracker.tsx
+│       ├── SpendingChart.tsx
+│       └── PriceHistory.tsx
+├── hooks/
+│   ├── useCamera.ts
+│   ├── useOfflineSync.ts
+│   └── useBarcodeScanner.ts
+├── services/
+│   ├── api.ts
+│   ├── offline.ts
+│   └── barcode.ts
+└── utils/
+    ├── nutrition.ts
+    ├── currency.ts
+    └── date.ts
+```
 
+### 2.2 State Management
+- React Context for global state
+- Local state with useState/useReducer
+- IndexedDB for offline data persistence
+- Service Worker for background sync
 
-## Component Architecture
+## 3. Backend Architecture
 
-### Frontend Layer
-- **Framework**: React with TypeScript
-- **State Management**: Redux Toolkit for global state
-- **Component Architecture**: Functional components with hooks
-- **Routing**: React Router for client-side navigation
-- **UI Library**: Material-UI for consistent design
-- **Build System**: Webpack with optimization
+### 3.1 API Structure
+```
+api/
+├── auth/
+│   ├── POST /login
+│   ├── POST /register
+│   └── POST /refresh
+├── meals/
+│   ├── GET /meals
+│   ├── POST /meals
+│   ├── PUT /meals/:id
+│   └── DELETE /meals/:id
+├── recipes/
+│   ├── GET /recipes/search
+│   ├── GET /recipes/:id
+│   └── POST /recipes/import
+├── grocery/
+│   ├── GET /grocery-lists
+│   ├── POST /grocery-lists
+│   ├── PUT /grocery-lists/:id
+│   └── POST /grocery-lists/generate
+├── budget/
+│   ├── GET /budget/summary
+│   ├── POST /budget/transactions
+│   └── GET /budget/analytics
+└── products/
+    ├── GET /products/barcode/:code
+    ├── POST /products
+    └── GET /products/search
+```
 
-### Backend Layer
-- **Framework**: Python FastAPI for high-performance APIs
-- **Authentication**: JWT tokens with refresh mechanism
-- **Validation**: Pydantic models for request/response validation
-- **Database ORM**: SQLAlchemy for database operations
-- **Background Tasks**: Celery with Redis as broker
-- **API Documentation**: Automatic OpenAPI/Swagger generation
+### 3.2 Database Schema
+```sql
+-- Users table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    preferences JSONB DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
-### Database Layer
-- **Primary Database**: PostgreSQL for relational data
-- **Caching Layer**: Redis for session storage and caching
-- **Connection Pooling**: SQLAlchemy connection pool
-- **Migration System**: Alembic for database versioning
-- **Backup Strategy**: Daily automated backups with retention
+-- Recipes table
+CREATE TABLE recipes (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    ingredients JSONB NOT NULL,
+    instructions TEXT,
+    nutrition_data JSONB,
+    prep_time INTEGER,
+    cook_time INTEGER,
+    servings INTEGER
+);
 
-## Scalability Architecture
+-- Meal plans table
+CREATE TABLE meal_plans (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    week_start DATE NOT NULL,
+    meals JSONB NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
-### Horizontal Scaling
-- load
+-- Products table
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    barcode VARCHAR(50) UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    brand VARCHAR(255),
+    category VARCHAR(100),
+    nutrition_data JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
-### Performance Optimization
-- **Caching Strategy**: Multi-level caching (browser, CDN, application, database)
-- **Database Optimization**: Proper indexing and query optimization
-- **Asset Optimization**: Code splitting and lazy loading
-- **Response Compression**: Gzip compression for all responses
+-- Grocery lists table
+CREATE TABLE grocery_lists (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    name VARCHAR(255) NOT NULL,
+    items JSONB NOT NULL,
+    status VARCHAR(50) DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
-## Security Architecture
+-- Budget transactions table
+CREATE TABLE budget_transactions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    amount DECIMAL(10,2) NOT NULL,
+    category VARCHAR(100),
+    store VARCHAR(255),
+    items JSONB,
+    transaction_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-### Authentication & Authorization
-- ssl
+## 4. Security Architecture
 
-### Data Protection
-- **Encryption**: HTTPS/TLS for data in transit
-- **Database Encryption**: Sensitive data encrypted at rest
-- **Secret Management**: Environment-based configuration
-- **Audit Logging**: Comprehensive security event logging
+### 4.1 Authentication Flow
+```
+1. User Login → JWT Token Generation
+2. Token Storage → Secure HttpOnly Cookie
+3. Request Authentication → JWT Verification
+4. Token Refresh → Automatic Renewal
+5. Logout → Token Invalidation
+```
 
-## Deployment Architecture
+### 4.2 Data Protection
+- HTTPS encryption for all communications
+- JWT tokens with short expiration (15 minutes)
+- Refresh tokens with longer expiration (7 days)
+- Input validation and sanitization
+- Rate limiting for API endpoints
+- CORS configuration for allowed origins
 
-### Infrastructure
+## 5. Performance Optimization
 
+### 5.1 Frontend Optimizations
+- React.lazy() for code splitting
+- Service Worker for asset caching
+- Image optimization and lazy loading
+- Bundle size optimization with Webpack
+- Virtual scrolling for large lists
 
-### Monitoring & Observability
-- **Application Monitoring**: Prometheus metrics with Grafana dashboards
-- **Log Aggregation**: ELK stack for centralized logging
-- **Error Tracking**: Sentry for error monitoring and alerting
-- **Health Checks**: Automated health monitoring for all services
+### 5.2 Backend Optimizations
+- Database indexing for frequent queries
+- API response caching with Redis
+- Pagination for large data sets
+- Connection pooling for database
+- Compression for API responses
 
-## Data Flow Architecture
+## 6. Deployment Architecture
 
-### User Request Flow
-1. User interaction → Frontend Application
-2. Frontend → API Gateway → Backend Service
-3. Backend → Database/Cache → Response
-4. Response → API Gateway → Frontend → User
+### 6.1 Infrastructure
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Frontend      │    │    Backend       │    │   Database      │
+│   (Vercel)      │    │   (Railway)      │    │ (PostgreSQL)    │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+│                      │                      │
+│ • Static hosting     │ • Docker container   │ • Managed DB
+│ • CDN distribution   │ • Auto-scaling       │ • Automated backups
+│ • SSL certificate    │ • Health monitoring  │ • Connection pooling
+```
 
-### Background Processing Flow
-1. API Request → Queue Task → Background Worker
-2. Background Worker → Database/External APIs
-3. Completion → Notification/Update → User Interface
-
-## Integration Architecture
-
-### External Integrations
-
-
-### Internal Communication
-- **API-First Design**: All components communicate via well-defined APIs
-- **Event-Driven Architecture**: Asynchronous events for loose coupling
-- **Service Mesh**: (Future) For microservices communication
-
-## Quality Assurance Architecture
-
-### Testing Strategy
-- **Unit Testing**: Comprehensive unit test coverage >90%
-- **Integration Testing**: API and database integration tests
-- **End-to-End Testing**: Automated user journey testing
-- **Performance Testing**: Load testing for scalability validation
-
-### Code Quality
-- **Static Analysis**: Automated code quality checks
-- **Security Scanning**: Automated vulnerability scanning
-- **Documentation**: Automated API documentation generation
-- **Code Review**: Mandatory peer review process
-
-## Acceptance Criteria
-- ✅ System components integrate successfully: 100% of integration tests pass
-- ✅ System meets performance requirements: System maintains performance under specified load conditions
-- ✅ System is properly documented and maintainable: Documentation covers all major components and setup procedures
+### 6.2 CI/CD Pipeline
+- GitHub Actions for automated testing
+- Automated deployment on successful builds
+- Environment-specific configurations
+- Database migration scripts
+- Rollback capabilities
 
 ---
-
-*Generated by Enhanced Architecture Phase Agent*
-*Date: 2025-07-12T23:55:52.177467*
-*Oracle Compliance Score: 0.58*
+*Generated for Grocery Planning App SPARC Workflow*
+*Date: {datetime.now().isoformat()}*

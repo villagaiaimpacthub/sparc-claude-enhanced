@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Flight Simulator</title>
+    <link rel="stylesheet" href="src/styles/simulator.css">
+</head>
+<body>
+    <div id="simulator-container">
+        <canvas id="flight-canvas" width="1024" height="768"></canvas>
+        <div id="instruments-panel">
+            <div class="instrument" id="altimeter">
+                <div class="gauge-label">ALT</div>
+                <div class="gauge-value">1000</div>
+            </div>
+            <div class="instrument" id="airspeed">
+                <div class="gauge-label">IAS</div>
+                <div class="gauge-value">0</div>
+            </div>
+            <div class="instrument" id="attitude">
+                <div class="gauge-label">ATT</div>
+                <div class="artificial-horizon"></div>
+            </div>
+        </div>
+        <div id="controls-panel">
+            <div class="control-group">
+                <label>Throttle</label>
+                <input type="range" id="throttle" min="0" max="100" value="0">
+            </div>
+            <div class="control-group">
+                <label>Flight Controls</label>
+                <div id="flight-stick"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="src/physics/flight-physics.js"></script>
+    <script src="src/controls/flight-controls.js"></script>
+    <script src="src/instruments/flight-instruments.js"></script>
+    <script src="src/flight-simulator.js"></script>
+</body>
+</html>

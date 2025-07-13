@@ -567,7 +567,8 @@ This phase requires human approval before proceeding to completion phases.
                 "phase": "bmo-completion",
                 "requirements": ["Record all files in project_memorys table"],
                 "ai_verifiable_outcomes": ["All files recorded with appropriate version"]
-            },
+            ,
+                "requesting_agent": self.agent_name},
             priority=8
         )
 

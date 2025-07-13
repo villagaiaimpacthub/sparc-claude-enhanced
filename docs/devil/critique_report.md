@@ -1,0 +1,3 @@
+# Devil's Advocate Critique
+
+Critical analysis of the flight simulator requirements...
