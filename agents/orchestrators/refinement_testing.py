@@ -77,6 +77,16 @@ class BaseAgent(ABC):
             console.print("[red]❌ Missing Supabase credentials[/red]")
             exit(1)
         return create_client(url, key)
+    def _get_namespaced_path(self, path: str) -> str:
+        """Create namespace-aware path to prevent project conflicts"""
+        if path.startswith('/'):
+            # Absolute path - don't modify
+            return path
+        return f"{self.project_id}/{path}"
+    
+    def _check_namespaced_file(self, path: str) -> bool:
+        """Check if a namespaced file exists"""
+        return Path(self._get_namespaced_path(path)).exists()
     
     async def delegate_task(self, to_agent: str, task_description: str, 
                           context: Dict[str, Any], priority: int = 5) -> str:
@@ -190,7 +200,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             task_description="Convert specifications to comprehensive test plan",
             task_context={
                 "prerequisites_valid": prereqs["valid"],
-                "output_file": "docs/testing/test_plan.md",
+                "output_file": self._get_namespaced_path("docs/testing/test_plan.md"),
                 "requirements": [
                     "Create comprehensive test strategy and plan",
                     "Define test categories and coverage targets",
@@ -216,7 +226,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             task_context={
                 "prerequisites_valid": prereqs["valid"],
                 "test_plan_task_id": test_plan_task_id,
-                "output_file": "docs/testing/acceptance_criteria.md",
+                "output_file": self._get_namespaced_path("docs/testing/acceptance_criteria.md"),
                 "requirements": [
                     "Define acceptance criteria for all features",
                     "Create user acceptance testing scenarios",
@@ -432,8 +442,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         
         # Check for comprehensive specification
         spec_paths = [
-            Path("docs/specifications/comprehensive_spec.md"),
-            Path("docs/comprehensive_spec.md")
+            Path(self._get_namespaced_path("docs/specifications/comprehensive_spec.md")),
+            Path(self._get_namespaced_path("docs/comprehensive_spec.md"))
         ]
         spec_exists = any(path.exists() for path in spec_paths)
         if not spec_exists:
@@ -441,9 +451,9 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         
         # Check for architecture design files
         arch_paths = [
-            Path("docs/architecture/system_design.md"),
-            Path("docs/architecture/system_architecture.md"),
-            Path("docs/architecture/deployment_architecture.md")
+            Path(self._get_namespaced_path("docs/architecture/system_design.md")),
+            Path(self._get_namespaced_path("docs/architecture/system_architecture.md")),
+            Path(self._get_namespaced_path("docs/architecture/deployment_architecture.md"))
         ]
         arch_exists = any(path.exists() for path in arch_paths)
         if not arch_exists:

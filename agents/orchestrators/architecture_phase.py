@@ -77,6 +77,16 @@ class BaseAgent(ABC):
             console.print("[red]❌ Missing Supabase credentials[/red]")
             exit(1)
         return create_client(url, key)
+    def _get_namespaced_path(self, path: str) -> str:
+        """Create namespace-aware path to prevent project conflicts"""
+        if path.startswith('/'):
+            # Absolute path - don't modify
+            return path
+        return f"{self.project_id}/{path}"
+    
+    def _check_namespaced_file(self, path: str) -> bool:
+        """Check if a namespaced file exists"""
+        return Path(self._get_namespaced_path(path)).exists()
     
     async def delegate_task(self, to_agent: str, task_description: str, 
                           context: Dict[str, Any], priority: int = 5) -> str:
@@ -188,7 +198,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             task_description="Create comprehensive system architecture design",
             task_context={
                 "prerequisites_valid": prereqs["valid"],
-                "output_file": "docs/architecture/system_design.md",
+                "output_file": self._get_namespaced_path("docs/architecture/system_design.md"),
                 "architecture_focus": "system_design",
                 "requirements": [
                     "Design high-level system architecture",
@@ -216,7 +226,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "prerequisites_valid": prereqs["valid"],
                 "prerequisites_valid": prereqs["valid"],
                 "system_design_task_id": system_design_task_id,
-                "output_file": "docs/architecture/component_interfaces.md",
+                "output_file": self._get_namespaced_path("docs/architecture/component_interfaces.md"),
                 "architecture_focus": "component_interfaces",
                 "requirements": [
                     "Define all component interfaces and contracts",
@@ -244,7 +254,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "prerequisites_valid": prereqs["valid"],
                 "prerequisites_valid": prereqs["valid"],
                 "system_design_task_id": system_design_task_id,
-                "output_file": "docs/architecture/deployment_architecture.md",
+                "output_file": self._get_namespaced_path("docs/architecture/deployment_architecture.md"),
                 "architecture_focus": "deployment_infrastructure",
                 "requirements": [
                     "Design deployment topology and infrastructure",
@@ -272,7 +282,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "prerequisites_valid": prereqs["valid"],
                 "prerequisites_valid": prereqs["valid"],
                 "system_design_task_id": system_design_task_id,
-                "output_file": "docs/architecture/data_architecture.md",
+                "output_file": self._get_namespaced_path("docs/architecture/data_architecture.md"),
                 "architecture_focus": "data_architecture",
                 "requirements": [
                     "Design data storage and persistence layer",
@@ -300,7 +310,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "system_design_task_id": system_design_task_id,
                 "interfaces_task_id": interfaces_task_id,
                 "deployment_task_id": deployment_task_id,
-                "output_file": "docs/architecture/security_architecture.md",
+                "output_file": self._get_namespaced_path("docs/architecture/security_architecture.md"),
                 "security_focus": "architecture_security",
                 "requirements": [
                     "Perform architecture security threat analysis",
@@ -441,8 +451,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         
         # Check for comprehensive specification
         spec_paths = [
-            Path("docs/specifications/comprehensive_spec.md"),
-            Path("docs/comprehensive_spec.md")
+            Path(self._get_namespaced_path("docs/specifications/comprehensive_spec.md")),
+            Path(self._get_namespaced_path("docs/comprehensive_spec.md"))
         ]
         spec_exists = any(path.exists() for path in spec_paths)
         if not spec_exists:
@@ -450,9 +460,9 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         
         # Check for pseudocode files
         pseudocode_paths = [
-            Path("docs/pseudocode/main_algorithms.md"),
-            Path("docs/pseudocode/main_implementation.md"),
-            Path("docs/pseudocode/algorithms_and_data_structures.md")
+            Path(self._get_namespaced_path("docs/pseudocode/main_algorithms.md")),
+            Path(self._get_namespaced_path("docs/pseudocode/main_implementation.md")),
+            Path(self._get_namespaced_path("docs/pseudocode/algorithms_and_data_structures.md"))
         ]
         pseudocode_exists = any(path.exists() for path in pseudocode_paths)
         if not pseudocode_exists:
@@ -486,8 +496,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 })
         
         # Check for additional architecture files
-        if Path("docs/architecture").exists():
-            for arch_file in Path("docs/architecture").glob("*.md"):
+        if Path(self._get_namespaced_path("docs/architecture")).exists():
+            for arch_file in Path(self._get_namespaced_path("docs/architecture")).glob("*.md"):
                 file_path = str(arch_file)
                 if not any(doc["path"] == file_path for doc in docs_created):
                     docs_created.append({
@@ -498,8 +508,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                     })
         
         # Check for reports
-        if Path("docs/reports").exists():
-            for report_file in Path("docs/reports").glob("*architecture*.md"):
+        if Path(self._get_namespaced_path("docs/reports")).exists():
+            for report_file in Path(self._get_namespaced_path("docs/reports")).glob("*architecture*.md"):
                 docs_created.append({
                     "path": str(report_file),
                     "type": "architecture_report",

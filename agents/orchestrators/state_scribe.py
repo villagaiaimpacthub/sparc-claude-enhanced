@@ -74,6 +74,16 @@ class BaseAgent(ABC):
             console.print("[red]❌ Missing Supabase credentials[/red]")
             exit(1)
         return create_client(url, key)
+    def _get_namespaced_path(self, path: str) -> str:
+        """Create namespace-aware path to prevent project conflicts"""
+        if path.startswith('/'):
+            # Absolute path - don't modify
+            return path
+        return f"{self.project_id}/{path}"
+    
+    def _check_namespaced_file(self, path: str) -> bool:
+        """Check if a namespaced file exists"""
+        return Path(self._get_namespaced_path(path)).exists()
     
     async def delegate_task(self, to_agent: str, task_description: str, 
                           context: Dict[str, Any], priority: int = 5) -> str:

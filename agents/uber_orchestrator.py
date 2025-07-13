@@ -76,6 +76,17 @@ class BaseAgent(ABC):
             exit(1)
         return create_client(url, key)
     
+    def _get_namespaced_path(self, path: str) -> str:
+        """Create namespace-aware path to prevent project conflicts"""
+        if path.startswith('/'):
+            # Absolute path - don't modify
+            return path
+        return f"{self.project_id}/{path}"
+    
+    def _check_namespaced_file(self, path: str) -> bool:
+        """Check if a namespaced file exists"""
+        return Path(self._get_namespaced_path(path)).exists()
+    
     async def delegate_task(self, to_agent: str, task_description: str, 
                           context: Dict[str, Any], priority: int = 5) -> str:
         task_data = {
@@ -289,13 +300,13 @@ At each phase, you must:
         """Check if a phase is complete based on required artifacts"""
         # Define phase completion criteria
         completion_criteria = {
-            "goal-clarification": ["docs/Mutual_Understanding_Document.md", "docs/specifications/constraints_and_anti_goals.md"],
-            "specification": ["docs/specifications/comprehensive_spec.md"],
-            "pseudocode": ["docs/pseudocode/"],
-            "architecture": ["docs/architecture/system_design.md"],
-            "refinement-testing": ["tests/"],
-            "refinement-implementation": ["src/"],
-            "bmo-completion": ["docs/bmo_validation_report.md"]
+            "goal-clarification": [self._get_namespaced_path("docs/Mutual_Understanding_Document.md"), self._get_namespaced_path("docs/specifications/constraints_and_anti_goals.md")],
+            "specification": [self._get_namespaced_path("docs/specifications/comprehensive_spec.md")],
+            "pseudocode": [self._get_namespaced_path("docs/pseudocode/")],
+            "architecture": [self._get_namespaced_path("docs/architecture/system_design.md")],
+            "refinement-testing": [self._get_namespaced_path("tests/")],
+            "refinement-implementation": [self._get_namespaced_path("src/")],
+            "bmo-completion": [self._get_namespaced_path("docs/bmo_validation_report.md")]
         }
         
         required_files = completion_criteria.get(phase, [])
@@ -359,37 +370,37 @@ At each phase, you must:
         """Get AI-verifiable outcomes for a phase"""
         outcomes_map = {
             "goal-clarification": [
-                "File exists: docs/Mutual_Understanding_Document.md",
-                "File exists: docs/specifications/constraints_and_anti_goals.md",
+                f"File exists: {self._get_namespaced_path('docs/Mutual_Understanding_Document.md')}",
+                f"File exists: {self._get_namespaced_path('docs/specifications/constraints_and_anti_goals.md')}",
                 "Approval record exists in database"
             ],
             "specification": [
-                "File exists: docs/specifications/comprehensive_spec.md",
+                f"File exists: {self._get_namespaced_path('docs/specifications/comprehensive_spec.md')}",
                 "File contains functional requirements section",
                 "File contains non-functional requirements section"
             ],
             "pseudocode": [
-                "Directory exists: docs/pseudocode/",
+                f"Directory exists: {self._get_namespaced_path('docs/pseudocode/')}",
                 "Pseudocode files exist for all major components",
                 "All algorithms have pseudocode representation"
             ],
             "architecture": [
-                "File exists: docs/architecture/system_design.md",
+                f"File exists: {self._get_namespaced_path('docs/architecture/system_design.md')}",
                 "Architecture diagrams present",
                 "Component interfaces defined"
             ],
             "refinement-testing": [
-                "Directory exists: tests/",
+                f"Directory exists: {self._get_namespaced_path('tests/')}",
                 "Test files exist for all components",
                 "Test coverage meets target"
             ],
             "refinement-implementation": [
-                "Directory exists: src/",
+                f"Directory exists: {self._get_namespaced_path('src/')}",
                 "All features implemented",
                 "Code passes all tests"
             ],
             "bmo-completion": [
-                "File exists: docs/bmo_validation_report.md",
+                f"File exists: {self._get_namespaced_path('docs/bmo_validation_report.md')}",
                 "All requirements validated",
                 "Final approval obtained"
             ]

@@ -77,6 +77,16 @@ class BaseAgent(ABC):
             console.print("[red]❌ Missing Supabase credentials[/red]")
             exit(1)
         return create_client(url, key)
+    def _get_namespaced_path(self, path: str) -> str:
+        """Create namespace-aware path to prevent project conflicts"""
+        if path.startswith('/'):
+            # Absolute path - don't modify
+            return path
+        return f"{self.project_id}/{path}"
+    
+    def _check_namespaced_file(self, path: str) -> bool:
+        """Check if a namespaced file exists"""
+        return Path(self._get_namespaced_path(path)).exists()
     
     async def delegate_task(self, to_agent: str, task_description: str, 
                           context: Dict[str, Any], priority: int = 5) -> str:
@@ -211,7 +221,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             task_context={
                 "prerequisites_valid": prereqs["valid"],
                 "test_analysis_task_id": test_analysis_task_id,
-                "output_file": "docs/pseudocode/main_algorithms.md",
+                "output_file": self._get_namespaced_path("docs/pseudocode/main_algorithms.md"),
                 "pseudocode_focus": "core_algorithms",
                 "requirements": [
                     "Create pseudocode for all core algorithms",
@@ -237,7 +247,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             task_context={
                 "prerequisites_valid": prereqs["valid"],
                 "main_pseudocode_task_id": main_pseudocode_task_id,
-                "output_file": "docs/pseudocode/data_structures.md",
+                "output_file": self._get_namespaced_path("docs/pseudocode/data_structures.md"),
                 "pseudocode_focus": "data_structures",
                 "requirements": [
                     "Define all data structures and their properties",
@@ -263,7 +273,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             task_context={
                 "prerequisites_valid": prereqs["valid"],
                 "main_pseudocode_task_id": main_pseudocode_task_id,
-                "output_file": "docs/pseudocode/api_endpoints.md",
+                "output_file": self._get_namespaced_path("docs/pseudocode/api_endpoints.md"),
                 "pseudocode_focus": "api_interfaces",
                 "requirements": [
                     "Define all API endpoints and their logic",
@@ -289,7 +299,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             task_context={
                 "prerequisites_valid": prereqs["valid"],
                 "main_pseudocode_task_id": main_pseudocode_task_id,
-                "output_file": "docs/pseudocode/edge_cases.md",
+                "output_file": self._get_namespaced_path("docs/pseudocode/edge_cases.md"),
                 "requirements": [
                     "Identify all edge cases and boundary conditions",
                     "Create pseudocode for edge case handling",
@@ -391,8 +401,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         
         # Check for comprehensive specification
         spec_paths = [
-            Path("docs/specifications/comprehensive_spec.md"),
-            Path("docs/comprehensive_spec.md")
+            Path(self._get_namespaced_path("docs/specifications/comprehensive_spec.md")),
+            Path(self._get_namespaced_path("docs/comprehensive_spec.md"))
         ]
         spec_exists = any(path.exists() for path in spec_paths)
         if not spec_exists:
@@ -425,8 +435,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 })
         
         # Check for any additional pseudocode files
-        if Path("docs/pseudocode").exists():
-            for pseudocode_file in Path("docs/pseudocode").glob("*.md"):
+        if Path(self._get_namespaced_path("docs/pseudocode")).exists():
+            for pseudocode_file in Path(self._get_namespaced_path("docs/pseudocode")).glob("*.md"):
                 file_path = str(pseudocode_file)
                 if not any(doc["path"] == file_path for doc in docs_created):
                     docs_created.append({

@@ -75,6 +75,16 @@ class BaseAgent(ABC):
             console.print("[red]❌ Missing Supabase credentials[/red]")
             exit(1)
         return create_client(url, key)
+    def _get_namespaced_path(self, path: str) -> str:
+        """Create namespace-aware path to prevent project conflicts"""
+        if path.startswith('/'):
+            # Absolute path - don't modify
+            return path
+        return f"{self.project_id}/{path}"
+    
+    def _check_namespaced_file(self, path: str) -> bool:
+        """Check if a namespaced file exists"""
+        return Path(self._get_namespaced_path(path)).exists()
     
     async def delegate_task(self, to_agent: str, task_description: str, 
                           context: Dict[str, Any], priority: int = 5) -> str:
@@ -178,7 +188,7 @@ This phase requires human approval before proceeding to completion phases.
                 "mutual_understanding": prereqs["mutual_understanding"],
                 "comprehensive_spec": prereqs["comprehensive_spec"],
                 "implementation_summary": prereqs["implementation_summary"],
-                "output_file": "docs/bmo_intent_analysis.md",
+                "output_file": self._get_namespaced_path("docs/bmo_intent_analysis.md"),
                 "requirements": [
                     "Analyze alignment between original intent and implementation",
                     "Identify any drift or misalignment from original goals",
@@ -206,7 +216,7 @@ This phase requires human approval before proceeding to completion phases.
                 "comprehensive_spec": prereqs["comprehensive_spec"],
                 "implementation_summary": prereqs["implementation_summary"],
                 "intent_analysis_task_id": intent_triangulation_task_id,
-                "output_file": "docs/bmo_test_suite.md",
+                "output_file": self._get_namespaced_path("docs/bmo_test_suite.md"),
                 "requirements": [
                     "Generate tests that validate original intent fulfillment",
                     "Create behavioral validation scenarios",
@@ -234,7 +244,7 @@ This phase requires human approval before proceeding to completion phases.
                 "implementation_summary": prereqs["implementation_summary"],
                 "architecture_design": prereqs.get("architecture_design", ""),
                 "intent_analysis_task_id": intent_triangulation_task_id,
-                "output_file": "docs/bmo_contract_verification.md",
+                "output_file": self._get_namespaced_path("docs/bmo_contract_verification.md"),
                 "requirements": [
                     "Verify all specified contracts are implemented",
                     "Validate behavioral expectations are met",
@@ -263,7 +273,7 @@ This phase requires human approval before proceeding to completion phases.
                 "architecture_design": prereqs.get("architecture_design", ""),
                 "implementation_summary": prereqs["implementation_summary"],
                 "intent_analysis_task_id": intent_triangulation_task_id,
-                "output_file": "docs/bmo_system_model.md",
+                "output_file": self._get_namespaced_path("docs/bmo_system_model.md"),
                 "requirements": [
                     "Create comprehensive system mental model",
                     "Document system behavior and interactions",
@@ -291,7 +301,7 @@ This phase requires human approval before proceeding to completion phases.
                 "bmo_test_suite_task_id": bmo_test_generation_task_id,
                 "system_model_task_id": system_model_task_id,
                 "contract_verification_task_id": contract_verification_task_id,
-                "output_directory": "tests/bmo_e2e/",
+                "output_directory": self._get_namespaced_path("tests/bmo_e2e/"),
                 "requirements": [
                     "Create end-to-end validation test scenarios",
                     "Implement user journey validation tests",
@@ -320,7 +330,7 @@ This phase requires human approval before proceeding to completion phases.
                 "contract_verification_task_id": contract_verification_task_id,
                 "system_model_task_id": system_model_task_id,
                 "e2e_validation_task_id": e2e_validation_task_id,
-                "output_file": "docs/bmo_validation_report.md",
+                "output_file": self._get_namespaced_path("docs/bmo_validation_report.md"),
                 "requirements": [
                     "Conduct comprehensive intent verification",
                     "Synthesize all BMO validation results",
@@ -476,8 +486,8 @@ This phase requires human approval before proceeding to completion phases.
                 })
         
         # BMO E2E test files
-        if Path("tests/bmo_e2e/").exists():
-            for test_file in Path("tests/bmo_e2e/").rglob("*.py"):
+        if Path(self._get_namespaced_path("tests/bmo_e2e/")).exists():
+            for test_file in Path(self._get_namespaced_path("tests/bmo_e2e/")).rglob("*.py"):
                 docs_created.append({
                     "path": str(test_file),
                     "type": "bmo_e2e_test",
@@ -486,8 +496,8 @@ This phase requires human approval before proceeding to completion phases.
                 })
         
         # Additional BMO reports
-        if Path("docs/reports").exists():
-            for report_file in Path("docs/reports").glob("*bmo*.md"):
+        if Path(self._get_namespaced_path("docs/reports")).exists():
+            for report_file in Path(self._get_namespaced_path("docs/reports")).glob("*bmo*.md"):
                 docs_created.append({
                     "path": str(report_file),
                     "type": "bmo_report",

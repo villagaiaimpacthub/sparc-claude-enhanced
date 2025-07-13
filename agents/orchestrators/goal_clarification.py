@@ -79,6 +79,17 @@ class BaseAgent(ABC):
             exit(1)
         return create_client(url, key)
     
+    def _get_namespaced_path(self, path: str) -> str:
+        """Create namespace-aware path to prevent project conflicts"""
+        if path.startswith('/'):
+            # Absolute path - don't modify
+            return path
+        return f"{self.project_id}/{path}"
+    
+    def _check_namespaced_file(self, path: str) -> bool:
+        """Check if a namespaced file exists"""
+        return Path(self._get_namespaced_path(path)).exists()
+    
     async def delegate_task(self, to_agent: str, task_description: str, 
                           context: Dict[str, Any], priority: int = 5) -> str:
         task_data = {
@@ -197,8 +208,8 @@ You coordinate but do NOT write files directly. Instead:
         """Check if goal clarification documents already exist"""
         project_files = context.get("project_state", {}).get("files", {})
         
-        has_mutual = any("Mutual_Understanding_Document.md" in path for path in project_files.keys())
-        has_constraints = any("constraints_and_anti_goals.md" in path for path in project_files.keys())
+        has_mutual = self._check_namespaced_file("docs/Mutual_Understanding_Document.md")
+        has_constraints = self._check_namespaced_file("docs/specifications/constraints_and_anti_goals.md")
         
         return {
             "has_mutual_understanding": has_mutual,
@@ -265,7 +276,7 @@ Begin your comprehensive analysis and document creation now. Create both files w
         docs_created = []
         
         # Check for Mutual Understanding Document
-        mutual_understanding_path = "docs/Mutual_Understanding_Document.md"
+        mutual_understanding_path = self._get_namespaced_path("docs/Mutual_Understanding_Document.md")
         if Path(mutual_understanding_path).exists():
             docs_created.append({
                 "path": mutual_understanding_path,
@@ -275,7 +286,7 @@ Begin your comprehensive analysis and document creation now. Create both files w
             })
         
         # Check for Constraints Document
-        constraints_path = "docs/specifications/constraints_and_anti_goals.md"
+        constraints_path = self._get_namespaced_path("docs/specifications/constraints_and_anti_goals.md")
         if Path(constraints_path).exists():
             docs_created.append({
                 "path": constraints_path,
@@ -324,7 +335,7 @@ Begin your comprehensive analysis and document creation now. Create both files w
         specs_dir.mkdir(exist_ok=True)
         
         # Create Mutual Understanding Document
-        mutual_doc = docs_dir / 'Mutual_Understanding_Document.md'
+        mutual_doc = Path(self._get_namespaced_path("docs")) / 'Mutual_Understanding_Document.md'
         mutual_content = f"""# Mutual Understanding Document
 
 ## Project Overview
@@ -370,7 +381,7 @@ Begin your comprehensive analysis and document creation now. Create both files w
         console.print(f"✅ Created: {mutual_doc}")
         
         # Create Constraints and Anti-goals Document
-        constraints_doc = specs_dir / 'constraints_and_anti_goals.md'
+        constraints_doc = Path(self._get_namespaced_path("docs/specifications")) / 'constraints_and_anti_goals.md'
         constraints_content = f"""# Constraints and Anti-Goals
 
 ## Technical Constraints

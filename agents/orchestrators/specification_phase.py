@@ -78,6 +78,17 @@ class BaseAgent(ABC):
             exit(1)
         return create_client(url, key)
     
+    def _get_namespaced_path(self, path: str) -> str:
+        """Create namespace-aware path to prevent project conflicts"""
+        if path.startswith('/'):
+            # Absolute path - don't modify
+            return path
+        return f"{self.project_id}/{path}"
+    
+    def _check_namespaced_file(self, path: str) -> bool:
+        """Check if a namespaced file exists"""
+        return Path(self._get_namespaced_path(path)).exists()
+    
     async def delegate_task(self, to_agent: str, task_description: str, 
                           context: Dict[str, Any], priority: int = 5) -> str:
         task_data = {
@@ -212,7 +223,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "project_goal": task.context.get("project_goal", task.description),
                 "prerequisites_valid": prereqs["valid"],
                 "research_task_id": research_task_id,
-                "output_file": "docs/specifications/comprehensive_spec.md",
+                "output_file": self._get_namespaced_path("docs/specifications/comprehensive_spec.md"),
                 "requirements": [
                     "Create detailed functional requirements",
                     "Define non-functional requirements",
@@ -237,7 +248,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             task_context={
                 "project_goal": task.context.get("project_goal", task.description),
                 "comprehensive_spec_task_id": spec_task_id,
-                "output_file": "docs/specifications/examples_and_use_cases.md",
+                "output_file": self._get_namespaced_path("docs/specifications/examples_and_use_cases.md"),
                 "requirements": [
                     "Create concrete usage examples",
                     "Document user workflows",
@@ -341,14 +352,14 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         missing = []
         
         # Check for mutual understanding document
-        mutual_path = Path("docs/Mutual_Understanding_Document.md")
+        mutual_path = Path(self._get_namespaced_path("docs/Mutual_Understanding_Document.md"))
         if not mutual_path.exists():
             missing.append("Mutual Understanding Document")
         
         # Check for constraints document  
         constraints_paths = [
-            Path("docs/specifications/constraints_and_anti_goals.md"),
-            Path("docs/constraints_and_anti_goals.md")
+            Path(self._get_namespaced_path("docs/specifications/constraints_and_anti_goals.md")),
+            Path(self._get_namespaced_path("docs/constraints_and_anti_goals.md"))
         ]
         constraints_exists = any(path.exists() for path in constraints_paths)
         if not constraints_exists:

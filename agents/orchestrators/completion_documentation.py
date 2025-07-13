@@ -78,6 +78,17 @@ class BaseAgent(ABC):
             exit(1)
         return create_client(url, key)
     
+    def _get_namespaced_path(self, path: str) -> str:
+        """Create namespace-aware path to prevent project conflicts"""
+        if path.startswith('/'):
+            # Absolute path - don't modify
+            return path
+        return f"{self.project_id}/{path}"
+    
+    def _check_namespaced_file(self, path: str) -> bool:
+        """Check if a namespaced file exists"""
+        return Path(self._get_namespaced_path(path)).exists()
+    
     async def delegate_task(self, to_agent: str, task_description: str, 
                           context: Dict[str, Any], priority: int = 5) -> str:
         task_data = {
@@ -192,7 +203,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "prerequisites_valid": prereqs["valid"],
                 "bmo_validation": prereqs.get("bmo_validation", ""),
                 "feature_focus": "user_documentation",
-                "output_directory": "docs/user/",
+                "output_directory": self._get_namespaced_path("docs/user/"),
                 "requirements": [
                     "Create user guide and getting started documentation",
                     "Document all features and functionality",
@@ -218,7 +229,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
             task_context={
                 "prerequisites_valid": prereqs["valid"],
                 "analysis_focus": "api_documentation",
-                "output_directory": "docs/api/",
+                "output_directory": self._get_namespaced_path("docs/api/"),
                 "requirements": [
                     "Generate comprehensive API documentation",
                     "Create developer integration guides",
@@ -246,7 +257,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "architecture_design": prereqs.get("architecture_design", ""),
                 "operations_docs": prereqs.get("operations_docs", ""),
                 "feature_focus": "developer_documentation",
-                "output_directory": "docs/developer/",
+                "output_directory": self._get_namespaced_path("docs/developer/"),
                 "requirements": [
                     "Create developer setup and contribution guide",
                     "Document code architecture and patterns",
@@ -274,7 +285,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "prerequisites_valid": prereqs["valid"],
                 "bmo_validation": prereqs.get("bmo_validation", ""),
                 "feature_focus": "project_overview",
-                "output_file": "README.md",
+                "output_file": self._get_namespaced_path("README.md"),
                 "requirements": [
                     "Create compelling project overview and description",
                     "Document installation and quick start guide",
@@ -303,7 +314,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "bmo_validation": prereqs.get("bmo_validation", ""),
                 "all_project_files": prereqs.get("all_project_files", []),
                 "research_focus": "project_completion_analysis",
-                "output_file": "docs/final_project_report.md",
+                "output_file": self._get_namespaced_path("docs/final_project_report.md"),
                 "requirements": [
                     "Analyze project completion against original goals",
                     "Document all deliverables and achievements",
@@ -330,7 +341,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "prerequisites_valid": prereqs["valid"],
                 "all_project_files": prereqs.get("all_project_files", []),
                 "feature_focus": "changelog_history",
-                "output_file": "CHANGELOG.md",
+                "output_file": self._get_namespaced_path("CHANGELOG.md"),
                 "requirements": [
                     "Document project development history",
                     "Create version history and release notes",
@@ -358,7 +369,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "operations_docs": prereqs.get("operations_docs", ""),
                 "bmo_validation": prereqs.get("bmo_validation", ""),
                 "feature_focus": "project_handover",
-                "output_directory": "docs/project/",
+                "output_directory": self._get_namespaced_path("docs/project/"),
                 "requirements": [
                     "Create project handover documentation",
                     "Document knowledge transfer materials",
@@ -416,7 +427,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "developer_docs_task_id": developer_docs_task_id,
                 "quality_review_task_id": quality_review_task_id,
                 "feature_focus": "documentation_organization",
-                "output_file": "docs/index.md",
+                "output_file": self._get_namespaced_path("docs/index.md"),
                 "requirements": [
                     "Create comprehensive documentation index",
                     "Organize documentation into logical structure",
@@ -506,8 +517,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         
         # Check for comprehensive specification
         spec_paths = [
-            Path("docs/specifications/comprehensive_spec.md"),
-            Path("docs/comprehensive_spec.md")
+            Path(self._get_namespaced_path("docs/specifications/comprehensive_spec.md")),
+            Path(self._get_namespaced_path("docs/comprehensive_spec.md"))
         ]
         spec_exists = any(path.exists() for path in spec_paths)
         if not spec_exists:
@@ -515,7 +526,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
         
         # Check for implementation (src/ directory or any code files)
         impl_paths = [
-            Path("src/"),
+            Path(self._get_namespaced_path("src/")),
             Path("app/"),
             Path("lib/"),
             Path("implementation/")

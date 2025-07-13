@@ -75,6 +75,16 @@ class BaseAgent(ABC):
             console.print("[red]❌ Missing Supabase credentials[/red]")
             exit(1)
         return create_client(url, key)
+    def _get_namespaced_path(self, path: str) -> str:
+        """Create namespace-aware path to prevent project conflicts"""
+        if path.startswith('/'):
+            # Absolute path - don't modify
+            return path
+        return f"{self.project_id}/{path}"
+    
+    def _check_namespaced_file(self, path: str) -> bool:
+        """Check if a namespaced file exists"""
+        return Path(self._get_namespaced_path(path)).exists()
     
     async def delegate_task(self, to_agent: str, task_description: str, 
                           context: Dict[str, Any], priority: int = 5) -> str:
@@ -179,7 +189,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "implementation_summary": prereqs["implementation_summary"],
                 "bmo_validation": prereqs.get("bmo_validation", ""),
                 "feature_focus": "deployment_operations",
-                "output_file": "docs/operations/deployment_guide.md",
+                "output_file": self._get_namespaced_path("docs/operations/deployment_guide.md"),
                 "requirements": [
                     "Document complete deployment procedures",
                     "Create environment setup instructions",
@@ -206,7 +216,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "architecture_design": prereqs["architecture_design"],
                 "implementation_summary": prereqs["implementation_summary"],
                 "feature_focus": "monitoring_alerting",
-                "output_file": "docs/operations/monitoring_setup.md",
+                "output_file": self._get_namespaced_path("docs/operations/monitoring_setup.md"),
                 "requirements": [
                     "Document monitoring system setup",
                     "Create logging configuration procedures",
@@ -233,7 +243,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "architecture_design": prereqs["architecture_design"],
                 "implementation_summary": prereqs["implementation_summary"],
                 "feature_focus": "backup_disaster_recovery",
-                "output_file": "docs/operations/backup_recovery.md",
+                "output_file": self._get_namespaced_path("docs/operations/backup_recovery.md"),
                 "requirements": [
                     "Document backup procedures and schedules",
                     "Create disaster recovery playbooks",
@@ -260,7 +270,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "architecture_design": prereqs["architecture_design"],
                 "implementation_summary": prereqs["implementation_summary"],
                 "feature_focus": "maintenance_operations",
-                "output_file": "docs/operations/maintenance_runbook.md",
+                "output_file": self._get_namespaced_path("docs/operations/maintenance_runbook.md"),
                 "requirements": [
                     "Document routine maintenance procedures",
                     "Create system health check procedures",
@@ -287,7 +297,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "architecture_design": prereqs["architecture_design"],
                 "implementation_summary": prereqs["implementation_summary"],
                 "feature_focus": "troubleshooting_support",
-                "output_file": "docs/operations/troubleshooting_guide.md",
+                "output_file": self._get_namespaced_path("docs/operations/troubleshooting_guide.md"),
                 "requirements": [
                     "Document common issues and solutions",
                     "Create diagnostic procedures",
@@ -314,7 +324,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "architecture_design": prereqs["architecture_design"],
                 "implementation_summary": prereqs["implementation_summary"],
                 "optimization_focus": "scaling_performance",
-                "output_file": "docs/operations/scaling_guide.md",
+                "output_file": self._get_namespaced_path("docs/operations/scaling_guide.md"),
                 "requirements": [
                     "Document scaling procedures and strategies",
                     "Create performance optimization guidelines",
@@ -341,7 +351,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "architecture_design": prereqs["architecture_design"],
                 "deployment_guide_task_id": deployment_guide_task_id,
                 "architecture_focus": "deployment_automation",
-                "output_directory": "deploy/",
+                "output_directory": self._get_namespaced_path("deploy/"),
                 "requirements": [
                     "Create deployment scripts and automation",
                     "Generate configuration templates",
@@ -368,7 +378,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "architecture_design": prereqs["architecture_design"],
                 "deployment_guide_task_id": deployment_guide_task_id,
                 "security_focus": "operational_security",
-                "output_file": "docs/operations/security_hardening.md",
+                "output_file": self._get_namespaced_path("docs/operations/security_hardening.md"),
                 "requirements": [
                     "Document security hardening procedures",
                     "Create security monitoring setup",
@@ -395,7 +405,7 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                 "architecture_design": prereqs["architecture_design"],
                 "monitoring_setup_task_id": monitoring_setup_task_id,
                 "chaos_testing_focus": "operational_resilience",
-                "output_file": "docs/operations/resilience_testing.md",
+                "output_file": self._get_namespaced_path("docs/operations/resilience_testing.md"),
                 "requirements": [
                     "Create operational chaos testing procedures",
                     "Design failure simulation scenarios",
@@ -549,8 +559,8 @@ You coordinate but do NOT write files directly. You orchestrate the creation thr
                         })
         
         # Additional operations files
-        if Path("docs/operations").exists():
-            for ops_file in Path("docs/operations").glob("*.md"):
+        if Path(self._get_namespaced_path("docs/operations")).exists():
+            for ops_file in Path(self._get_namespaced_path("docs/operations")).glob("*.md"):
                 file_path = str(ops_file)
                 if not any(doc["path"] == file_path for doc in docs_created):
                     docs_created.append({
