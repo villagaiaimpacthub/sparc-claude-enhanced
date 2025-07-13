@@ -77,6 +77,8 @@ workflow_results_*.json
 # Test artifacts
 test_sparc_*/
 test_full_workflow/
+.sparc_file_registry_*.json
+.sparc/
 
 # Generated code artifacts (keep for demo)
 # src/
