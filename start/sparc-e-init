@@ -1002,7 +1002,7 @@ async def main():
     print()
     print('\033[0;32m\033[1mSPARC Enhanced Project Ready!\033[0m')
     print()
-    print('\033[97mLet\\'s launch Claude Code, and remember when we do this window will disappear.\033[0m')
+    print('\033[97mLet\'s launch Claude Code, and remember when we do this window will disappear.\033[0m')
     print('\033[97mSo run this command to start autonomous development: \033[1m/sparc\033[0m')
     print()
     
