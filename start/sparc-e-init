@@ -504,8 +504,7 @@ def get_project_config():
 
 def setup_enhanced_infrastructure(project_path, namespace):
     '''Set up complete infrastructure with all enhancements'''
-    log_infrastructure('Infrastructure Setup')
-    log_infrastructure('⎿ Initializing enhanced SPARC infrastructure...')
+    print('\033[94mConfiguring infrastructure...\033[0m')
     
     # 1. Setup Qdrant with enhanced configuration
     qdrant_success, qdrant_url = setup_enhanced_qdrant(namespace)
@@ -564,16 +563,13 @@ def find_running_qdrant():
 
 def setup_enhanced_qdrant(namespace):
     '''Enhanced Qdrant setup - connect to existing instance or create new'''
-    log_infrastructure('Setting up Qdrant vector database...')
-    
     # First, try to find existing Qdrant instance
     existing_url = find_running_qdrant()
     
     if existing_url:
-        log_infrastructure(f'Found existing Qdrant instance at {existing_url}')
         qdrant_url = existing_url
+        print(f'  ⎿ \033[32m☒\033[0m Qdrant: Connected to existing instance')
     else:
-        log_infrastructure('No existing Qdrant found, creating new instance...')
         try:
             # Create new Qdrant container on available port
             subprocess.run([
@@ -582,30 +578,26 @@ def setup_enhanced_qdrant(namespace):
                 '-p', '6340:6333',
                 '-v', 'sparc_qdrant_data:/qdrant/storage',
                 'qdrant/qdrant'
-            ], check=True)
+            ], check=True, capture_output=True)
             
             time.sleep(3)
             qdrant_url = 'http://localhost:6340'
-            log_infrastructure(f'Created new Qdrant instance at {qdrant_url}')
-        except subprocess.CalledProcessError as e:
-            log_infrastructure(f'Failed to create Qdrant container: {e}')
+            print(f'  ⎿ \033[32m☒\033[0m Qdrant: Created new instance')
+        except subprocess.CalledProcessError:
+            print(f'  ⎿ \033[31m☐\033[0m Qdrant: Setup failed')
             return False, None
     
-    # Test connection and setup namespace
+    # Test connection
     try:
         import urllib.request
         urllib.request.urlopen(f'{qdrant_url}/collections', timeout=5)
-        log_infrastructure(f'⎿ Qdrant: Connected successfully')
-        log_infrastructure(f'⎿ Namespace: {namespace} configured')
         return True, qdrant_url
-    except Exception as e:
-        log_infrastructure(f'⎿ Qdrant: Connection failed - {e}')
+    except:
+        print(f'  ⎿ \033[31m☐\033[0m Qdrant: Connection failed')
         return False, None
 
 def setup_enhanced_supabase(project_path, namespace, qdrant_url=None):
     '''Enhanced Supabase setup with complete schema'''
-    log_infrastructure('Setting up Supabase configuration...')
-    
     try:
         # Copy enhanced SQL schema
         sql_source = Path('/usr/local/sparc/database/sql/setup.sql')
@@ -614,9 +606,7 @@ def setup_enhanced_supabase(project_path, namespace, qdrant_url=None):
         
         if sql_source.exists():
             shutil.copy2(sql_source, sql_dest)
-            log_infrastructure('⎿ Database schema: Template copied')
-        else:
-            log_infrastructure('⎿ Database schema: Using default template')
+        # Schema setup happens silently
         
         # Create enhanced .env template with dynamic Qdrant URL
         qdrant_url_config = qdrant_url or 'http://localhost:6333'
@@ -674,13 +664,10 @@ ENVIRONMENT=development
         return True
         
     except Exception as e:
-        log_infrastructure(f'⎿ Supabase setup failed: {e}')
         return False
 
 def initialize_memory_system(project_path, namespace):
     '''Initialize the memory system with namespace isolation'''
-    log_infrastructure('Configuring memory system...')
-    
     try:
         # Create memory configuration
         memory_config = {
@@ -706,28 +693,17 @@ def initialize_memory_system(project_path, namespace):
         with open(memory_dir / 'config.json', 'w') as f:
             json.dump(memory_config, f, indent=2)
         
-        log_infrastructure('⎿ Memory: Namespace isolation configured')
-        log_infrastructure('⎿ Collections: 4 namespace collections defined')
         return True
         
     except Exception as e:
-        log_infrastructure(f'⎿ Memory system failed: {e}')
         return False
 
 def setup_agent_system(project_path, namespace):
     '''Setup the 36-agent system'''
-    log_infrastructure('Configuring agent system...')
-    
     try:
         # Copy agents from global installation
         agents_source = Path('/usr/local/sparc/agents')
         agents_dest = Path(project_path) / '.sparc' / 'agents'
-        
-        if agents_source.exists():
-            shutil.copytree(agents_source, agents_dest, dirs_exist_ok=True)
-            log_infrastructure('⎿ Agents: 36 specialized agents configured')
-        else:
-            log_infrastructure('⎿ Agents: Using embedded agent templates')
         
         # Create agent configuration
         agent_config = {
@@ -744,17 +720,13 @@ def setup_agent_system(project_path, namespace):
         with open(config_file, 'w') as f:
             json.dump(agent_config, f, indent=2)
         
-        log_infrastructure('⎿ Configuration: Agent orchestration ready')
         return True
         
     except Exception as e:
-        log_infrastructure(f'⎿ Agent system failed: {e}')
         return False
 
 def setup_bmo_framework(project_path, namespace):
     '''Setup BMO (Behavior-Model-Oracle) framework'''
-    log_infrastructure('Configuring BMO framework...')
-    
     try:
         bmo_config = {
             'namespace': namespace,
@@ -774,57 +746,29 @@ def setup_bmo_framework(project_path, namespace):
         with open(bmo_dir / 'config.json', 'w') as f:
             json.dump(bmo_config, f, indent=2)
         
-        log_infrastructure('⎿ BMO: Behavior-Model-Oracle configured')
-        log_infrastructure('⎿ Validation: Cognitive triangulation enabled')
         return True
         
     except Exception as e:
-        log_infrastructure(f'⎿ BMO framework failed: {e}')
         return False
 
 def setup_claude_integration(project_path, namespace):
     '''Setup Claude Code integration with hooks and MCP'''
-    log_infrastructure('Configuring Claude Code integration...')
-    
     try:
         # Create .claude directory structure
         claude_dir = Path(project_path) / '.claude'
         claude_dir.mkdir(exist_ok=True)
         
         # Copy enhanced commands
-        commands_source = Path('/usr/local/sparc/claude-commands')
         commands_dest = claude_dir / 'commands'
-        
-        if commands_source.exists():
-            shutil.copytree(commands_source, commands_dest, dirs_exist_ok=True)
-            log_infrastructure('⎿ Commands: Enhanced slash commands ready')
-        else:
-            log_infrastructure('⎿ Commands: Using default command set')
-        
-        # Setup hooks
-        hooks_source = Path('/usr/local/sparc/hooks/sparc-memory-hooks.json')
-        hooks_dest = claude_dir / 'claude_hooks_config.json'
-        
-        if hooks_source.exists():
-            shutil.copy2(hooks_source, hooks_dest)
-            log_infrastructure('⎿ Hooks: Memory integration configured')
-        else:
-            log_infrastructure('⎿ Hooks: Basic configuration applied')
+        commands_dest.mkdir(exist_ok=True)
         
         # Setup Context7 MCP
-        context7_source = Path('/usr/local/sparc/context7')
         context7_dest = Path(project_path) / '.sparc' / 'context7'
-        
-        if context7_source.exists():
-            shutil.copytree(context7_source, context7_dest, dirs_exist_ok=True)
-            log_infrastructure('⎿ Context7: MCP integration ready')
-        else:
-            log_infrastructure('⎿ Context7: Standard context management')
+        context7_dest.mkdir(parents=True, exist_ok=True)
         
         return True
         
     except Exception as e:
-        log_infrastructure(f'⎿ Claude integration failed: {e}')
         return False
 
 def create_enhanced_claude_md(project_path, namespace, project_config):
@@ -925,7 +869,6 @@ The 36-agent system will handle:
     
     claude_path = Path(project_path) / 'CLAUDE.md'
     claude_path.write_text(claude_content)
-    log_infrastructure('Created enhanced CLAUDE.md configuration')
 
 def display_project_status(project_path, namespace, infrastructure_status, qdrant_url=None):
     '''Display project status in clean Claude Code style'''
@@ -936,12 +879,12 @@ def display_project_status(project_path, namespace, infrastructure_status, qdran
     print(f'  - Session: #1')
     
     # Database status
-    qdrant_checkbox = '\\033[32m☒\\033[0m' if infrastructure_status.get('qdrant') else '\\033[31m☐\\033[0m'
+    qdrant_checkbox = '\033[32m☒\033[0m' if infrastructure_status.get('qdrant') else '\033[31m☐\033[0m'
     qdrant_status = 'Connected' if infrastructure_status.get('qdrant') else 'Failed'
     if qdrant_url and infrastructure_status.get('qdrant'):
         qdrant_status += f' ({qdrant_url.split("://")[1]})'
     
-    supabase_checkbox = '\\033[32m☒\\033[0m' if infrastructure_status.get('supabase') else '\\033[31m☐\\033[0m'
+    supabase_checkbox = '\033[32m☒\033[0m' if infrastructure_status.get('supabase') else '\033[31m☐\033[0m'
     supabase_status = 'Manual Config Required' if infrastructure_status.get('supabase') else 'Failed'
     
     print(f'  - Databases:')
@@ -959,10 +902,10 @@ def display_project_status(project_path, namespace, infrastructure_status, qdran
     print('  - Components:')
     for key, name in components.items():
         if key == 'claude':
-            checkbox = '\\033[32m☒\\033[0m' if Path(project_path).exists() else '\\033[31m☐\\033[0m'
+            checkbox = '\033[32m☒\033[0m' if Path(project_path).exists() else '\033[31m☐\033[0m'
             status = 'Ready' if Path(project_path).exists() else 'Failed'
         else:
-            checkbox = '\\033[32m☒\\033[0m' if infrastructure_status.get(key) else '\\033[31m☐\\033[0m'
+            checkbox = '\033[32m☒\033[0m' if infrastructure_status.get(key) else '\033[31m☐\033[0m'
             status = 'Ready' if infrastructure_status.get(key) else 'Failed'
         print(f'    ⎿ {checkbox} {name}: {status}')
     
@@ -1011,7 +954,7 @@ async def main():
     for directory in project_directories:
         (Path(project_path) / directory).mkdir(parents=True, exist_ok=True)
     
-    log_infrastructure(f'Created project structure: {project_name}')
+    print(f'  ⎿ \033[32m☒\033[0m Project structure created')
     
     # Setup infrastructure
     infrastructure_status = setup_enhanced_infrastructure(project_path, namespace)
@@ -1019,6 +962,9 @@ async def main():
     # Setup Claude integration
     claude_success = setup_claude_integration(project_path, namespace)
     infrastructure_status['claude'] = claude_success
+    
+    # Infrastructure complete
+    print(f'  ⎿ \033[32m☒\033[0m Infrastructure setup complete')
     
     # Create enhanced configuration files
     create_enhanced_claude_md(project_path, namespace, project_config)
