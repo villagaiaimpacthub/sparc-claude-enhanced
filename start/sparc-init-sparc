@@ -32,11 +32,11 @@ SPARKLES="✨"
 
 echo -e "${CYAN}${BOLD}
 ╔══════════════════════════════════════════════════════════════════════╗
-║  ${ROCKET} SPARC AUTONOMOUS DEVELOPMENT SYSTEM ${SPARKLES}                       ║
+║  ${ROCKET} SPARC AUTONOMOUS DEVELOPMENT SYSTEM ${SPARKLES}                          ║
 ║                                                                      ║
-║  ${BRAIN} 36 AI Agents  ${DATABASE} Memory System  ${GEAR} Full Infrastructure           ║
-║  Version: ${SPARC_VERSION}                                               ║
-╚══════════════════════════════════════════════════════════════════════╝
+║  ${BRAIN} 36 AI Agents  ${DATABASE} Memory System  ${GEAR} Full Infrastructure          ║
+║  Version: ${SPARC_VERSION}                                                      ║
+╚═════════════════════════════════════════════════════════════════════╝
 ${NC}"
 
 cd "$SPARC_HOME"
@@ -63,7 +63,7 @@ select_enhanced_project_type() {
     local selected=0
     local key
     
-    echo -e "${CLAUDE_WHITE}● Define your enhanced project${CLAUDE_RESET}"
+    echo -e "${CLAUDE_WHITE}● Define your SPARC project${CLAUDE_RESET}"
     echo ""
     echo -e "${CLAUDE_BLUE}What type of project are you building?${CLAUDE_RESET}"
     echo ""
@@ -139,7 +139,7 @@ select_enhanced_project_type() {
 # Enhanced project goal input (streamlined)
 get_enhanced_project_details() {
     echo ""
-    echo -e "${CLAUDE_WHITE}● Enhanced project goal${CLAUDE_RESET}"
+    echo -e "${CLAUDE_WHITE}● Project goal${CLAUDE_RESET}"
     echo ""
     echo -e -n "${CLAUDE_GREY}Describe your project goal in detail: ${CLAUDE_RESET}"
     read ENHANCED_PROJECT_GOAL
@@ -176,9 +176,9 @@ select_enhanced_location() {
     local key
     
     echo ""
-    echo -e "${CLAUDE_WHITE}● Choose enhanced project location${CLAUDE_RESET}"
+    echo -e "${CLAUDE_WHITE}● Choose project location${CLAUDE_RESET}"
     echo ""
-    echo -e "${CLAUDE_BLUE}Where should we create your enhanced project?${CLAUDE_RESET}"
+    echo -e "${CLAUDE_BLUE}Where should we create your project?${CLAUDE_RESET}"
     echo ""
     echo -e "${CLAUDE_WHITE}Use arrow keys ↑↓ and Enter to select (or 'q' to quit):${CLAUDE_RESET}"
     
@@ -301,7 +301,7 @@ esac
 ENHANCED_DEFAULT_PROJECT_NAME=$(echo "$ENHANCED_PROJECT_GOAL" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-30)
 
 echo ""
-echo -e "${CLAUDE_WHITE}● Enhanced project name${CLAUDE_RESET}"
+echo -e "${CLAUDE_WHITE}● Project name${CLAUDE_RESET}"
 echo ""
 echo -e -n "${CLAUDE_GREY}Project name (default: ${CLAUDE_BLUE}$ENHANCED_DEFAULT_PROJECT_NAME${CLAUDE_GREY}): ${CLAUDE_RESET}"
 read ENHANCED_PROJECT_NAME
@@ -401,9 +401,9 @@ def log_infrastructure(message):
 def show_enhanced_banner():
     '''Display enhanced welcome banner'''
     print('\033[94m', end='')  # Pale blue like CLAUDE_BLUE
-    print('┌─ SPARC ENHANCED SETUP ──────────────────────────────────────────────┐')
+    print('┌─ SPARC INITIALIZATION ──────────────────────────────────────────────┐')
     print('│                                                                     │')
-    print('│  This enhanced initialization will set up:                          │')
+    print('│  This initialization will set up:                                   │')
     print('│  ✅ 36 Specialized AI Agents                                        │')
     print('│  ✅ External Memory System (Supabase + Qdrant)                       │')
     print('│  ✅ BMO Framework (Behavior-Model-Oracle)                           │')
@@ -516,36 +516,7 @@ def setup_enhanced_infrastructure(project_path, namespace):
     else:
         supabase_success, env_path = supabase_result, None
     
-    # CREDENTIAL CONFIGURATION PAUSE
-    if env_path and supabase_success:
-        print(f'\n\033[33m⚠️  CREDENTIAL SETUP REQUIRED\033[0m')
-        print(f'\033[97mYour project has been set up with a .env file that needs configuration.\033[0m')
-        print(f'\033[97mPlease add your credentials to continue with the full SPARC experience.\033[0m')
-        print(f'\033[90mEdit: {env_path}\033[0m')
-        print(f'\033[90mAdd your Supabase URL, keys, and Anthropic API key\033[0m')
-        print()
-        # Note: Credential pause will be handled at bash level after Python script
-        
-        # Validate credentials were added
-        try:
-            env_content = env_path.read_text()
-            has_real_creds = (
-                'your-project.supabase.co' not in env_content and
-                'your-anon-key-here' not in env_content and
-                'SUPABASE_URL=' in env_content and
-                len([line for line in env_content.split('\n') if line.startswith('SUPABASE_') and '=' in line and line.split('=')[1].strip()]) >= 2
-            )
-            
-            if has_real_creds:
-                print(f'\033[32m✓ Credentials detected - continuing setup...\033[0m')
-                supabase_success = True
-            else:
-                print(f'\033[33m⚠️  Placeholder credentials detected - you can configure later\033[0m')
-                supabase_success = False
-        except:
-            supabase_success = False
-        
-        print()
+    # Note: Credential configuration will be handled at bash level
     
     # 3. Initialize remaining components silently
     memory_success = initialize_memory_system(project_path, namespace)
@@ -642,13 +613,13 @@ def setup_enhanced_supabase(project_path, namespace, qdrant_url=None):
         # Create enhanced .env template with dynamic Qdrant URL
         qdrant_url_config = qdrant_url or 'http://localhost:6333'
         
-        env_content = f'''# SPARC Enhanced Project Configuration
+        env_content = f'''# SPARC Project Configuration
 # Generated: {datetime.now().isoformat()}
 
 # Project Information
 PROJECT_NAMESPACE={namespace}
-PROJECT_TYPE=enhanced_sparc
-SPARC_VERSION={os.environ.get('SPARC_VERSION', '2.0-enhanced')}
+PROJECT_TYPE=sparc_autonomous
+SPARC_VERSION={os.environ.get('SPARC_VERSION', '2.0')}
 
 # Supabase Configuration (Configure these with your actual values)
 SUPABASE_URL=https://your-project.supabase.co
@@ -1000,7 +971,7 @@ async def main():
                           infrastructure_status.get('qdrant_url'))
     
     print()
-    print('\033[0;32m\033[1mSPARC Enhanced Project Ready!\033[0m')
+    print('\033[0;32m\033[1mSPARC Project Ready!\033[0m')
     print()
     print('\033[97mLet\'s launch Claude Code, and remember when we do this window will disappear.\033[0m')
     print('\033[97mSo run this command to start autonomous development: \033[1m/sparc\033[0m')
@@ -1012,7 +983,12 @@ async def main():
     if launch_claude.lower() != 'n':
         print('\033[94m🚀 Launching Claude Code...\033[0m')
         os.chdir(project_path)
-        subprocess.run(['claude'], cwd=project_path)
+        try:
+            subprocess.run(['claude'], cwd=project_path, check=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            print('\033[33m⚠️  Claude Code not found. Please install Claude Code first.\033[0m')
+            print(f'\033[90mInstall: https://claude.ai/code\033[0m')
+            print(f'\033[90mThen run: cd "{project_path}" && claude\033[0m')
     else:
         print()
         print(f'\033[90mTo launch later: cd "{project_path}" && claude\033[0m')

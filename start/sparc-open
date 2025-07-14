@@ -9,10 +9,10 @@ export SPARC_VERSION="2.0"
 
 echo -e "${CLAUDE_BLUE}"
 echo "╔══════════════════════════════════════════════════════════════════════╗"
-echo "║  🚀 SPARC ENHANCED AUTONOMOUS DEVELOPMENT SYSTEM ✨                  ║"
+echo "║  🚀 SPARC AUTONOMOUS DEVELOPMENT SYSTEM ✨   ║"
 echo "║                                                                      ║"
 echo "║  🧠 36 AI Agents  🗄️  Memory System  ⚙️  Full Infrastructure           ║"
-echo "║  Version: 2.0-enhanced                                               ║"
+echo "║  Version: 2.0                                                       ║"
 echo "╚══════════════════════════════════════════════════════════════════════╝"
 echo -e "${CLAUDE_RESET}"
 
@@ -26,37 +26,73 @@ CLAUDE_GREEN='\033[38;5;114m'  # Slightly brighter green
 CLAUDE_RED='\033[91m'      # Light red for errors
 CLAUDE_RESET='\033[0m'     # Reset colors
 
-# Interactive menu function with Claude Code styling
-select_project_type() {
-    local options=(
-        "Web Application - React/Vue/Angular frontend with backend API"
-        "API Service - REST/GraphQL API with database"  
-        "CLI Tool - Command-line application"
-        "Custom Project - Define your own architecture"
-    )
-    local icons=("🌐" "🔌" "⚡" "🎯")
+# Directory navigation function
+browse_directories() {
+    local current_dir="${1:-$HOME}"
     local selected=0
     local key
     
-    echo -e "${CLAUDE_WHITE}● Define your project goal${CLAUDE_RESET}"
-    echo ""
-    echo -e "${CLAUDE_BLUE}What type of project are you building?${CLAUDE_RESET}"
-    echo ""
-    
     while true; do
-        # Clear screen and redraw everything
+        # Get directories and SPARC projects in current location
+        local dirs=()
+        local sparc_projects=()
+        
+        # Add parent directory option (except for root)
+        if [[ "$current_dir" != "/" ]]; then
+            dirs+=("../")
+        fi
+        
+        # Get subdirectories
+        while IFS= read -r -d '' dir; do
+            local basename=$(basename "$dir")
+            if [[ ! "$basename" =~ ^\. ]]; then  # Skip hidden directories
+                dirs+=("$basename/")
+            fi
+        done < <(find "$current_dir" -maxdepth 1 -type d ! -path "$current_dir" -print0 2>/dev/null | sort -z)
+        
+        # Find SPARC projects (directories with CLAUDE.md)
+        while IFS= read -r -d '' project; do
+            local basename=$(basename "$project")
+            sparc_projects+=("$basename")
+        done < <(find "$current_dir" -maxdepth 1 -name "CLAUDE.md" -exec dirname {} \; -print0 2>/dev/null | sort -z)
+        
+        local all_items=()
+        
+        # Add directories first
+        for dir in "${dirs[@]}"; do
+            all_items+=("📁 $dir")
+        done
+        
+        # Add SPARC projects
+        for project in "${sparc_projects[@]}"; do
+            all_items+=("🚀 $project (SPARC Project)")
+        done
+        
+        # If no items, show message
+        if [[ ${#all_items[@]} -eq 0 ]]; then
+            all_items+=("(No directories or SPARC projects found)")
+        fi
+        
+        # Display current directory browser
         clear
-        echo -e "${CLAUDE_WHITE}● Define your project goal${CLAUDE_RESET}"
+        echo -e "${CLAUDE_WHITE}● Browse for SPARC Projects${CLAUDE_RESET}"
         echo ""
-        echo -e "${CLAUDE_BLUE}What type of project are you building?${CLAUDE_RESET}"
+        echo -e "${CLAUDE_BLUE}Current location: ${CLAUDE_WHITE}$current_dir${CLAUDE_RESET}"
         echo ""
         echo -e "${CLAUDE_WHITE}Use arrow keys ↑↓ and Enter to select (or 'q' to quit):${CLAUDE_RESET}"
+        echo ""
         
-        for i in ${!options[@]}; do
+        # Ensure selected is within bounds
+        if [[ $selected -ge ${#all_items[@]} ]]; then
+            selected=0
+        fi
+        
+        # Display items
+        for i in ${!all_items[@]}; do
             if [ $i -eq $selected ]; then
-                echo -e "  ${CLAUDE_GREEN}● ${options[$i]}${CLAUDE_RESET}"
+                echo -e "  ${CLAUDE_GREEN}● ${all_items[$i]}${CLAUDE_RESET}"
             else
-                echo -e "  ${CLAUDE_GREY}○ ${options[$i]}${CLAUDE_RESET}"
+                echo -e "  ${CLAUDE_GREY}○ ${all_items[$i]}${CLAUDE_RESET}"
             fi
         done
         
@@ -70,78 +106,99 @@ select_project_type() {
                 '[A') # Up arrow
                     ((selected--))
                     if [ $selected -lt 0 ]; then
-                        selected=$((${#options[@]} - 1))
+                        selected=$((${#all_items[@]} - 1))
                     fi
                     ;;
                 '[B') # Down arrow
                     ((selected++))
-                    if [ $selected -ge ${#options[@]} ]; then
+                    if [ $selected -ge ${#all_items[@]} ]; then
                         selected=0
                     fi
                     ;;
             esac
         elif [[ $key == '' ]]; then # Enter
-            break
-        elif [[ $key =~ ^[1-4]$ ]]; then # Direct number input
-            selected=$((key - 1))
-            break
+            if [[ ${#all_items[@]} -eq 1 && "${all_items[0]}" == "(No directories or SPARC projects found)" ]]; then
+                echo ""
+                echo -e "${CLAUDE_GREY}No items to select in this directory.${CLAUDE_RESET}"
+                sleep 1
+                continue
+            fi
+            
+            local selected_item="${all_items[$selected]}"
+            
+            if [[ "$selected_item" =~ ^📁\ (.+)$ ]]; then
+                # Navigate to directory
+                local dir_name="${BASH_REMATCH[1]}"
+                if [[ "$dir_name" == "../" ]]; then
+                    current_dir=$(dirname "$current_dir")
+                else
+                    current_dir="$current_dir/${dir_name%/}"
+                fi
+                selected=0
+            elif [[ "$selected_item" =~ ^🚀\ (.+)\ \(SPARC\ Project\)$ ]]; then
+                # Open SPARC project
+                local project_name="${BASH_REMATCH[1]}"
+                local project_path="$current_dir/$project_name"
+                echo ""
+                echo -e "${CLAUDE_GREEN}● Opening SPARC Project: ${CLAUDE_WHITE}$project_name${CLAUDE_RESET}"
+                echo -e "${CLAUDE_GREY}Location: $project_path${CLAUDE_RESET}"
+                echo ""
+                echo -e "${CLAUDE_BLUE}Launching Claude Code in project directory...${CLAUDE_RESET}"
+                sleep 1
+                cd "$project_path"
+                exec claude
+                return
+            fi
         elif [[ $key == 'q' ]] || [[ $key == 'Q' ]]; then # Quit
-            tput cnorm
             echo ""
-            echo "👋 Goodbye!"
+            echo -e "${CLAUDE_GREY}👋 Goodbye!${CLAUDE_RESET}"
             exit 0
         fi
     done
-    
-    # Show cursor again
-    tput cnorm
-    
-    PROJECT_TYPE_CHOICE=$((selected + 1))
-    echo ""
-    echo -e "${CLAUDE_GREEN}● ${options[$selected]}${CLAUDE_RESET}"
-    echo ""
 }
 
-select_location() {
+# Choose starting location for browsing
+select_starting_location() {
     local options=(
         "Current directory"
         "Desktop" 
         "Documents"
+        "Home directory"
         "Custom path..."
     )
     local paths=(
         "$ORIGINAL_DIR"
         "$HOME/Desktop"
-        "$HOME/Documents" 
+        "$HOME/Documents"
+        "$HOME"
         ""
     )
-    local icons=("📁" "🖥️" "📄" "📂")
     local selected=0
     local key
     
-    echo -e "${CLAUDE_WHITE}● Choose project location${CLAUDE_RESET}"
+    echo -e "${CLAUDE_WHITE}● Choose starting location to browse${CLAUDE_RESET}"
     echo ""
-    echo -e "${CLAUDE_BLUE}Where should we create your project?${CLAUDE_RESET}"
+    echo -e "${CLAUDE_BLUE}Where should we start looking for SPARC projects?${CLAUDE_RESET}"
     echo ""
     
     # Function to display menu
     display_location_menu() {
         clear
-        echo -e "${CLAUDE_WHITE}● Choose project location${CLAUDE_RESET}"
+        echo -e "${CLAUDE_WHITE}● Choose starting location to browse${CLAUDE_RESET}"
         echo ""
-        echo -e "${CLAUDE_BLUE}Where should we create your project?${CLAUDE_RESET}"
+        echo -e "${CLAUDE_BLUE}Where should we start looking for SPARC projects?${CLAUDE_RESET}"
         echo ""
         echo -e "${CLAUDE_WHITE}Use arrow keys ↑↓ and Enter to select (or 'q' to quit):${CLAUDE_RESET}"
         
         for i in ${!options[@]}; do
             if [ $i -eq $selected ]; then
-                if [ $i -lt 3 ]; then
+                if [ $i -lt 4 ]; then
                     echo -e "  ${CLAUDE_GREEN}● ${options[$i]} ${CLAUDE_GREY}(${paths[$i]})${CLAUDE_RESET}"
                 else
                     echo -e "  ${CLAUDE_GREEN}● ${options[$i]}${CLAUDE_RESET}"
                 fi
             else
-                if [ $i -lt 3 ]; then
+                if [ $i -lt 4 ]; then
                     echo -e "  ${CLAUDE_GREY}○ ${options[$i]} (${paths[$i]})${CLAUDE_RESET}"
                 else
                     echo -e "  ${CLAUDE_GREY}○ ${options[$i]}${CLAUDE_RESET}"
@@ -178,666 +235,35 @@ select_location() {
             esac
         elif [[ $key == '' ]]; then # Enter
             break
-        elif [[ $key =~ ^[1-4]$ ]]; then # Direct number input
+        elif [[ $key =~ ^[1-5]$ ]]; then # Direct number input
             selected=$((key - 1))
             break
         elif [[ $key == 'q' ]] || [[ $key == 'Q' ]]; then # Quit
             echo ""
-            echo "👋 Goodbye!"
+            echo -e "${CLAUDE_GREY}👋 Goodbye!${CLAUDE_RESET}"
             exit 0
         fi
     done
     
-    LOCATION_CHOICE=$((selected + 1))
     echo ""
-    if [ $selected -lt 3 ]; then
+    if [ $selected -lt 4 ]; then
+        STARTING_DIR="${paths[$selected]}"
         echo -e "${CLAUDE_GREEN}● ${options[$selected]} ${CLAUDE_GREY}(${paths[$selected]})${CLAUDE_RESET}"
     else
         echo -e "${CLAUDE_GREEN}● ${options[$selected]}${CLAUDE_RESET}"
+        echo ""
+        echo -e -n "${CLAUDE_GREY}Enter the full path: ${CLAUDE_RESET}"
+        read STARTING_DIR
+        if [[ ! -d "$STARTING_DIR" ]]; then
+            echo -e "${CLAUDE_RED}Directory does not exist, using home directory instead.${CLAUDE_RESET}"
+            STARTING_DIR="$HOME"
+        fi
     fi
     echo ""
 }
 
-# Interactive project setup outside Python
-select_project_type
-
-echo ""
-echo -e "${CLAUDE_WHITE}● Project goal${CLAUDE_RESET}"
-echo ""
-echo -e -n "${CLAUDE_GREY}Describe your project goal in detail: ${CLAUDE_RESET}"
-read PROJECT_GOAL
-
-# Check for exit
-if [[ "$PROJECT_GOAL" == "exit" ]]; then
-    echo -e "${CLAUDE_GREY}👋 Goodbye!${CLAUDE_RESET}"
-    exit 0
-fi
-
-echo -e "${CLAUDE_GREEN}● ${PROJECT_GOAL}${CLAUDE_RESET}"
-
-echo ""
-select_location
-
-if [ "$LOCATION_CHOICE" = "4" ]; then
-    read -p "Enter the full path: " PROJECT_DIR
-    # Check for exit
-    if [[ "$PROJECT_DIR" == "exit" ]]; then
-        echo "👋 Goodbye!"
-        exit 0
-    fi
-elif [ "$LOCATION_CHOICE" = "2" ]; then
-    PROJECT_DIR="$HOME/Desktop"
-elif [ "$LOCATION_CHOICE" = "3" ]; then
-    PROJECT_DIR="$HOME/Documents"
-else
-    PROJECT_DIR="$ORIGINAL_DIR"
-fi
-
-# Convert project type choice to key
-case $PROJECT_TYPE_CHOICE in
-    1) PROJECT_TYPE_KEY="web_app" ;;
-    2) PROJECT_TYPE_KEY="api_service" ;;
-    3) PROJECT_TYPE_KEY="cli_tool" ;;
-    4) PROJECT_TYPE_KEY="custom" ;;
-    *) PROJECT_TYPE_KEY="web_app" ;;
-esac
-
-# Default project name from goal
-DEFAULT_PROJECT_NAME=$(echo "$PROJECT_GOAL" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-30)
-
-echo ""
-echo -e "${CLAUDE_WHITE}● Project name${CLAUDE_RESET}"
-echo ""
-echo -e -n "${CLAUDE_GREY}Project name (default: ${CLAUDE_BLUE}$DEFAULT_PROJECT_NAME${CLAUDE_GREY}): ${CLAUDE_RESET}"
-read PROJECT_NAME
-
-# Check for exit
-if [[ "$PROJECT_NAME" == "exit" ]]; then
-    echo -e "${CLAUDE_GREY}👋 Goodbye!${CLAUDE_RESET}"
-    exit 0
-fi
-
-PROJECT_NAME=${PROJECT_NAME:-$DEFAULT_PROJECT_NAME}
-echo -e "${CLAUDE_GREEN}● ${PROJECT_NAME}${CLAUDE_RESET}"
-
-# Export variables for Python to use
-export PROJECT_TYPE_KEY
-export PROJECT_GOAL
-export PROJECT_DIR
-export PROJECT_NAME
-
-# Simple bash project creation
-echo ""
-echo -e "${CLAUDE_WHITE}● Creating simple SPARC project${CLAUDE_RESET}"
-echo ""
-
-# Create project directory
-FULL_PROJECT_PATH="$PROJECT_DIR/$PROJECT_NAME"
-mkdir -p "$FULL_PROJECT_PATH"
-
-echo -e "${CLAUDE_GREEN}✅ Created project directory: $FULL_PROJECT_PATH${CLAUDE_RESET}"
-echo ""
-
-# Create basic project structure based on type
-case $PROJECT_TYPE_KEY in
-    "web_app")
-        mkdir -p "$FULL_PROJECT_PATH"/{frontend,backend,database,docs}
-        echo -e "${CLAUDE_GREEN}✅ Created web application structure${CLAUDE_RESET}"
-        ;;
-    "api_service")
-        mkdir -p "$FULL_PROJECT_PATH"/{api,models,services,tests,docs}
-        echo -e "${CLAUDE_GREEN}✅ Created API service structure${CLAUDE_RESET}"
-        ;;
-    "cli_tool")
-        mkdir -p "$FULL_PROJECT_PATH"/{cli,core,utils,tests,docs}
-        echo -e "${CLAUDE_GREEN}✅ Created CLI tool structure${CLAUDE_RESET}"
-        ;;
-    *)
-        mkdir -p "$FULL_PROJECT_PATH"/{src,tests,docs}
-        echo -e "${CLAUDE_GREEN}✅ Created custom project structure${CLAUDE_RESET}"
-        ;;
-esac
-
-# Create basic CLAUDE.md
-cat > "$FULL_PROJECT_PATH/CLAUDE.md" << EOL
-# SPARC Simple Project
-
-project_id: ${PROJECT_NAME//-/_}
-
-## Project Information
-- **Goal**: $PROJECT_GOAL
-- **Type**: $PROJECT_TYPE_KEY
-- **Location**: $FULL_PROJECT_PATH
-
-## Getting Started
-This is a simple SPARC project setup. You can now:
-1. Navigate to your project: \`cd "$FULL_PROJECT_PATH"\`
-2. Start development in your preferred editor
-3. Use the basic structure as a foundation
-
-## Structure Created
-- Basic directories for your project type
-- This CLAUDE.md file for project documentation
-
-For enhanced features with 36 AI agents and memory systems, use the enhanced initialization option.
-EOL
-
-echo -e "${CLAUDE_GREEN}✅ Created CLAUDE.md project file${CLAUDE_RESET}"
-echo ""
-echo -e "${CLAUDE_WHITE}🎉 Simple SPARC project ready!${CLAUDE_RESET}"
-echo ""
-
-# Ask if user wants to navigate to the project
-echo -e "${CLAUDE_BLUE}Open the project now?${CLAUDE_RESET}"
-echo -e "${CLAUDE_WHITE}Navigate to project directory: ${CLAUDE_GREEN}$FULL_PROJECT_PATH${CLAUDE_RESET}"
-echo -e -n "${CLAUDE_GREY}Open project now? (Y/n): ${CLAUDE_RESET}"
-read OPEN_PROJECT
-
-# Check for exit
-if [[ "$OPEN_PROJECT" == "exit" ]]; then
-    echo -e "${CLAUDE_GREY}👋 Goodbye!${CLAUDE_RESET}"
-    exit 0
-fi
-
-# Default to yes if empty or 'y'
-if [[ -z "$OPEN_PROJECT" ]] || [[ "$OPEN_PROJECT" =~ ^[Yy]$ ]]; then
-    echo ""
-    echo -e "${CLAUDE_GREEN}✅ Opening project...${CLAUDE_RESET}"
-    echo ""
-    echo -e "${CLAUDE_BLUE}Next steps in your project:${CLAUDE_RESET}"
-    echo -e "${CLAUDE_WHITE}1. Start building your ${PROJECT_TYPE_KEY} project${CLAUDE_RESET}"
-    echo -e "${CLAUDE_WHITE}2. Use your preferred development tools${CLAUDE_RESET}"
-    echo -e "${CLAUDE_WHITE}3. For enhanced features: ${CLAUDE_BLUE}../start/sparc-e-init${CLAUDE_RESET}"
-    echo ""
-    echo -e "${CLAUDE_GREY}Launching new shell in project directory...${CLAUDE_RESET}"
-    cd "$FULL_PROJECT_PATH"
-    exec bash
-else
-    echo ""
-    echo -e "${CLAUDE_BLUE}Manual next steps:${CLAUDE_RESET}"
-    echo -e "${CLAUDE_WHITE}1. Navigate to your project: ${CLAUDE_GREEN}cd \"$FULL_PROJECT_PATH\"${CLAUDE_RESET}"
-    echo -e "${CLAUDE_WHITE}2. Start building your ${PROJECT_TYPE_KEY} project${CLAUDE_RESET}"
-    echo -e "${CLAUDE_WHITE}3. Use your preferred development tools${CLAUDE_RESET}"
-    echo ""
-    echo -e "${CLAUDE_GREY}For enhanced features, try: ${CLAUDE_BLUE}./start/sparc-e-init${CLAUDE_RESET}"
-fi
+# Start the directory browser
+select_starting_location
+browse_directories "$STARTING_DIR"
 
 exit 0
-
-# --- ENHANCED FEATURES REMOVED FROM SIMPLE VERSION ---
-# If you need enhanced features with 36 AI agents, Supabase, Qdrant, etc.
-# please use: ./start/sparc-e-init
-
-python3 << 'DISABLED_EOF'
-import asyncio
-import sys
-import os
-import json
-import subprocess
-import time
-import uuid
-import hashlib
-import shutil
-from pathlib import Path
-from datetime import datetime
-
-# Simple menu system without external dependencies
-
-# Project types and templates
-PROJECT_TYPES = {
-    'web_app': {
-        'name': '🌐 Web Application',
-        'description': 'React/Vue/Angular frontend with backend API',
-        'tech_stack': ['React', 'FastAPI', 'PostgreSQL'],
-        'directories': ['frontend', 'backend', 'database', 'docs']
-    },
-    'api_service': {
-        'name': '🔌 API Service', 
-        'description': 'REST/GraphQL API with database',
-        'tech_stack': ['FastAPI', 'PostgreSQL', 'Redis'],
-        'directories': ['api', 'models', 'services', 'tests', 'docs']
-    },
-    'cli_tool': {
-        'name': '⚡ CLI Tool',
-        'description': 'Command-line application',
-        'tech_stack': ['Python', 'Click', 'SQLite'],
-        'directories': ['cli', 'core', 'utils', 'tests', 'docs']
-    },
-    'custom': {
-        'name': '🎯 Custom Project',
-        'description': 'Define your own architecture',
-        'tech_stack': [],
-        'directories': ['src', 'tests', 'docs']
-    }
-}
-
-# Enhanced configuration
-ENHANCED_CONFIG_DIR = Path.home() / '.sparc' / 'enhanced'
-RECENT_PROJECTS_FILE = ENHANCED_CONFIG_DIR / 'recent_projects.json'
-
-def log_infrastructure(message):
-    '''Log infrastructure setup steps'''
-    ENHANCED_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now().isoformat()
-    log_file = ENHANCED_CONFIG_DIR / 'infrastructure.log'
-    with open(log_file, 'a') as f:
-        f.write(f'[{timestamp}] {message}' + chr(10))
-    print(f'ℹ️ {message}')
-
-def show_enhanced_banner():
-    '''Display enhanced welcome banner'''
-    print('\\033[94m', end='')  # Pale blue like CLAUDE_BLUE
-    print('┌─ SPARC ENHANCED SETUP ──────────────────────────────────────────────┐')
-    print('│                                                                     │')
-    print('│  This enhanced initialization will set up:                          │')
-    print('│  ✅ 36 Specialized AI Agents                                        │')
-    print('│  ✅ External Memory System (Supabase + Qdrant)                      │')
-    print('│  ✅ BMO Framework (Behavior-Model-Oracle)                           │')
-    print('│  ✅ Context7 MCP Integration                                        │')
-    print('│  ✅ Claude Code Hooks & Commands                                    │')
-    print('│  ✅ Complete Infrastructure Automation                              │')
-    print('│                                                                     │')
-    print('└─────────────────────────────────────────────────────────────────────┘')
-    print('\033[0m')
-
-def check_prerequisites():
-    '''Enhanced prerequisites check'''
-    print('⚙️ Checking system prerequisites...')
-    
-    checks = {
-        'python': False,
-        'docker': False,
-        'curl': False,
-        'git': False
-    }
-    
-    # Check Python
-    try:
-        result = subprocess.run([sys.executable, '--version'], capture_output=True, text=True)
-        if result.returncode == 0:
-            checks['python'] = True
-            log_infrastructure(f'Python: {result.stdout.strip()}')
-    except:
-        pass
-    
-    # Check Docker
-    try:
-        result = subprocess.run(['docker', '--version'], capture_output=True, text=True)
-        if result.returncode == 0:
-            docker_ps = subprocess.run(['docker', 'ps'], capture_output=True, text=True)
-            checks['docker'] = docker_ps.returncode == 0
-            log_infrastructure(f'Docker: {result.stdout.strip()}')
-    except:
-        pass
-    
-    # Check other tools
-    for tool in ['curl', 'git']:
-        try:
-            result = subprocess.run([tool, '--version'], capture_output=True, text=True)
-            checks[tool] = result.returncode == 0
-        except:
-            pass
-    
-    # Claude Code will be set up as part of the process
-    
-    # Display results
-    for tool, available in checks.items():
-        status = '✅' if available else '❌'
-        print(f'{status} {tool.replace("_", " ").title()}: {"Available" if available else "Missing"}')
-    
-    missing = [tool for tool, available in checks.items() if not available]
-    if missing:
-        print('⚠️ Missing prerequisites:')
-        for tool in missing:
-            if tool == 'docker':
-                print('  • Install Docker: https://docs.docker.com/get-docker/')
-        
-        if 'docker' in missing:
-            print('\\nContinue without missing tools? (y/N): ', end='', flush=True)
-            cont = sys.stdin.readline().strip()
-            if cont.lower() != 'y':
-                return False
-    
-    return True
-
-def get_project_goal():
-    '''Interactive project goal definition'''
-    print('🧠 Let us define your project goal...')
-    print()
-    
-    # Project type selection
-    print('What type of project are you building?')
-    print()
-    
-    type_list = list(PROJECT_TYPES.items())
-    for i, (key, details) in enumerate(type_list, 1):
-        print(f'{i}. {details["name"]} - {details["description"]}')
-    
-    print()
-    print('Select project type (1-4) [default: 1]: ', end='', flush=True)
-    try:
-        choice = sys.stdin.readline().strip()
-        if choice == '':
-            choice_num = 1  # Default to web app
-        else:
-            choice_num = int(choice)
-        
-        if 1 <= choice_num <= len(type_list):
-            selected_key = type_list[choice_num - 1][0]
-        else:
-            print('Invalid choice, defaulting to Web Application')
-            selected_key = 'web_app'
-    except (ValueError, EOFError):
-        print('Invalid input, defaulting to Web Application')
-        selected_key = 'web_app'
-    
-    project_type = selected_key
-    
-    # Get project goal description
-    print('\\n✨ Describe your project goal in detail: ', end='', flush=True)
-    goal = sys.stdin.readline().strip()
-    if not goal.strip():
-        goal = 'New SPARC autonomous development project'
-    
-    return {
-        'type': project_type,
-        'goal': goal,
-        'tech_stack': PROJECT_TYPES[project_type]['tech_stack']
-    }
-
-def setup_enhanced_infrastructure(project_path, namespace):
-    '''Set up complete infrastructure'''
-    print('🗄️ Setting up enhanced infrastructure...')
-    
-    # Setup Qdrant
-    log_infrastructure('Setting up Qdrant vector database...')
-    try:
-        # Check if container exists
-        result = subprocess.run(['docker', 'ps', '-a', '--filter', 'name=sparc-qdrant-enhanced'], 
-                              capture_output=True, text=True)
-        
-        if 'sparc-qdrant-enhanced' in result.stdout:
-            # Check if it's running
-            running_result = subprocess.run(['docker', 'ps', '--filter', 'name=sparc-qdrant-enhanced'], 
-                                          capture_output=True, text=True)
-            
-            if 'sparc-qdrant-enhanced' in running_result.stdout:
-                log_infrastructure('Qdrant container already running')
-            else:
-                log_infrastructure('Removing old Qdrant container and recreating with correct port...')
-                subprocess.run(['docker', 'rm', 'sparc-qdrant-enhanced'], check=True)
-                subprocess.run([
-                    'docker', 'run', '-d',
-                    '--name', 'sparc-qdrant-enhanced',
-                    '-p', '6339:6333',
-                    '-v', 'sparc_qdrant_data:/qdrant/storage',
-                    'qdrant/qdrant'
-                ], check=True)
-        else:
-            log_infrastructure('Creating new Qdrant container...')
-            subprocess.run([
-                'docker', 'run', '-d',
-                '--name', 'sparc-qdrant-enhanced',
-                '-p', '6339:6333',
-                '-v', 'sparc_qdrant_data:/qdrant/storage',
-                'qdrant/qdrant'
-            ], check=True)
-        
-        time.sleep(3)
-        log_infrastructure('Qdrant: Setup complete')
-        
-    except subprocess.CalledProcessError as e:
-        log_infrastructure(f'Qdrant setup failed: {e}')
-    
-    # Setup Supabase configuration
-    log_infrastructure('Setting up Supabase configuration...')
-    
-    # Create enhanced .env template
-    env_content = f'''# SPARC Enhanced Project Configuration
-# Generated: {datetime.now().isoformat()}
-
-# Project Information
-PROJECT_NAMESPACE={namespace}
-PROJECT_TYPE=enhanced_sparc
-SPARC_VERSION={os.environ.get('SPARC_VERSION', '2.0-enhanced')}
-
-# Supabase Configuration
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key-here
-SUPABASE_SERVICE_KEY=your-service-key-here
-
-# Vector Database (Qdrant)
-QDRANT_URL=http://localhost:6339
-QDRANT_API_KEY=
-QDRANT_COLLECTION_PREFIX={namespace}
-
-# AI API Keys
-ANTHROPIC_API_KEY=
-OPENAI_API_KEY=
-MISTRAL_API_KEY=
-
-# Memory System Configuration
-MEMORY_PROVIDER=supabase
-VECTOR_PROVIDER=qdrant
-CONTEXT_WINDOW_SIZE=100000
-MEMORY_ISOLATION=true
-
-# Agent System Configuration
-AGENT_SYSTEM_ENABLED=true
-BMO_FRAMEWORK_ENABLED=true
-CONTEXT7_MCP_ENABLED=true
-AUTONOMOUS_MODE=true
-
-# Development Configuration
-DEBUG=true
-LOG_LEVEL=INFO
-ENVIRONMENT=development
-'''
-    
-    env_path = Path(project_path) / '.env'
-    env_path.write_text(env_content)
-    log_infrastructure('Created enhanced environment configuration')
-    
-    return True
-
-def setup_claude_integration(project_path, namespace):
-    '''Setup Claude Code integration'''
-    log_infrastructure('Setting up Claude Code integration...')
-    
-    # Create .claude directory structure
-    claude_dir = Path(project_path) / '.claude'
-    claude_dir.mkdir(exist_ok=True)
-    
-    # Copy enhanced commands
-    commands_source = Path('/usr/local/sparc/claude-commands')
-    commands_dest = claude_dir / 'commands'
-    
-    if commands_source.exists():
-        shutil.copytree(commands_source, commands_dest, dirs_exist_ok=True)
-        log_infrastructure('Copied enhanced Claude commands')
-    
-    # Setup hooks
-    hooks_source = Path('/usr/local/sparc/hooks/sparc-memory-hooks.json')
-    hooks_dest = claude_dir / 'claude_hooks_config.json'
-    
-    if hooks_source.exists():
-        shutil.copy2(hooks_source, hooks_dest)
-        log_infrastructure('Configured memory hooks')
-    
-    return True
-
-def create_enhanced_claude_md(project_path, namespace, project_config):
-    '''Create enhanced CLAUDE.md'''
-    tech_stack_str = ', '.join(project_config.get('tech_stack', []))
-    
-    claude_content = f'''# SPARC Enhanced Autonomous Development Project
-
-project_id: {namespace}
-
-## Project Overview
-
-**Goal**: {project_config.get('goal', 'Enhanced SPARC autonomous development')}
-**Type**: {PROJECT_TYPES.get(project_config.get('type', 'custom'), {}).get('name', 'Custom Project')}
-
-## Technical Configuration
-
-- **Namespace**: `{namespace}` (Complete isolation)
-- **Technology Stack**: {tech_stack_str}
-- **Infrastructure**: Supabase + Qdrant + Docker
-- **AI System**: 36 specialized agents
-- **Framework**: BMO (Behavior-Model-Oracle)
-- **Memory**: External unlimited context
-
-## Enhanced Capabilities
-
-✨ **36 AI Agents**: Complete autonomous development workflow
-🧠 **External Memory**: Unlimited context with Supabase + Qdrant  
-🔍 **BMO Framework**: Behavior-Model-Oracle validation
-🔗 **Context7 MCP**: Advanced context management
-🎯 **Memory Isolation**: Complete namespace separation
-⚡ **Enhanced Hooks**: Real-time memory integration
-🚀 **Autonomous Mode**: Full workflow automation
-
-## Development Workflow
-
-1. **Use `/sparc` command** to start autonomous development
-2. **Agent System** handles complete specification → deployment
-3. **Memory System** maintains unlimited context
-4. **BMO Framework** ensures quality and validation
-
-## Commands Available
-
-- `/sparc` - Start autonomous development workflow
-- `/agents` - View all 36 specialized agents  
-- `/status` - Check project and infrastructure status
-
-## Getting Started
-
-Your SPARC enhanced project is ready for autonomous development!
-
-1. **Define/refine your goal** using natural language
-2. **Run `/sparc`** to start the autonomous workflow
-3. **Monitor progress** through agent communications
-
----
-*Powered by SPARC Enhanced v{os.environ.get('SPARC_VERSION', '2.0')} with 36 AI Agents*
-*Namespace: `{namespace}` | Infrastructure: Supabase + Qdrant*
-'''
-    
-    claude_path = Path(project_path) / 'CLAUDE.md'
-    claude_path.write_text(claude_content)
-    log_infrastructure('Created enhanced CLAUDE.md configuration')
-
-async def main():
-    '''Enhanced main workflow'''
-    show_enhanced_banner()
-    
-    if not check_prerequisites():
-        print('❌ Prerequisites not met. Please install missing tools.')
-        return
-    
-    # Get project configuration
-    project_config = get_project_goal()
-    if not project_config:
-        print('❌ Project setup cancelled')
-        return
-    
-    # Project directory selection
-    current_dir = Path(os.environ.get('ORIGINAL_DIR', os.getcwd()))
-    project_type_name = PROJECT_TYPES[project_config['type']]['name']
-    
-    print(f'Where should we create your {project_type_name}?')
-    print()
-    print(f'1. Current directory: {current_dir}')
-    print(f'2. Desktop: {Path.home() / "Desktop"}')
-    print(f'3. Documents: {Path.home() / "Documents"}')
-    print('4. Custom path...')
-    print()
-    
-    print('Select location (1-4) [default: 1]: ', end='', flush=True)
-    try:
-        choice = sys.stdin.readline().strip()
-        if choice == '':
-            choice_num = 1  # Default to current directory
-        else:
-            choice_num = int(choice)
-        
-        if choice_num == 1:
-            project_dir = str(current_dir)
-        elif choice_num == 2:
-            project_dir = str(Path.home() / 'Desktop')
-        elif choice_num == 3:
-            project_dir = str(Path.home() / 'Documents')
-        elif choice_num == 4:
-            print('Enter the full path: ', end='', flush=True)
-            project_dir = sys.stdin.readline().strip()
-        else:
-            print('Invalid choice, defaulting to current directory')
-            project_dir = str(current_dir)
-    except (ValueError, EOFError):
-        print('Invalid input, defaulting to current directory')
-        project_dir = str(current_dir)
-    
-    # Project name
-    default_name = project_config['goal'].lower().replace(' ', '-')[:30]
-    print(f'Project name (default: {default_name}): ', end='', flush=True)
-    project_name = sys.stdin.readline().strip() or default_name
-    
-    full_project_path = Path(project_dir) / project_name
-    full_project_path.mkdir(parents=True, exist_ok=True)
-    project_path = str(full_project_path)
-    
-    # Generate namespace
-    abs_path = str(Path(project_path).resolve())
-    path_hash = hashlib.md5(abs_path.encode()).hexdigest()[:8]
-    namespace = f'{project_name}_{path_hash}'.replace('-', '_').replace(' ', '_').lower()
-    
-    print(f'\\n🚀 Creating enhanced SPARC project...')
-    print(f'ℹ️ Project: {project_name}')
-    print(f'ℹ️ Location: {project_path}')
-    print(f'ℹ️ Namespace: {namespace}')
-    print(f'ℹ️ Type: {project_config["type"]}')
-    print()
-    
-    # Create project structure
-    project_directories = PROJECT_TYPES[project_config['type']]['directories']
-    project_directories.extend(['.sparc', '.claude', 'database'])
-    
-    for directory in project_directories:
-        (Path(project_path) / directory).mkdir(parents=True, exist_ok=True)
-    
-    log_infrastructure(f'Created project structure: {project_name}')
-    
-    # Setup infrastructure
-    setup_enhanced_infrastructure(project_path, namespace)
-    
-    # Setup Claude integration
-    setup_claude_integration(project_path, namespace)
-    
-    # Create enhanced configuration files
-    create_enhanced_claude_md(project_path, namespace, project_config)
-    
-    print()
-    print('✨ \033[0;32m\033[1mSPARC Enhanced Project Ready!\033[0m')
-    print()
-    print('\033[0;36mNext Steps:\033[0m')
-    print('1. ⚙️ Configure your .env file with Supabase credentials')
-    print('2. 🗄️ Run the database setup SQL in your Supabase project')
-    print('3. 🚀 Launch Claude Code in your project:')
-    print(f'   \033[1;37mcd "{project_path}" && claude\033[0m')
-    print('4. 🧠 Start autonomous development with: \033[1m/sparc\033[0m')
-    print()
-    print('ℹ️ The 36-agent system is ready for autonomous development!')
-    print(f'ℹ️ Project namespace: \033[1m{namespace}\033[0m')
-    print()
-    
-    # Ask if user wants to launch Claude Code
-    print('Launch Claude Code now? (y/N): ', end='', flush=True)
-    launch_claude = sys.stdin.readline().strip()
-    if launch_claude.lower() == 'y':
-        print('🚀 Launching Claude Code...')
-        os.chdir(project_path)
-        subprocess.run(['claude'], cwd=project_path)
-
-asyncio.run(main())
-EOF
