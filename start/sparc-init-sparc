@@ -325,6 +325,10 @@ export ENHANCED_KEY_FEATURES
 export ENHANCED_TIMELINE
 export ENHANCED_COMPLEXITY
 
+# Calculate and export the full project path
+ENHANCED_FULL_PROJECT_PATH="$ENHANCED_PROJECT_DIR/$ENHANCED_PROJECT_NAME"
+export ENHANCED_FULL_PROJECT_PATH
+
 # Now use Python for infrastructure setup only
 python3 << 'EOF'
 import asyncio
