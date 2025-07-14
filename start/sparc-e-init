@@ -509,16 +509,47 @@ def setup_enhanced_infrastructure(project_path, namespace):
     # 1. Setup Qdrant with enhanced configuration
     qdrant_success, qdrant_url = setup_enhanced_qdrant(namespace)
     
-    # 2. Setup Supabase with complete schema
-    supabase_success = setup_enhanced_supabase(project_path, namespace, qdrant_url if qdrant_success else None)
+    # 2. Setup Supabase with complete schema and credential pause
+    supabase_result = setup_enhanced_supabase(project_path, namespace, qdrant_url if qdrant_success else None)
+    if isinstance(supabase_result, tuple):
+        supabase_success, env_path = supabase_result
+    else:
+        supabase_success, env_path = supabase_result, None
     
-    # 3. Initialize memory system
+    # CREDENTIAL CONFIGURATION PAUSE
+    if env_path and supabase_success:
+        print(f'\n\033[33m⚠️  CREDENTIAL SETUP REQUIRED\033[0m')
+        print(f'\033[97mYour project has been set up with a .env file that needs configuration.\033[0m')
+        print(f'\033[97mPlease add your credentials to continue with the full SPARC experience.\033[0m')
+        print(f'\033[90mEdit: {env_path}\033[0m')
+        print(f'\033[90mAdd your Supabase URL, keys, and Anthropic API key\033[0m')
+        print()
+        input(f'\033[90mPress Enter to continue after configuring your credentials...\033[0m')
+        
+        # Validate credentials were added
+        try:
+            env_content = env_path.read_text()
+            has_real_creds = (
+                'your-project.supabase.co' not in env_content and
+                'your-anon-key-here' not in env_content and
+                'SUPABASE_URL=' in env_content and
+                len([line for line in env_content.split('\n') if line.startswith('SUPABASE_') and '=' in line and line.split('=')[1].strip()]) >= 2
+            )
+            
+            if has_real_creds:
+                print(f'\033[32m✓ Credentials detected - continuing setup...\033[0m')
+                supabase_success = True
+            else:
+                print(f'\033[33m⚠️  Placeholder credentials detected - you can configure later\033[0m')
+                supabase_success = False
+        except:
+            supabase_success = False
+        
+        print()
+    
+    # 3. Initialize remaining components silently
     memory_success = initialize_memory_system(project_path, namespace)
-    
-    # 4. Setup agent system
     agent_success = setup_agent_system(project_path, namespace)
-    
-    # 5. Configure BMO framework
     bmo_success = setup_bmo_framework(project_path, namespace)
     
     return {
@@ -656,15 +687,10 @@ ENVIRONMENT=development
         env_path.write_text(env_content)
         print(f'  ⎿ \033[32m☒\033[0m Environment: Configuration created')
         
-        # Signal that credential configuration is needed
-        print(f'\n\033[33m⚠️  CREDENTIAL SETUP REQUIRED\033[0m')
-        print(f'\033[90mEdit your .env file: {env_path}\033[0m')
-        print(f'\033[90mAdd your Supabase URL, keys, and Anthropic API key\033[0m')
-        
-        return True
+        return True, env_path
         
     except Exception as e:
-        return False
+        return False, None
 
 def initialize_memory_system(project_path, namespace):
     '''Initialize the memory system with namespace isolation'''
@@ -945,7 +971,6 @@ async def main():
     print(f'     \033[32m☒\033[0m Project: \033[97m{project_name}\033[0m')
     print(f'     \033[32m☒\033[0m Location: \033[90m{project_path}\033[0m')
     print(f'     \033[32m☒\033[0m Namespace: \033[90m{namespace}\033[0m')
-    print()
     
     # Create enhanced project structure
     project_directories = PROJECT_TYPES[project_config['type']]['directories']
@@ -955,6 +980,7 @@ async def main():
         (Path(project_path) / directory).mkdir(parents=True, exist_ok=True)
     
     print(f'  ⎿ \033[32m☒\033[0m Project structure created')
+    print()
     
     # Setup infrastructure
     infrastructure_status = setup_enhanced_infrastructure(project_path, namespace)
@@ -976,34 +1002,21 @@ async def main():
     print()
     print('\033[0;32m\033[1mSPARC Enhanced Project Ready!\033[0m')
     print()
-    print('Next Steps:')
-    print('  - Configure your .env file with Supabase credentials')
-    print('  - Run the database setup SQL in your Supabase project')  
-    print('  - Launch Claude Code in your project:')
-    print(f'    \033[1;37mcd "{project_path}" && claude\033[0m')
-    print('  - Start autonomous development with: \033[1m/sparc\033[0m')
-    print()
-    print(f'The 36-agent system is ready for autonomous development!')
-    print(f'Project namespace: \033[1m{namespace}\033[0m')
+    print('\033[97mLet\\'s launch Claude Code, and remember when we do this window will disappear.\033[0m')
+    print('\033[97mSo run this command to start autonomous development: \033[1m/sparc\033[0m')
     print()
     
     # Ask if user wants to launch Claude Code
-    print('Launch Claude Code now? (y/N): ', end='', flush=True)
+    print('Launch Claude Code now? (Y/n): ', end='', flush=True)
     launch_claude = sys.stdin.readline().strip()
-    if launch_claude.lower() == 'y':
-        print('🚀 Launching Claude Code...')
+    if launch_claude.lower() != 'n':
+        print('\033[94m🚀 Launching Claude Code...\033[0m')
         os.chdir(project_path)
         subprocess.run(['claude'], cwd=project_path)
+    else:
+        print()
+        print(f'\033[90mTo launch later: cd "{project_path}" && claude\033[0m')
+        print(f'\033[90mThen run: /sparc\033[0m')
 
 asyncio.run(main())
 EOF
-
-# Credential Configuration Pause (at bash level)
-echo ""
-echo -e "${CLAUDE_BLUE}Before launching Claude Code...${CLAUDE_RESET}"
-echo ""
-echo -e "${CLAUDE_WHITE}Your project has been set up with a .env file that needs configuration.${CLAUDE_RESET}"
-echo -e "${CLAUDE_GREY}Please add your credentials to continue with the full SPARC experience.${CLAUDE_RESET}"
-echo ""
-echo -e -n "${CLAUDE_GREY}Press Enter to continue when ready: ${CLAUDE_RESET}"
-read CONTINUE_SETUP
