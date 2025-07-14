@@ -1,0 +1,152 @@
+#!/bin/bash
+
+# SPARC Enhanced - Quick Start
+# Interactive terminal wrapper for SPARC initialization
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Claude Code inspired colors
+CLAUDE_GREY='\033[90m'     # Grey for secondary text
+CLAUDE_WHITE='\033[97m'    # Bright white for primary text  
+CLAUDE_BLUE='\033[94m'     # Pale blue for accents
+CLAUDE_GREEN='\033[38;5;114m'  # Slightly brighter green
+CLAUDE_RED='\033[91m'      # Light red for errors
+CLAUDE_RESET='\033[0m'     # Reset colors
+
+# Clear screen and show header
+clear
+echo ""
+echo -e "${CLAUDE_WHITE}🚀 SPARC Enhanced - Initialization${CLAUDE_RESET}"
+echo ""
+echo -e "${CLAUDE_BLUE}Select your initialization experience:${CLAUDE_RESET}"
+echo ""
+
+# Function to show menu
+show_menu() {
+    echo -e "${YELLOW}Please select an option:${NC}"
+    echo ""
+    echo "  1) 🎯 Simple Version    - Quick setup with essential features"
+    echo "  2) ✨ Enhanced Version  - Full setup with advanced features & UI"
+    echo "  3) ❌ Exit"
+    echo ""
+    echo -e "${GREEN}Use arrow keys ↑↓ and Enter to select, or type 1-3:${NC}"
+}
+
+# Function to handle arrow key navigation
+handle_selection() {
+    local selected=1
+    local max_options=3
+    
+    # Hide cursor
+    tput civis
+    
+    while true; do
+        clear
+        echo ""
+        echo -e "${CLAUDE_WHITE}🚀 SPARC Enhanced - Initialization${CLAUDE_RESET}"
+        echo ""
+        echo -e "${CLAUDE_BLUE}Select your initialization experience:${CLAUDE_RESET}"
+        echo ""
+        echo -e "${CLAUDE_WHITE}Use arrow keys ↑↓ and Enter to select:${CLAUDE_RESET}"
+        
+        # Show options with Claude Code styling
+        for i in {1..3}; do
+            if [ $i -eq $selected ]; then
+                case $i in
+                    1) echo -e "  ${CLAUDE_GREEN}● Simple Version${CLAUDE_RESET} ${CLAUDE_GREY}- Quick setup with essential features${CLAUDE_RESET}" ;;
+                    2) echo -e "  ${CLAUDE_GREEN}● Enhanced Version${CLAUDE_RESET} ${CLAUDE_GREY}- Full setup with advanced features & UI${CLAUDE_RESET}" ;;
+                    3) echo -e "  ${CLAUDE_GREEN}● Exit${CLAUDE_RESET}" ;;
+                esac
+            else
+                case $i in
+                    1) echo -e "  ${CLAUDE_GREY}○ Simple Version - Quick setup with essential features${CLAUDE_RESET}" ;;
+                    2) echo -e "  ${CLAUDE_GREY}○ Enhanced Version - Full setup with advanced features & UI${CLAUDE_RESET}" ;;
+                    3) echo -e "  ${CLAUDE_GREY}○ Exit${CLAUDE_RESET}" ;;
+                esac
+            fi
+        done
+        
+        echo ""
+        
+        # Read a single character
+        read -rsn1 key
+        
+        # Handle special keys
+        if [[ $key == $'\x1b' ]]; then
+            read -rsn2 key
+            case $key in
+                '[A') # Up arrow
+                    ((selected--))
+                    if [ $selected -lt 1 ]; then
+                        selected=$max_options
+                    fi
+                    ;;
+                '[B') # Down arrow
+                    ((selected++))
+                    if [ $selected -gt $max_options ]; then
+                        selected=1
+                    fi
+                    ;;
+            esac
+        elif [[ $key == '' ]]; then # Enter key
+            # Show cursor again
+            tput cnorm
+            
+            case $selected in
+                1)
+                    echo ""
+                    echo -e "${CLAUDE_GREEN}● Starting Simple Version...${CLAUDE_RESET}"
+                    echo ""
+                    sleep 1
+                    bash "$SCRIPT_DIR/sparc-init"
+                    break
+                    ;;
+                2)
+                    echo ""
+                    echo -e "${CLAUDE_GREEN}● Starting Enhanced Version...${CLAUDE_RESET}"
+                    echo ""
+                    sleep 1
+                    bash "$SCRIPT_DIR/sparc-e-init"
+                    break
+                    ;;
+                3)
+                    echo ""
+                    echo -e "${CLAUDE_GREY}👋 Goodbye!${CLAUDE_RESET}"
+                    exit 0
+                    ;;
+            esac
+        elif [[ $key =~ ^[1-3]$ ]]; then # Direct number input
+            selected=$key
+            # Show cursor again
+            tput cnorm
+            
+            case $selected in
+                1)
+                    echo ""
+                    echo -e "${CLAUDE_GREEN}● Starting Simple Version...${CLAUDE_RESET}"
+                    echo ""
+                    sleep 1
+                    bash "$SCRIPT_DIR/sparc-init"
+                    break
+                    ;;
+                2)
+                    echo ""
+                    echo -e "${CLAUDE_GREEN}● Starting Enhanced Version...${CLAUDE_RESET}"
+                    echo ""
+                    sleep 1
+                    bash "$SCRIPT_DIR/sparc-e-init"
+                    break
+                    ;;
+                3)
+                    echo ""
+                    echo -e "${CLAUDE_GREY}👋 Goodbye!${CLAUDE_RESET}"
+                    exit 0
+                    ;;
+            esac
+        fi
+    done
+}
+
+# Run the interactive menu
+handle_selection

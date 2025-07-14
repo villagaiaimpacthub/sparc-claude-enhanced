@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PostToolUse": {
+      "pattern": "Edit|Write|MultiEdit",
+      "command": "sparc-cli update-memory --file \"$FILE_PATH\" --namespace \"$(sparc-cli get-namespace)\" --tool \"$TOOL_NAME\"",
+      "description": "Auto-update SPARC memory when files are modified"
+    },
+    "PreToolUse": {
+      "pattern": ".*",
+      "command": "sparc-cli check-sparc-active",
+      "description": "Check if SPARC mode is active and provide context"
+    },
+    "Notification": {
+      "pattern": ".*",
+      "command": "sparc-cli log-activity --event \"$EVENT\" --namespace \"$(sparc-cli get-namespace)\"",
+      "description": "Log all Claude Code activities for SPARC analysis"
+    }
+  },
+  "settings": {
+    "auto_memory_update": true,
+    "namespace_isolation": true,
+    "agent_monitoring": true,
+    "context_preservation": true
+  }
+}

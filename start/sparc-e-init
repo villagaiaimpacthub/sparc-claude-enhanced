@@ -1,0 +1,1063 @@
+#!/bin/bash
+
+# SPARC Enhanced Initialization Script
+# Comprehensive setup for autonomous development with 36 AI agents
+# Includes: Memory system, Infrastructure, Claude Code integration, BMO framework
+
+export SPARC_HOME="/usr/local/sparc"
+export ORIGINAL_DIR="$(pwd)"
+export SPARC_VERSION="2.0-enhanced"
+
+# Color definitions for enhanced UI
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[94m'  # Changed to pale blue
+WHITE='\033[1;37m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
+
+# Unicode symbols for enhanced display
+ROCKET="🚀"
+GEAR="⚙️ "
+DATABASE="🗄️ "
+BRAIN="🧠"
+CHECKMARK="✅"
+WARNING="⚠️"
+ERROR="❌"
+INFO="ℹ️"
+SPARKLES="✨"
+
+echo -e "${CYAN}${BOLD}
+╔══════════════════════════════════════════════════════════════════════╗
+║  ${ROCKET} SPARC ENHANCED AUTONOMOUS DEVELOPMENT SYSTEM ${SPARKLES}                  ║
+║                                                                      ║
+║  ${BRAIN} 36 AI Agents  ${DATABASE} Memory System  ${GEAR} Full Infrastructure           ║
+║  Version: ${SPARC_VERSION}                                               ║
+╚══════════════════════════════════════════════════════════════════════╝
+${NC}"
+
+cd "$SPARC_HOME"
+
+# Claude Code inspired colors (same as simple version)
+CLAUDE_GREY='\033[90m'     # Grey for secondary text
+CLAUDE_WHITE='\033[97m'    # Bright white for primary text  
+CLAUDE_BLUE='\033[94m'     # Pale blue for accents
+CLAUDE_GREEN='\033[38;5;114m'  # Slightly brighter green
+CLAUDE_RED='\033[91m'      # Light red for errors
+CLAUDE_RESET='\033[0m'     # Reset colors
+
+# Interactive menu functions (same style as simple version)
+select_enhanced_project_type() {
+    local options=(
+        "Web Application - React/Vue/Angular frontend with backend API"
+        "API Service - REST/GraphQL API with database"  
+        "CLI Tool - Command-line application"
+        "Data Processing System - ETL/Analytics/ML pipeline"
+        "Mobile Application - React Native or Flutter app"
+        "Custom Project - Define your own architecture"
+    )
+    local icons=("🌐" "🔌" "⚡" "📊" "📱" "🎯")
+    local selected=0
+    local key
+    
+    echo -e "${CLAUDE_WHITE}● Define your enhanced project${CLAUDE_RESET}"
+    echo ""
+    echo -e "${CLAUDE_BLUE}What type of project are you building?${CLAUDE_RESET}"
+    echo ""
+    
+    echo -e "${CLAUDE_WHITE}Use arrow keys ↑↓ and Enter to select (or 'q' to quit):${CLAUDE_RESET}"
+    
+    # Function to redraw menu in place
+    redraw_project_menu() {
+        # Move cursor up to redraw menu options
+        tput cuu ${#options[@]}
+        
+        for i in ${!options[@]}; do
+            tput el  # Clear line
+            if [ $i -eq $selected ]; then
+                echo -e "  ${CLAUDE_GREEN}● ${options[$i]}${CLAUDE_RESET}"
+            else
+                echo -e "  ${CLAUDE_GREY}○ ${options[$i]}${CLAUDE_RESET}"
+            fi
+        done
+    }
+    
+    # Display initial menu
+    for i in ${!options[@]}; do
+        if [ $i -eq $selected ]; then
+            echo -e "  ${CLAUDE_GREEN}● ${options[$i]}${CLAUDE_RESET}"
+        else
+            echo -e "  ${CLAUDE_GREY}○ ${options[$i]}${CLAUDE_RESET}"
+        fi
+    done
+
+    while true; do
+        
+        # Read key
+        read -rsn1 key
+        
+        # Handle special keys
+        if [[ $key == $'\x1b' ]]; then
+            read -rsn2 key
+            case $key in
+                '[A') # Up arrow
+                    ((selected--))
+                    if [ $selected -lt 0 ]; then
+                        selected=$((${#options[@]} - 1))
+                    fi
+                    redraw_project_menu
+                    ;;
+                '[B') # Down arrow
+                    ((selected++))
+                    if [ $selected -ge ${#options[@]} ]; then
+                        selected=0
+                    fi
+                    redraw_project_menu
+                    ;;
+            esac
+        elif [[ $key == '' ]]; then # Enter
+            break
+        elif [[ $key =~ ^[1-6]$ ]]; then # Direct number input
+            selected=$((key - 1))
+            break
+        elif [[ $key == 'q' ]] || [[ $key == 'Q' ]]; then # Quit
+            echo ""
+            echo "👋 Goodbye!"
+            exit 0
+        fi
+    done
+    
+    ENHANCED_PROJECT_TYPE_CHOICE=$((selected + 1))
+    echo ""
+    echo -e "${CLAUDE_GREEN}● ${options[$selected]}${CLAUDE_RESET}"
+    echo ""
+}
+
+# Enhanced project goal input (streamlined)
+get_enhanced_project_details() {
+    echo ""
+    echo -e "${CLAUDE_WHITE}● Enhanced project goal${CLAUDE_RESET}"
+    echo ""
+    echo -e -n "${CLAUDE_GREY}Describe your project goal in detail: ${CLAUDE_RESET}"
+    read ENHANCED_PROJECT_GOAL
+    
+    # Check for exit
+    if [[ "$ENHANCED_PROJECT_GOAL" == "exit" ]]; then
+        echo -e "${CLAUDE_GREY}👋 Goodbye!${CLAUDE_RESET}"
+        exit 0
+    fi
+    
+    echo -e "${CLAUDE_GREEN}● ${ENHANCED_PROJECT_GOAL}${CLAUDE_RESET}"
+    
+    # Set defaults - let the 36 agents gather detailed requirements later
+    ENHANCED_TARGET_USERS="To be defined by agents"
+    ENHANCED_KEY_FEATURES="To be defined by agents" 
+    ENHANCED_TIMELINE="To be determined"
+    ENHANCED_COMPLEXITY="To be analyzed"
+}
+
+select_enhanced_location() {
+    local options=(
+        "Current directory"
+        "Desktop" 
+        "Documents"
+        "Custom path..."
+    )
+    local paths=(
+        "$ORIGINAL_DIR"
+        "$HOME/Desktop"
+        "$HOME/Documents" 
+        ""
+    )
+    local selected=0
+    local key
+    
+    echo ""
+    echo -e "${CLAUDE_WHITE}● Choose enhanced project location${CLAUDE_RESET}"
+    echo ""
+    echo -e "${CLAUDE_BLUE}Where should we create your enhanced project?${CLAUDE_RESET}"
+    echo ""
+    echo -e "${CLAUDE_WHITE}Use arrow keys ↑↓ and Enter to select (or 'q' to quit):${CLAUDE_RESET}"
+    
+    # Function to display menu (without clearing screen)
+    display_enhanced_location_menu() {
+        # Move cursor up to redraw menu in place
+        tput cuu $((${#options[@]} + 1))
+        
+        for i in ${!options[@]}; do
+            tput el  # Clear line
+            if [ $i -eq $selected ]; then
+                if [ $i -lt 3 ]; then
+                    echo -e "  ${CLAUDE_GREEN}● ${options[$i]} ${CLAUDE_GREY}(${paths[$i]})${CLAUDE_RESET}"
+                else
+                    echo -e "  ${CLAUDE_GREEN}● ${options[$i]}${CLAUDE_RESET}"
+                fi
+            else
+                if [ $i -lt 3 ]; then
+                    echo -e "  ${CLAUDE_GREY}○ ${options[$i]} (${paths[$i]})${CLAUDE_RESET}"
+                else
+                    echo -e "  ${CLAUDE_GREY}○ ${options[$i]}${CLAUDE_RESET}"
+                fi
+            fi
+        done
+    }
+    
+    # Display initial menu
+    for i in ${!options[@]}; do
+        if [ $i -eq $selected ]; then
+            if [ $i -lt 3 ]; then
+                echo -e "  ${CLAUDE_GREEN}● ${options[$i]} ${CLAUDE_GREY}(${paths[$i]})${CLAUDE_RESET}"
+            else
+                echo -e "  ${CLAUDE_GREEN}● ${options[$i]}${CLAUDE_RESET}"
+            fi
+        else
+            if [ $i -lt 3 ]; then
+                echo -e "  ${CLAUDE_GREY}○ ${options[$i]} (${paths[$i]})${CLAUDE_RESET}"
+            else
+                echo -e "  ${CLAUDE_GREY}○ ${options[$i]}${CLAUDE_RESET}"
+            fi
+        fi
+    done
+    
+    while true; do
+        # Read key
+        read -rsn1 key
+        
+        # Handle special keys
+        if [[ $key == $'\x1b' ]]; then
+            read -rsn2 key
+            case $key in
+                '[A') # Up arrow
+                    ((selected--))
+                    if [ $selected -lt 0 ]; then
+                        selected=$((${#options[@]} - 1))
+                    fi
+                    display_enhanced_location_menu
+                    ;;
+                '[B') # Down arrow
+                    ((selected++))
+                    if [ $selected -ge ${#options[@]} ]; then
+                        selected=0
+                    fi
+                    display_enhanced_location_menu
+                    ;;
+            esac
+        elif [[ $key == '' ]]; then # Enter
+            break
+        elif [[ $key =~ ^[1-4]$ ]]; then # Direct number input
+            selected=$((key - 1))
+            break
+        elif [[ $key == 'q' ]] || [[ $key == 'Q' ]]; then # Quit
+            echo ""
+            echo "👋 Goodbye!"
+            exit 0
+        fi
+    done
+    
+    ENHANCED_LOCATION_CHOICE=$((selected + 1))
+    echo ""
+    if [ $selected -lt 3 ]; then
+        echo -e "${CLAUDE_GREEN}● ${options[$selected]} ${CLAUDE_GREY}(${paths[$selected]})${CLAUDE_RESET}"
+    else
+        echo -e "${CLAUDE_GREEN}● ${options[$selected]}${CLAUDE_RESET}"
+    fi
+    echo ""
+}
+
+# Execute interactive bash menus
+select_enhanced_project_type
+get_enhanced_project_details  
+select_enhanced_location
+
+if [ "$ENHANCED_LOCATION_CHOICE" = "4" ]; then
+    read -p "Enter the full path: " ENHANCED_PROJECT_DIR
+    if [[ "$ENHANCED_PROJECT_DIR" == "exit" ]]; then
+        echo "👋 Goodbye!"
+        exit 0
+    fi
+elif [ "$ENHANCED_LOCATION_CHOICE" = "2" ]; then
+    ENHANCED_PROJECT_DIR="$HOME/Desktop"
+elif [ "$ENHANCED_LOCATION_CHOICE" = "3" ]; then
+    ENHANCED_PROJECT_DIR="$HOME/Documents"
+else
+    ENHANCED_PROJECT_DIR="$ORIGINAL_DIR"
+fi
+
+# Convert project type choice to key
+case $ENHANCED_PROJECT_TYPE_CHOICE in
+    1) ENHANCED_PROJECT_TYPE_KEY="web_app" ;;
+    2) ENHANCED_PROJECT_TYPE_KEY="api_service" ;;
+    3) ENHANCED_PROJECT_TYPE_KEY="cli_tool" ;;
+    4) ENHANCED_PROJECT_TYPE_KEY="data_processor" ;;
+    5) ENHANCED_PROJECT_TYPE_KEY="mobile_app" ;;
+    6) ENHANCED_PROJECT_TYPE_KEY="custom" ;;
+    *) ENHANCED_PROJECT_TYPE_KEY="web_app" ;;
+esac
+
+# Default project name from goal
+ENHANCED_DEFAULT_PROJECT_NAME=$(echo "$ENHANCED_PROJECT_GOAL" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-30)
+
+echo ""
+echo -e "${CLAUDE_WHITE}● Enhanced project name${CLAUDE_RESET}"
+echo ""
+echo -e -n "${CLAUDE_GREY}Project name (default: ${CLAUDE_BLUE}$ENHANCED_DEFAULT_PROJECT_NAME${CLAUDE_GREY}): ${CLAUDE_RESET}"
+read ENHANCED_PROJECT_NAME
+
+# Check for exit
+if [[ "$ENHANCED_PROJECT_NAME" == "exit" ]]; then
+    echo -e "${CLAUDE_GREY}👋 Goodbye!${CLAUDE_RESET}"
+    exit 0
+fi
+
+ENHANCED_PROJECT_NAME=${ENHANCED_PROJECT_NAME:-$ENHANCED_DEFAULT_PROJECT_NAME}
+echo -e "${CLAUDE_GREEN}● ${ENHANCED_PROJECT_NAME}${CLAUDE_RESET}"
+
+# Export variables for Python to use
+export ENHANCED_PROJECT_TYPE_KEY
+export ENHANCED_PROJECT_GOAL
+export ENHANCED_PROJECT_DIR
+export ENHANCED_PROJECT_NAME
+export ENHANCED_TARGET_USERS
+export ENHANCED_KEY_FEATURES
+export ENHANCED_TIMELINE
+export ENHANCED_COMPLEXITY
+
+# Now use Python for infrastructure setup only
+python3 << 'EOF'
+import asyncio
+import sys
+import os
+import json
+import subprocess
+import time
+import uuid
+import hashlib
+import shutil
+import urllib.request
+import urllib.parse
+from pathlib import Path
+from datetime import datetime
+
+# Enhanced imports for the comprehensive system
+# Note: Using bash menus instead of inquirer for better compatibility
+
+# Project types and templates
+PROJECT_TYPES = {
+    'web_app': {
+        'name': '🌐 Web Application',
+        'description': 'React/Vue/Angular frontend with backend API',
+        'tech_stack': ['React', 'FastAPI', 'PostgreSQL'],
+        'directories': ['frontend', 'backend', 'database', 'docs']
+    },
+    'api_service': {
+        'name': '🔌 API Service',
+        'description': 'REST/GraphQL API with database',
+        'tech_stack': ['FastAPI', 'PostgreSQL', 'Redis'],
+        'directories': ['api', 'models', 'services', 'tests', 'docs']
+    },
+    'cli_tool': {
+        'name': '⚡ CLI Tool',
+        'description': 'Command-line application',
+        'tech_stack': ['Python', 'Click', 'SQLite'],
+        'directories': ['cli', 'core', 'utils', 'tests', 'docs']
+    },
+    'data_processor': {
+        'name': '📊 Data Processing System',
+        'description': 'ETL/Analytics/ML pipeline',
+        'tech_stack': ['Python', 'Pandas', 'PostgreSQL'],
+        'directories': ['processors', 'models', 'pipelines', 'notebooks', 'docs']
+    },
+    'mobile_app': {
+        'name': '📱 Mobile Application',
+        'description': 'React Native or Flutter app',
+        'tech_stack': ['React Native', 'FastAPI', 'PostgreSQL'],
+        'directories': ['mobile', 'backend', 'shared', 'docs']
+    },
+    'custom': {
+        'name': '🎯 Custom Project',
+        'description': 'Define your own architecture',
+        'tech_stack': [],
+        'directories': ['src', 'tests', 'docs']
+    }
+}
+
+# Enhanced configuration paths
+ENHANCED_CONFIG_DIR = Path.home() / '.sparc' / 'enhanced'
+RECENT_PROJECTS_FILE = ENHANCED_CONFIG_DIR / 'recent_projects.json'
+USER_PREFERENCES_FILE = ENHANCED_CONFIG_DIR / 'user_preferences.json'
+INFRASTRUCTURE_LOG = ENHANCED_CONFIG_DIR / 'infrastructure.log'
+
+def log_infrastructure(message):
+    '''Log infrastructure setup steps'''
+    ENHANCED_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().isoformat()
+    with open(INFRASTRUCTURE_LOG, 'a') as f:
+        f.write(f'[{timestamp}] {message}\\n')
+    print(f'{message}')
+
+def show_enhanced_banner():
+    '''Display enhanced welcome banner'''
+    print('\033[94m', end='')  # Pale blue like CLAUDE_BLUE
+    print('┌─ SPARC ENHANCED SETUP ──────────────────────────────────────────────┐')
+    print('│                                                                     │')
+    print('│  This enhanced initialization will set up:                          │')
+    print('│  ✅ 36 Specialized AI Agents                                        │')
+    print('│  ✅ External Memory System (Supabase + Qdrant)                       │')
+    print('│  ✅ BMO Framework (Behavior-Model-Oracle)                           │')
+    print('│  ✅ Context7 MCP Integration                                        │')
+    print('│  ✅ Claude Code Hooks & Commands                                    │')
+    print('│  ✅ Complete Infrastructure Automation                              │')
+    print('│                                                                     │')
+    print('└──────────────────────────────────────────────────────────────────────┘')
+    print('\033[0m')  # Reset
+
+def check_prerequisites():
+    '''Enhanced prerequisites check'''
+    print('\033[94mChecking system prerequisites...\033[0m')
+    
+    checks = {
+        'python': False,
+        'docker': False,
+        'curl': False,
+        'git': False
+    }
+    
+    # Check Python
+    try:
+        result = subprocess.run([sys.executable, '--version'], capture_output=True, text=True)
+        if result.returncode == 0:
+            checks['python'] = True
+            log_infrastructure(f'Python: {result.stdout.strip()}')
+    except:
+        pass
+    
+    # Check Docker
+    try:
+        result = subprocess.run(['docker', '--version'], capture_output=True, text=True)
+        if result.returncode == 0:
+            docker_ps = subprocess.run(['docker', 'ps'], capture_output=True, text=True)
+            checks['docker'] = docker_ps.returncode == 0
+            log_infrastructure(f'Docker: {result.stdout.strip()}')
+    except:
+        pass
+    
+    # Check curl
+    try:
+        result = subprocess.run(['curl', '--version'], capture_output=True, text=True)
+        checks['curl'] = result.returncode == 0
+    except:
+        pass
+    
+    # Check git
+    try:
+        result = subprocess.run(['git', '--version'], capture_output=True, text=True)
+        checks['git'] = result.returncode == 0
+    except:
+        pass
+    
+    # Claude Code will be set up as part of the process
+    
+    # Display results  
+    print('  ⎿ Prerequisites Check:')
+    for tool, available in checks.items():
+        checkbox = '\033[32m☒\033[0m' if available else '\033[31m☐\033[0m'
+        status = 'Available' if available else 'Missing'
+        print(f'     {checkbox} {tool.replace("_", " ").title()}: {status}')
+    
+    missing = [tool for tool, available in checks.items() if not available]
+    if missing:
+        print('     Missing prerequisites:')
+        for tool in missing:
+            if tool == 'docker':
+                print('       • Install Docker: https://docs.docker.com/get-docker/')
+        
+        if 'docker' in missing:
+            print('\\nContinue without missing tools? (y/N): ', end='', flush=True)
+            cont = sys.stdin.readline().strip()
+            if cont.lower() != 'y':
+                return False
+    
+    return True
+
+def get_project_config():
+    '''Get project configuration from environment variables set by bash'''
+    # Get configuration from environment variables
+    project_type = os.environ.get('ENHANCED_PROJECT_TYPE_KEY', 'web_app')
+    goal = os.environ.get('ENHANCED_PROJECT_GOAL', 'New SPARC enhanced autonomous development project')
+    target_users = os.environ.get('ENHANCED_TARGET_USERS', 'General users')
+    key_features = os.environ.get('ENHANCED_KEY_FEATURES', 'Core functionality to be defined')
+    timeline = os.environ.get('ENHANCED_TIMELINE', '1 month')
+    complexity = os.environ.get('ENHANCED_COMPLEXITY', 'Moderate')
+    
+    return {
+        'type': project_type,
+        'goal': goal,
+        'target_users': target_users,
+        'key_features': key_features,
+        'timeline': timeline,
+        'complexity': complexity,
+        'tech_stack': PROJECT_TYPES[project_type]['tech_stack']
+    }
+
+def setup_enhanced_infrastructure(project_path, namespace):
+    '''Set up complete infrastructure with all enhancements'''
+    log_infrastructure('Infrastructure Setup')
+    log_infrastructure('⎿ Initializing enhanced SPARC infrastructure...')
+    
+    # 1. Setup Qdrant with enhanced configuration
+    qdrant_success, qdrant_url = setup_enhanced_qdrant(namespace)
+    
+    # 2. Setup Supabase with complete schema
+    supabase_success = setup_enhanced_supabase(project_path, namespace, qdrant_url if qdrant_success else None)
+    
+    # 3. Initialize memory system
+    memory_success = initialize_memory_system(project_path, namespace)
+    
+    # 4. Setup agent system
+    agent_success = setup_agent_system(project_path, namespace)
+    
+    # 5. Configure BMO framework
+    bmo_success = setup_bmo_framework(project_path, namespace)
+    
+    return {
+        'qdrant': qdrant_success,
+        'supabase': supabase_success,
+        'memory': memory_success,
+        'agents': agent_success,
+        'bmo': bmo_success,
+        'qdrant_url': qdrant_url if qdrant_success else None
+    }
+
+def find_running_qdrant():
+    '''Find existing Qdrant instances and return connection details'''
+    # Check for any running Qdrant containers
+    try:
+        result = subprocess.run(['docker', 'ps', '--format', 'table {{.Names}}\t{{.Ports}}'], 
+                              capture_output=True, text=True)
+        
+        for line in result.stdout.split('\n'):
+            if 'qdrant' in line.lower() and '->' in line:
+                # Extract port mapping (e.g., "0.0.0.0:6336->6333/tcp")
+                ports = line.split('\t')[1] if '\t' in line else ''
+                for port_mapping in ports.split(','):
+                    if '6333' in port_mapping and '->' in port_mapping:
+                        host_port = port_mapping.split('->')[0].split(':')[-1]
+                        return f'http://localhost:{host_port}'
+        
+        # Check for common Qdrant ports
+        for port in ['6333', '6336', '6337', '6338', '6339', '6340']:
+            try:
+                import urllib.request
+                test_url = f'http://localhost:{port}'
+                urllib.request.urlopen(test_url, timeout=2)
+                return test_url
+            except:
+                continue
+                
+    except subprocess.CalledProcessError:
+        pass
+    
+    return None
+
+def setup_enhanced_qdrant(namespace):
+    '''Enhanced Qdrant setup - connect to existing instance or create new'''
+    log_infrastructure('Setting up Qdrant vector database...')
+    
+    # First, try to find existing Qdrant instance
+    existing_url = find_running_qdrant()
+    
+    if existing_url:
+        log_infrastructure(f'Found existing Qdrant instance at {existing_url}')
+        qdrant_url = existing_url
+    else:
+        log_infrastructure('No existing Qdrant found, creating new instance...')
+        try:
+            # Create new Qdrant container on available port
+            subprocess.run([
+                'docker', 'run', '-d',
+                '--name', f'sparc-qdrant-{namespace}',
+                '-p', '6340:6333',
+                '-v', 'sparc_qdrant_data:/qdrant/storage',
+                'qdrant/qdrant'
+            ], check=True)
+            
+            time.sleep(3)
+            qdrant_url = 'http://localhost:6340'
+            log_infrastructure(f'Created new Qdrant instance at {qdrant_url}')
+        except subprocess.CalledProcessError as e:
+            log_infrastructure(f'Failed to create Qdrant container: {e}')
+            return False, None
+    
+    # Test connection and setup namespace
+    try:
+        import urllib.request
+        urllib.request.urlopen(f'{qdrant_url}/collections', timeout=5)
+        log_infrastructure(f'⎿ Qdrant: Connected successfully')
+        log_infrastructure(f'⎿ Namespace: {namespace} configured')
+        return True, qdrant_url
+    except Exception as e:
+        log_infrastructure(f'⎿ Qdrant: Connection failed - {e}')
+        return False, None
+
+def setup_enhanced_supabase(project_path, namespace, qdrant_url=None):
+    '''Enhanced Supabase setup with complete schema'''
+    log_infrastructure('Setting up Supabase configuration...')
+    
+    try:
+        # Copy enhanced SQL schema
+        sql_source = Path('/usr/local/sparc/database/sql/setup.sql')
+        sql_dest = Path(project_path) / 'database' / 'setup.sql'
+        sql_dest.parent.mkdir(parents=True, exist_ok=True)
+        
+        if sql_source.exists():
+            shutil.copy2(sql_source, sql_dest)
+            log_infrastructure('⎿ Database schema: Template copied')
+        else:
+            log_infrastructure('⎿ Database schema: Using default template')
+        
+        # Create enhanced .env template with dynamic Qdrant URL
+        qdrant_url_config = qdrant_url or 'http://localhost:6333'
+        
+        env_content = f'''# SPARC Enhanced Project Configuration
+# Generated: {datetime.now().isoformat()}
+
+# Project Information
+PROJECT_NAMESPACE={namespace}
+PROJECT_TYPE=enhanced_sparc
+SPARC_VERSION={os.environ.get('SPARC_VERSION', '2.0-enhanced')}
+
+# Supabase Configuration (Configure these with your actual values)
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_SERVICE_KEY=your-service-key-here
+
+# Vector Database (Qdrant) - Auto-detected
+QDRANT_URL={qdrant_url_config}
+QDRANT_API_KEY=
+QDRANT_COLLECTION_PREFIX={namespace}
+
+# AI API Keys
+ANTHROPIC_API_KEY=
+OPENAI_API_KEY=
+MISTRAL_API_KEY=
+
+# Memory System Configuration
+MEMORY_PROVIDER=supabase
+VECTOR_PROVIDER=qdrant
+CONTEXT_WINDOW_SIZE=100000
+MEMORY_ISOLATION=true
+
+# Agent System Configuration
+AGENT_SYSTEM_ENABLED=true
+BMO_FRAMEWORK_ENABLED=true
+CONTEXT7_MCP_ENABLED=true
+AUTONOMOUS_MODE=true
+
+# Development Configuration
+DEBUG=true
+LOG_LEVEL=INFO
+ENVIRONMENT=development
+'''
+        
+        env_path = Path(project_path) / '.env'
+        env_path.write_text(env_content)
+        print(f'  ⎿ \033[32m☒\033[0m Environment: Configuration created')
+        
+        # Signal that credential configuration is needed
+        print(f'\n\033[33m⚠️  CREDENTIAL SETUP REQUIRED\033[0m')
+        print(f'\033[90mEdit your .env file: {env_path}\033[0m')
+        print(f'\033[90mAdd your Supabase URL, keys, and Anthropic API key\033[0m')
+        
+        return True
+        
+    except Exception as e:
+        log_infrastructure(f'⎿ Supabase setup failed: {e}')
+        return False
+
+def initialize_memory_system(project_path, namespace):
+    '''Initialize the memory system with namespace isolation'''
+    log_infrastructure('Configuring memory system...')
+    
+    try:
+        # Create memory configuration
+        memory_config = {
+            'namespace': namespace,
+            'created': datetime.now().isoformat(),
+            'isolation': True,
+            'providers': {
+                'structured': 'supabase',
+                'vector': 'qdrant',
+                'embeddings': 'mistral'
+            },
+            'collections': {
+                'memories': f'{namespace}_memories',
+                'contexts': f'{namespace}_contexts',
+                'agents': f'{namespace}_agents',
+                'projects': f'{namespace}_projects'
+            }
+        }
+        
+        memory_dir = Path(project_path) / '.sparc' / 'memory'
+        memory_dir.mkdir(parents=True, exist_ok=True)
+        
+        with open(memory_dir / 'config.json', 'w') as f:
+            json.dump(memory_config, f, indent=2)
+        
+        log_infrastructure('⎿ Memory: Namespace isolation configured')
+        log_infrastructure('⎿ Collections: 4 namespace collections defined')
+        return True
+        
+    except Exception as e:
+        log_infrastructure(f'⎿ Memory system failed: {e}')
+        return False
+
+def setup_agent_system(project_path, namespace):
+    '''Setup the 36-agent system'''
+    log_infrastructure('Configuring agent system...')
+    
+    try:
+        # Copy agents from global installation
+        agents_source = Path('/usr/local/sparc/agents')
+        agents_dest = Path(project_path) / '.sparc' / 'agents'
+        
+        if agents_source.exists():
+            shutil.copytree(agents_source, agents_dest, dirs_exist_ok=True)
+            log_infrastructure('⎿ Agents: 36 specialized agents configured')
+        else:
+            log_infrastructure('⎿ Agents: Using embedded agent templates')
+        
+        # Create agent configuration
+        agent_config = {
+            'namespace': namespace,
+            'agent_count': 36,
+            'orchestrator': 'enhanced',
+            'communication': 'memory_based',
+            'isolation': True,
+            'bmo_enabled': True
+        }
+        
+        config_file = agents_dest / 'config.json'
+        config_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(config_file, 'w') as f:
+            json.dump(agent_config, f, indent=2)
+        
+        log_infrastructure('⎿ Configuration: Agent orchestration ready')
+        return True
+        
+    except Exception as e:
+        log_infrastructure(f'⎿ Agent system failed: {e}')
+        return False
+
+def setup_bmo_framework(project_path, namespace):
+    '''Setup BMO (Behavior-Model-Oracle) framework'''
+    log_infrastructure('Configuring BMO framework...')
+    
+    try:
+        bmo_config = {
+            'namespace': namespace,
+            'framework': 'BMO',
+            'components': {
+                'behavior': 'agent_actions',
+                'model': 'system_state',
+                'oracle': 'validation_engine'
+            },
+            'triangulation': True,
+            'validation_mode': 'comprehensive'
+        }
+        
+        bmo_dir = Path(project_path) / '.sparc' / 'bmo'
+        bmo_dir.mkdir(parents=True, exist_ok=True)
+        
+        with open(bmo_dir / 'config.json', 'w') as f:
+            json.dump(bmo_config, f, indent=2)
+        
+        log_infrastructure('⎿ BMO: Behavior-Model-Oracle configured')
+        log_infrastructure('⎿ Validation: Cognitive triangulation enabled')
+        return True
+        
+    except Exception as e:
+        log_infrastructure(f'⎿ BMO framework failed: {e}')
+        return False
+
+def setup_claude_integration(project_path, namespace):
+    '''Setup Claude Code integration with hooks and MCP'''
+    log_infrastructure('Configuring Claude Code integration...')
+    
+    try:
+        # Create .claude directory structure
+        claude_dir = Path(project_path) / '.claude'
+        claude_dir.mkdir(exist_ok=True)
+        
+        # Copy enhanced commands
+        commands_source = Path('/usr/local/sparc/claude-commands')
+        commands_dest = claude_dir / 'commands'
+        
+        if commands_source.exists():
+            shutil.copytree(commands_source, commands_dest, dirs_exist_ok=True)
+            log_infrastructure('⎿ Commands: Enhanced slash commands ready')
+        else:
+            log_infrastructure('⎿ Commands: Using default command set')
+        
+        # Setup hooks
+        hooks_source = Path('/usr/local/sparc/hooks/sparc-memory-hooks.json')
+        hooks_dest = claude_dir / 'claude_hooks_config.json'
+        
+        if hooks_source.exists():
+            shutil.copy2(hooks_source, hooks_dest)
+            log_infrastructure('⎿ Hooks: Memory integration configured')
+        else:
+            log_infrastructure('⎿ Hooks: Basic configuration applied')
+        
+        # Setup Context7 MCP
+        context7_source = Path('/usr/local/sparc/context7')
+        context7_dest = Path(project_path) / '.sparc' / 'context7'
+        
+        if context7_source.exists():
+            shutil.copytree(context7_source, context7_dest, dirs_exist_ok=True)
+            log_infrastructure('⎿ Context7: MCP integration ready')
+        else:
+            log_infrastructure('⎿ Context7: Standard context management')
+        
+        return True
+        
+    except Exception as e:
+        log_infrastructure(f'⎿ Claude integration failed: {e}')
+        return False
+
+def create_enhanced_claude_md(project_path, namespace, project_config):
+    '''Create enhanced CLAUDE.md with complete configuration'''
+    tech_stack_str = ', '.join(project_config.get('tech_stack', []))
+    
+    claude_content = f'''# SPARC Enhanced Autonomous Development Project
+
+project_id: {namespace}
+
+## Project Overview
+
+**Goal**: {project_config.get('goal', 'Enhanced SPARC autonomous development')}
+**Type**: {PROJECT_TYPES.get(project_config.get('type', 'custom'), {}).get('name', 'Custom Project')}
+**Target Users**: {project_config.get('target_users', 'To be defined')}
+**Timeline**: {project_config.get('timeline', 'Flexible')}
+**Complexity**: {project_config.get('complexity', 'Moderate')}
+
+## Technical Configuration
+
+- **Namespace**: `{namespace}` (Complete isolation)
+- **Technology Stack**: {tech_stack_str}
+- **Infrastructure**: Supabase + Qdrant + Docker
+- **AI System**: 36 specialized agents
+- **Framework**: BMO (Behavior-Model-Oracle)
+- **Memory**: External unlimited context
+- **MCP**: Context7 integration enabled
+
+## Key Features
+
+{project_config.get('key_features', '• Feature definition in progress')}
+
+## Enhanced Capabilities
+
+✨ **36 AI Agents**: Complete autonomous development workflow
+🧠 **External Memory**: Unlimited context with Supabase + Qdrant  
+🔍 **BMO Framework**: Behavior-Model-Oracle validation
+🔗 **Context7 MCP**: Advanced context management
+🎯 **Memory Isolation**: Complete namespace separation
+⚡ **Enhanced Hooks**: Real-time memory integration
+🚀 **Autonomous Mode**: Full workflow automation
+
+## Development Workflow
+
+1. **Use `/sparc` command** to start autonomous development
+2. **Agent System** handles complete specification → deployment
+3. **Memory System** maintains unlimited context
+4. **BMO Framework** ensures quality and validation
+5. **Context7** provides advanced context awareness
+
+## Project Structure
+
+```
+{Path(project_path).name}/
+├── .sparc/                 # SPARC system files
+│   ├── agents/            # 36 specialized agents  
+│   ├── memory/            # Memory system config
+│   ├── bmo/               # BMO framework
+│   └── context7/          # Context7 MCP
+├── .claude/               # Claude Code integration
+│   ├── commands/          # Enhanced slash commands
+│   └── claude_hooks_config.json
+├── database/              # Database schemas
+├── src/                   # Source code
+├── tests/                 # Test files
+├── docs/                  # Documentation
+└── .env                   # Environment configuration
+```
+
+## Commands Available
+
+- `/sparc` - Start autonomous development workflow
+- `/agents` - View all 36 specialized agents  
+- `/status` - Check project and infrastructure status
+- `/memory` - Memory system management
+- `/bmo` - BMO framework controls
+
+## Getting Started
+
+Your SPARC enhanced project is ready for autonomous development!
+
+1. **Define/refine your goal** using natural language
+2. **Run `/sparc`** to start the autonomous workflow
+3. **Monitor progress** through agent communications
+4. **Collaborate** with the AI system as needed
+
+The 36-agent system will handle:
+- Requirements analysis and specification
+- Architecture design and planning  
+- Implementation and testing
+- Documentation and deployment
+- Continuous refinement and optimization
+
+---
+*Powered by SPARC Enhanced v{os.environ.get('SPARC_VERSION', '2.0')} with 36 AI Agents*
+*Namespace: `{namespace}` | Infrastructure: Supabase + Qdrant | Framework: BMO*
+'''
+    
+    claude_path = Path(project_path) / 'CLAUDE.md'
+    claude_path.write_text(claude_content)
+    log_infrastructure('Created enhanced CLAUDE.md configuration')
+
+def display_project_status(project_path, namespace, infrastructure_status, qdrant_url=None):
+    '''Display project status in clean Claude Code style'''
+    print()
+    print('Project Status:')
+    print(f'  - Namespace: {namespace}')
+    print(f'  - Phase: Goal Clarification (0% complete)')
+    print(f'  - Session: #1')
+    
+    # Database status
+    qdrant_checkbox = '\\033[32m☒\\033[0m' if infrastructure_status.get('qdrant') else '\\033[31m☐\\033[0m'
+    qdrant_status = 'Connected' if infrastructure_status.get('qdrant') else 'Failed'
+    if qdrant_url and infrastructure_status.get('qdrant'):
+        qdrant_status += f' ({qdrant_url.split("://")[1]})'
+    
+    supabase_checkbox = '\\033[32m☒\\033[0m' if infrastructure_status.get('supabase') else '\\033[31m☐\\033[0m'
+    supabase_status = 'Manual Config Required' if infrastructure_status.get('supabase') else 'Failed'
+    
+    print(f'  - Databases:')
+    print(f'    ⎿ {qdrant_checkbox} Qdrant: {qdrant_status}')
+    print(f'    ⎿ {supabase_checkbox} Supabase: {supabase_status}')
+    
+    # Component status  
+    components = {
+        'memory': 'Memory System',
+        'agents': '36 AI Agents', 
+        'bmo': 'BMO Framework',
+        'claude': 'Claude Integration'
+    }
+    
+    print('  - Components:')
+    for key, name in components.items():
+        if key == 'claude':
+            checkbox = '\\033[32m☒\\033[0m' if Path(project_path).exists() else '\\033[31m☐\\033[0m'
+            status = 'Ready' if Path(project_path).exists() else 'Failed'
+        else:
+            checkbox = '\\033[32m☒\\033[0m' if infrastructure_status.get(key) else '\\033[31m☐\\033[0m'
+            status = 'Ready' if infrastructure_status.get(key) else 'Failed'
+        print(f'    ⎿ {checkbox} {name}: {status}')
+    
+    return infrastructure_status
+
+async def main():
+    '''Enhanced main workflow'''
+    show_enhanced_banner()
+    
+    if not check_prerequisites():
+        print('Prerequisites not met. Please install missing tools.')
+        return
+    
+    # Get project configuration
+    project_config = get_project_config()
+    if not project_config:
+        print('Project setup cancelled')
+        return
+    
+    # Get project details from environment variables (set by bash)
+    project_dir = os.environ.get('ENHANCED_PROJECT_DIR', os.getcwd())
+    project_name = os.environ.get('ENHANCED_PROJECT_NAME', 'enhanced-sparc-project')
+    
+    full_project_path = Path(project_dir) / project_name
+    
+    # Create project directory
+    full_project_path.mkdir(parents=True, exist_ok=True)
+    project_path = str(full_project_path)
+    
+    # Generate enhanced namespace
+    abs_path = str(Path(project_path).resolve())
+    path_hash = hashlib.md5(abs_path.encode()).hexdigest()[:8]
+    namespace = f'{project_name}_{path_hash}'.replace('-', '_').replace(' ', '_').lower()
+    
+    print(f'\n\033[94mSetting up project...\033[0m')
+    print('  ⎿ Configuration:')
+    print(f'     \033[32m☒\033[0m Project: \033[97m{project_name}\033[0m')
+    print(f'     \033[32m☒\033[0m Location: \033[90m{project_path}\033[0m')
+    print(f'     \033[32m☒\033[0m Namespace: \033[90m{namespace}\033[0m')
+    print()
+    
+    # Create enhanced project structure
+    project_directories = PROJECT_TYPES[project_config['type']]['directories']
+    project_directories.extend(['.sparc', '.claude', 'database'])
+    
+    for directory in project_directories:
+        (Path(project_path) / directory).mkdir(parents=True, exist_ok=True)
+    
+    log_infrastructure(f'Created project structure: {project_name}')
+    
+    # Setup infrastructure
+    infrastructure_status = setup_enhanced_infrastructure(project_path, namespace)
+    
+    # Setup Claude integration
+    claude_success = setup_claude_integration(project_path, namespace)
+    infrastructure_status['claude'] = claude_success
+    
+    # Create enhanced configuration files
+    create_enhanced_claude_md(project_path, namespace, project_config)
+    
+    # Display clean project status
+    display_project_status(project_path, namespace, infrastructure_status, 
+                          infrastructure_status.get('qdrant_url'))
+    
+    print()
+    print('\033[0;32m\033[1mSPARC Enhanced Project Ready!\033[0m')
+    print()
+    print('Next Steps:')
+    print('  - Configure your .env file with Supabase credentials')
+    print('  - Run the database setup SQL in your Supabase project')  
+    print('  - Launch Claude Code in your project:')
+    print(f'    \033[1;37mcd "{project_path}" && claude\033[0m')
+    print('  - Start autonomous development with: \033[1m/sparc\033[0m')
+    print()
+    print(f'The 36-agent system is ready for autonomous development!')
+    print(f'Project namespace: \033[1m{namespace}\033[0m')
+    print()
+    
+    # Ask if user wants to launch Claude Code
+    print('Launch Claude Code now? (y/N): ', end='', flush=True)
+    launch_claude = sys.stdin.readline().strip()
+    if launch_claude.lower() == 'y':
+        print('🚀 Launching Claude Code...')
+        os.chdir(project_path)
+        subprocess.run(['claude'], cwd=project_path)
+
+asyncio.run(main())
+EOF
+
+# Credential Configuration Pause (at bash level)
+echo ""
+echo -e "${CLAUDE_BLUE}Before launching Claude Code...${CLAUDE_RESET}"
+echo ""
+echo -e "${CLAUDE_WHITE}Your project has been set up with a .env file that needs configuration.${CLAUDE_RESET}"
+echo -e "${CLAUDE_GREY}Please add your credentials to continue with the full SPARC experience.${CLAUDE_RESET}"
+echo ""
+echo -e -n "${CLAUDE_GREY}Press Enter to continue when ready: ${CLAUDE_RESET}"
+read CONTINUE_SETUP

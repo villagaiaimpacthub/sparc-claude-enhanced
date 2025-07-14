@@ -42,22 +42,31 @@ cd sparc-claude-enhanced
 # Install dependencies
 uv install
 
-# Generate a complete application
-uv run lib/uber_orchestrator_enhanced.py --goal "build a user management API" --namespace my-project
+# Launch interactive initialization menu
+./start/sparc
 
-# Your application is ready in src/
-cd src && python main.py
-# Visit http://localhost:8000/docs for API documentation
+# Use arrow keys ↑↓ to select:
+# 🎯 Simple Version    - Quick setup with essential features
+# ✨ Enhanced Version  - Full setup with advanced features & UI
+# Then press Enter to start
+
+# Follow the interactive setup to generate your application
 ```
 
-### **Deploy with Docker**
+### **Alternative Startup Methods**
 
 ```bash
-# Generated applications include Docker support
-docker-compose up -d
+# Interactive menu (recommended)
+./start/sparc
 
-# Your API is now running at http://localhost:8000
-curl http://localhost:8000/health
+# Direct simple initialization
+./start/sparc-init
+
+# Direct enhanced initialization 
+./start/sparc-e-init
+
+# Command line (advanced users)
+uv run lib/uber_orchestrator_enhanced.py --goal "your goal" --namespace my-project
 ```
 
 ## 📊 **System Capabilities**
@@ -159,10 +168,12 @@ Quality Validation → Testing → Refinement → Completion
 
 ## 📚 **Documentation**
 
-- **[Quick Start Guide](SPARC_NATIVE_README.md)** - Get started in 5 minutes
-- **[Implementation Guide](IMPLEMENTATION_GUIDES.md)** - Technical implementation details
-- **[Production Checklist](PRODUCTION_READINESS_CHECKLIST.md)** - Production deployment guide
-- **[Validation Protocol](VALIDATION_PROTOCOL.md)** - Quality assurance procedures
+- **[Quick Start Guide](documentation/guides/SPARC_NATIVE_README.md)** - Get started in 5 minutes
+- **[Implementation Guide](documentation/guides/IMPLEMENTATION_GUIDES.md)** - Technical implementation details
+- **[Production Checklist](documentation/analysis/PRODUCTION_READINESS_CHECKLIST.md)** - Production deployment guide
+- **[Validation Protocol](documentation/guides/VALIDATION_PROTOCOL.md)** - Quality assurance procedures
+- **[Credits & Attribution](documentation/CREDITS.md)** - Acknowledgments and inspiration
+- **[Context7 Integration](documentation/CONTEXT7_INTEGRATION_GUIDE.md)** - MCP integration guide
 
 ## 🎖️ **Technical Achievements**
 
