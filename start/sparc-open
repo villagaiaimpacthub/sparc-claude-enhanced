@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# SPARC Enhanced Initialization Script - Simplified Version
-# Comprehensive setup for autonomous development with 36 AI agents
+# SPARC Project Opener - Navigate and Open Existing SPARC Projects
+# Browse through directories to find and open existing SPARC projects
 
 export SPARC_HOME="/usr/local/sparc"
 export ORIGINAL_DIR="$(pwd)"
-export SPARC_VERSION="2.0-enhanced"
+export SPARC_VERSION="2.0"
 
 echo -e "${CLAUDE_BLUE}"
 echo "╔══════════════════════════════════════════════════════════════════════╗"

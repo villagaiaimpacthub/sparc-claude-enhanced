@@ -44,9 +44,9 @@ handle_selection() {
     while true; do
         clear
         echo ""
-        echo -e "${CLAUDE_WHITE}🚀 SPARC Enhanced - Initialization${CLAUDE_RESET}"
+        echo -e "${CLAUDE_WHITE}🚀 SPARC - Autonomous Development${CLAUDE_RESET}"
         echo ""
-        echo -e "${CLAUDE_BLUE}Select your initialization experience:${CLAUDE_RESET}"
+        echo -e "${CLAUDE_BLUE}Select your action:${CLAUDE_RESET}"
         echo ""
         echo -e "${CLAUDE_WHITE}Use arrow keys ↑↓ and Enter to select:${CLAUDE_RESET}"
         
@@ -54,14 +54,14 @@ handle_selection() {
         for i in {1..3}; do
             if [ $i -eq $selected ]; then
                 case $i in
-                    1) echo -e "  ${CLAUDE_GREEN}● Simple Version${CLAUDE_RESET} ${CLAUDE_GREY}- Quick setup with essential features${CLAUDE_RESET}" ;;
-                    2) echo -e "  ${CLAUDE_GREEN}● Enhanced Version${CLAUDE_RESET} ${CLAUDE_GREY}- Full setup with advanced features & UI${CLAUDE_RESET}" ;;
+                    1) echo -e "  ${CLAUDE_GREEN}● Open Existing SPARC Project${CLAUDE_RESET} ${CLAUDE_GREY}- Browse and open existing projects${CLAUDE_RESET}" ;;
+                    2) echo -e "  ${CLAUDE_GREEN}● Initialize SPARC${CLAUDE_RESET} ${CLAUDE_GREY}- Create new autonomous development project${CLAUDE_RESET}" ;;
                     3) echo -e "  ${CLAUDE_GREEN}● Exit${CLAUDE_RESET}" ;;
                 esac
             else
                 case $i in
-                    1) echo -e "  ${CLAUDE_GREY}○ Simple Version - Quick setup with essential features${CLAUDE_RESET}" ;;
-                    2) echo -e "  ${CLAUDE_GREY}○ Enhanced Version - Full setup with advanced features & UI${CLAUDE_RESET}" ;;
+                    1) echo -e "  ${CLAUDE_GREY}○ Open Existing SPARC Project - Browse and open existing projects${CLAUDE_RESET}" ;;
+                    2) echo -e "  ${CLAUDE_GREY}○ Initialize SPARC - Create new autonomous development project${CLAUDE_RESET}" ;;
                     3) echo -e "  ${CLAUDE_GREY}○ Exit${CLAUDE_RESET}" ;;
                 esac
             fi
@@ -96,18 +96,18 @@ handle_selection() {
             case $selected in
                 1)
                     echo ""
-                    echo -e "${CLAUDE_GREEN}● Starting Simple Version...${CLAUDE_RESET}"
+                    echo -e "${CLAUDE_GREEN}● Opening SPARC Project Browser...${CLAUDE_RESET}"
                     echo ""
                     sleep 1
-                    bash "$SCRIPT_DIR/sparc-init"
+                    bash "$SCRIPT_DIR/sparc-open"
                     break
                     ;;
                 2)
                     echo ""
-                    echo -e "${CLAUDE_GREEN}● Starting Enhanced Version...${CLAUDE_RESET}"
+                    echo -e "${CLAUDE_GREEN}● Starting SPARC Initialization...${CLAUDE_RESET}"
                     echo ""
                     sleep 1
-                    bash "$SCRIPT_DIR/sparc-e-init"
+                    bash "$SCRIPT_DIR/sparc-init-sparc"
                     break
                     ;;
                 3)
@@ -124,18 +124,18 @@ handle_selection() {
             case $selected in
                 1)
                     echo ""
-                    echo -e "${CLAUDE_GREEN}● Starting Simple Version...${CLAUDE_RESET}"
+                    echo -e "${CLAUDE_GREEN}● Opening SPARC Project Browser...${CLAUDE_RESET}"
                     echo ""
                     sleep 1
-                    bash "$SCRIPT_DIR/sparc-init"
+                    bash "$SCRIPT_DIR/sparc-open"
                     break
                     ;;
                 2)
                     echo ""
-                    echo -e "${CLAUDE_GREEN}● Starting Enhanced Version...${CLAUDE_RESET}"
+                    echo -e "${CLAUDE_GREEN}● Starting SPARC Initialization...${CLAUDE_RESET}"
                     echo ""
                     sleep 1
-                    bash "$SCRIPT_DIR/sparc-e-init"
+                    bash "$SCRIPT_DIR/sparc-init-sparc"
                     break
                     ;;
                 3)

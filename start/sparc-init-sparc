@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# SPARC Enhanced Initialization Script
+# SPARC Initialization Script
 # Comprehensive setup for autonomous development with 36 AI agents
 # Includes: Memory system, Infrastructure, Claude Code integration, BMO framework
 
 export SPARC_HOME="/usr/local/sparc"
 export ORIGINAL_DIR="$(pwd)"
-export SPARC_VERSION="2.0-enhanced"
+export SPARC_VERSION="2.0"
 
 # Color definitions for enhanced UI
 RED='\033[0;31m'
@@ -32,7 +32,7 @@ SPARKLES="✨"
 
 echo -e "${CYAN}${BOLD}
 ╔══════════════════════════════════════════════════════════════════════╗
-║  ${ROCKET} SPARC ENHANCED AUTONOMOUS DEVELOPMENT SYSTEM ${SPARKLES}                  ║
+║  ${ROCKET} SPARC AUTONOMOUS DEVELOPMENT SYSTEM ${SPARKLES}                       ║
 ║                                                                      ║
 ║  ${BRAIN} 36 AI Agents  ${DATABASE} Memory System  ${GEAR} Full Infrastructure           ║
 ║  Version: ${SPARC_VERSION}                                               ║
@@ -524,7 +524,7 @@ def setup_enhanced_infrastructure(project_path, namespace):
         print(f'\033[90mEdit: {env_path}\033[0m')
         print(f'\033[90mAdd your Supabase URL, keys, and Anthropic API key\033[0m')
         print()
-        input(f'\033[90mPress Enter to continue after configuring your credentials...\033[0m')
+        # Note: Credential pause will be handled at bash level after Python script
         
         # Validate credentials were added
         try:
@@ -1020,3 +1020,17 @@ async def main():
 
 asyncio.run(main())
 EOF
+
+# Credential Configuration Pause (at bash level where input works properly)
+echo ""
+echo -e "${CLAUDE_BLUE}🔧 CREDENTIAL SETUP REQUIRED${CLAUDE_RESET}"
+echo ""
+echo -e "${CLAUDE_WHITE}Your project has been set up with a .env file that needs configuration.${CLAUDE_RESET}"
+echo -e "${CLAUDE_GREY}Please add your credentials to continue with the full SPARC experience.${CLAUDE_RESET}"
+echo ""
+echo -e "${CLAUDE_GREY}1. Configure your .env file with Supabase credentials${CLAUDE_RESET}"
+echo -e "${CLAUDE_GREY}2. Set up your Supabase database with the provided SQL schema${CLAUDE_RESET}"
+echo -e "${CLAUDE_BLUE}   📋 Dashboard: https://supabase.com/dashboard${CLAUDE_RESET}"
+echo ""
+echo -e -n "${CLAUDE_GREY}Press Enter to continue when ready: ${CLAUDE_RESET}"
+read CONTINUE_SETUP
