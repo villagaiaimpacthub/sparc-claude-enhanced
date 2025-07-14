@@ -976,7 +976,7 @@ async def main():
     display_project_status(project_path, namespace, infrastructure_status, 
                           infrastructure_status.get('qdrant_url'))
     
-    # Credential setup section
+    # End of Python setup - credential setup will be handled by bash
     print()
     print('\033[94m🔧 CREDENTIAL SETUP REQUIRED\033[0m')
     print()
@@ -990,28 +990,40 @@ async def main():
     sparc_home = os.environ.get('SPARC_HOME', '/usr/local/sparc')
     print(f'\033[94m   📄 SQL Schema: file://{sparc_home}/database/schema.sql\033[0m')
     print()
-    print('\033[90mPress Enter to continue when ready...\033[0m')
-    input()
     
-    print()
-    print('\033[0;32m\033[1mSPARC Project Ready!\033[0m')
-    print()
-    print('\033[97mLet\'s launch Claude Code, and remember when we do this window will disappear.\033[0m')
-    print('\033[97mSo run this command to start autonomous development: \033[1m/sparc\033[0m')
-    print()
-    
-    # Ask if user wants to launch Claude Code
-    print('Launch Claude Code now? (Y/n): ', end='', flush=True)
-    launch_claude = sys.stdin.readline().strip()
-    if launch_claude.lower() != 'n':
-        print('\033[94m🚀 Launching Claude Code...\033[0m')
-        os.chdir(project_path)
-        subprocess.run(['claude'], cwd=project_path)
-    else:
-        print()
-        print(f'\033[90mTo launch later: cd "{project_path}" && claude\033[0m')
-        print(f'\033[90mThen run: /sparc\033[0m')
+    # Export project path for bash to use
+    with open('/tmp/sparc_project_path', 'w') as f:
+        f.write(project_path)
 
 asyncio.run(main())
 EOF
+
+# Pause for credential setup (bash level where input works properly)
+echo -e -n "${CLAUDE_GREY}Press Enter to continue when ready: ${CLAUDE_RESET}"
+read CONTINUE_SETUP
+
+# Get project path from Python script
+PROJECT_PATH=$(cat /tmp/sparc_project_path 2>/dev/null || echo "$ENHANCED_FULL_PROJECT_PATH")
+rm -f /tmp/sparc_project_path
+
+echo ""
+echo -e "${CLAUDE_GREEN}\033[1mSPARC Project Ready!\033[0m"
+echo ""
+echo -e "${CLAUDE_WHITE}Let's launch Claude Code, and remember when we do this window will disappear.${CLAUDE_RESET}"
+echo -e "${CLAUDE_WHITE}So run this command to start autonomous development: \033[1m/sparc\033[0m${CLAUDE_RESET}"
+echo ""
+
+# Ask if user wants to launch Claude Code
+echo -e -n "${CLAUDE_WHITE}Launch Claude Code now? (Y/n): ${CLAUDE_RESET}"
+read LAUNCH_CLAUDE
+
+if [[ -z "$LAUNCH_CLAUDE" ]] || [[ "$LAUNCH_CLAUDE" =~ ^[Yy]$ ]]; then
+    echo -e "${CLAUDE_BLUE}🚀 Launching Claude Code...${CLAUDE_RESET}"
+    cd "$PROJECT_PATH"
+    claude
+else
+    echo ""
+    echo -e "${CLAUDE_GREY}To launch later: cd \"$PROJECT_PATH\" && claude${CLAUDE_RESET}"
+    echo -e "${CLAUDE_GREY}Then run: /sparc${CLAUDE_RESET}"
+fi
 
