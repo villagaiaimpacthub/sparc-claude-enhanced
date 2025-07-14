@@ -870,7 +870,7 @@ The 36-agent system will handle:
 def display_project_status(project_path, namespace, infrastructure_status, qdrant_url=None):
     '''Display project status in clean Claude Code style'''
     print()
-    print('Project Status:')
+    print('\033[95mProject Status:\033[0m')
     print(f'  - Namespace: {namespace}')
     print(f'  - Phase: Goal Clarification (0% complete)')
     print(f'  - Session: #1')
@@ -981,9 +981,9 @@ async def main():
     print('Launch Claude Code now? (Y/n): ', end='', flush=True)
     launch_claude = sys.stdin.readline().strip()
     if launch_claude.lower() != 'n':
-        print('\033[94m🚀 Launching Claude Code...\033[0m')
         os.chdir(project_path)
         try:
+            print('\033[94m🚀 Launching Claude Code...\033[0m')
             subprocess.run(['claude'], cwd=project_path, check=True)
         except (subprocess.CalledProcessError, FileNotFoundError):
             print('\033[33m⚠️  Claude Code not found. Please install Claude Code first.\033[0m')
@@ -1005,8 +1005,10 @@ echo -e "${CLAUDE_WHITE}Your project has been set up with a .env file that needs
 echo -e "${CLAUDE_GREY}Please add your credentials to continue with the full SPARC experience.${CLAUDE_RESET}"
 echo ""
 echo -e "${CLAUDE_GREY}1. Configure your .env file with Supabase credentials${CLAUDE_RESET}"
+echo -e "${CLAUDE_BLUE}   📝 Edit file: file://$ENHANCED_FULL_PROJECT_PATH/.env${CLAUDE_RESET}"
 echo -e "${CLAUDE_GREY}2. Set up your Supabase database with the provided SQL schema${CLAUDE_RESET}"
 echo -e "${CLAUDE_BLUE}   📋 Dashboard: https://supabase.com/dashboard${CLAUDE_RESET}"
+echo -e "${CLAUDE_BLUE}   📄 SQL Schema: file://$SPARC_HOME/database/schema.sql${CLAUDE_RESET}"
 echo ""
 echo -e -n "${CLAUDE_GREY}Press Enter to continue when ready: ${CLAUDE_RESET}"
 read CONTINUE_SETUP

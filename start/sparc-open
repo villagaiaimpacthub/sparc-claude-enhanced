@@ -50,15 +50,20 @@ browse_directories() {
             fi
         done < <(find "$current_dir" -maxdepth 1 -type d ! -path "$current_dir" -print0 2>/dev/null | sort -z)
         
-        # Find SPARC projects (directories with CLAUDE.md)
-        while IFS= read -r -d '' project; do
-            local basename=$(basename "$project")
-            sparc_projects+=("$basename")
-        done < <(find "$current_dir" -maxdepth 1 -name "CLAUDE.md" -exec dirname {} \; -print0 2>/dev/null | sort -z)
+        # Find SPARC projects (directories with CLAUDE.md in current directory only)
+        for item in "$current_dir"/*; do
+            if [[ -d "$item" && -f "$item/CLAUDE.md" ]]; then
+                local basename=$(basename "$item")
+                sparc_projects+=("$basename")
+            fi
+        done
         
         local all_items=()
         
-        # Add directories first
+        # Add back button at the top
+        all_items+=("⬅️  Back to main menu")
+        
+        # Add directories
         for dir in "${dirs[@]}"; do
             all_items+=("📁 $dir")
         done
@@ -68,8 +73,8 @@ browse_directories() {
             all_items+=("🚀 $project (SPARC Project)")
         done
         
-        # If no items, show message
-        if [[ ${#all_items[@]} -eq 0 ]]; then
+        # If no items except back button, show message
+        if [[ ${#all_items[@]} -eq 1 ]]; then
             all_items+=("(No directories or SPARC projects found)")
         fi
         
@@ -117,7 +122,7 @@ browse_directories() {
                     ;;
             esac
         elif [[ $key == '' ]]; then # Enter
-            if [[ ${#all_items[@]} -eq 1 && "${all_items[0]}" == "(No directories or SPARC projects found)" ]]; then
+            if [[ ${#all_items[@]} -eq 2 && "${all_items[1]}" == "(No directories or SPARC projects found)" ]]; then
                 echo ""
                 echo -e "${CLAUDE_GREY}No items to select in this directory.${CLAUDE_RESET}"
                 sleep 1
@@ -126,7 +131,10 @@ browse_directories() {
             
             local selected_item="${all_items[$selected]}"
             
-            if [[ "$selected_item" =~ ^📁\ (.+)$ ]]; then
+            if [[ "$selected_item" == "⬅️  Back to main menu" ]]; then
+                # Return to main menu
+                return
+            elif [[ "$selected_item" =~ ^📁\ (.+)$ ]]; then
                 # Navigate to directory
                 local dir_name="${BASH_REMATCH[1]}"
                 if [[ "$dir_name" == "../" ]]; then
