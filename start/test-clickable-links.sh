@@ -1,30 +1,23 @@
 #!/bin/bash
 
-# Test script for clickable terminal links
-# This demonstrates OSC 8 hyperlink sequences
+# Test script for Cmd+Click terminal links in macOS Terminal.app
 
-echo "🔗 Testing Clickable Terminal Links"
+echo "🔗 Testing Cmd+Click Terminal Links (macOS)"
 echo ""
-
-# Helper function to create clickable links
-make_clickable() {
-    local url="$1"
-    local text="${2:-$url}"
-    echo "\033]8;;${url}\033\\${text}\033]8;;\033\\"
-}
 
 echo "Terminal Support:"
-echo "✅ iTerm2, Terminal.app (macOS)"
-echo "✅ GNOME Terminal, Konsole (Linux)"  
-echo "✅ Windows Terminal"
-echo "✅ VS Code Integrated Terminal"
+echo "✅ Terminal.app: Cmd+Click on URLs"
+echo "✅ iTerm2: Cmd+Click on URLs"  
+echo "✅ Most terminals: Auto-detect file:// and https:// URLs"
 echo ""
 
-echo "Test Links:"
-echo "🌐 Web URL: $(make_clickable "https://claude.ai/code" "Claude Code Download")"
-echo "📝 File URL: $(make_clickable "file://$(pwd)" "Current Directory")"
-echo "📋 Dashboard: $(make_clickable "https://supabase.com/dashboard" "Supabase Dashboard")"
+echo "Test Links (use Cmd+Click):"
+echo "🌐 Web URL: https://claude.ai/code"
+echo "📝 File URL: file://$(pwd)"
+echo "📋 Dashboard: https://supabase.com/dashboard"
 echo ""
 
-echo "If your terminal supports OSC 8 sequences, these should be clickable!"
-echo "If not, they'll appear as regular text with underlying URLs."
+echo "Instructions:"
+echo "1. Hold Cmd and click on any URL above"
+echo "2. file:// URLs will open in Finder"
+echo "3. https:// URLs will open in your default browser"
