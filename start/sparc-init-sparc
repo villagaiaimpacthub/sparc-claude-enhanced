@@ -49,6 +49,14 @@ CLAUDE_GREEN='\033[38;5;114m'  # Slightly brighter green
 CLAUDE_RED='\033[91m'      # Light red for errors
 CLAUDE_RESET='\033[0m'     # Reset colors
 
+# Helper function to create clickable links
+# Supports: iTerm2, Terminal.app, GNOME Terminal, Konsole, Windows Terminal, VS Code Terminal
+make_clickable() {
+    local url="$1"
+    local text="${2:-$url}"
+    echo "\033]8;;${url}\033\\${text}\033]8;;\033\\"
+}
+
 # Interactive menu functions (same style as simple version)
 select_enhanced_project_type() {
     local options=(
@@ -991,7 +999,9 @@ async def main():
             subprocess.run(['claude'], cwd=project_path, check=True)
         except (subprocess.CalledProcessError, FileNotFoundError):
             print('\033[33m⚠️  Claude Code not found. Please install Claude Code first.\033[0m')
-            print(f'\033[90mInstall: https://claude.ai/code\033[0m')
+            # Create clickable link for Claude Code installation
+            install_link = '\033]8;;https://claude.ai/code\033\\https://claude.ai/code\033]8;;\033\\'
+            print(f'\033[90mInstall: {install_link}\033[0m')
             print(f'\033[90mThen run: cd "{project_path}" && claude\033[0m')
     else:
         print()
@@ -1009,10 +1019,10 @@ echo -e "${CLAUDE_WHITE}Your project has been set up with a .env file that needs
 echo -e "${CLAUDE_GREY}Please add your credentials to continue with the full SPARC experience.${CLAUDE_RESET}"
 echo ""
 echo -e "${CLAUDE_GREY}1. Configure your .env file with Supabase credentials${CLAUDE_RESET}"
-echo -e "${CLAUDE_BLUE}   📝 Edit file: file://$ENHANCED_FULL_PROJECT_PATH/.env${CLAUDE_RESET}"
+echo -e "${CLAUDE_BLUE}   📝 Edit file: $(make_clickable "file://$ENHANCED_FULL_PROJECT_PATH/.env" "$ENHANCED_FULL_PROJECT_PATH/.env")${CLAUDE_RESET}"
 echo -e "${CLAUDE_GREY}2. Set up your Supabase database with the provided SQL schema${CLAUDE_RESET}"
-echo -e "${CLAUDE_BLUE}   📋 Dashboard: https://supabase.com/dashboard${CLAUDE_RESET}"
-echo -e "${CLAUDE_BLUE}   📄 SQL Schema: file://$SPARC_HOME/database/schema.sql${CLAUDE_RESET}"
+echo -e "${CLAUDE_BLUE}   📋 Dashboard: $(make_clickable "https://supabase.com/dashboard" "https://supabase.com/dashboard")${CLAUDE_RESET}"
+echo -e "${CLAUDE_BLUE}   📄 SQL Schema: $(make_clickable "file://$SPARC_HOME/database/schema.sql" "$SPARC_HOME/database/schema.sql")${CLAUDE_RESET}"
 echo ""
 echo -e -n "${CLAUDE_GREY}Press Enter to continue when ready: ${CLAUDE_RESET}"
 read CONTINUE_SETUP
